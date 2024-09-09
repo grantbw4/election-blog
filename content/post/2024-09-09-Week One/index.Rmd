@@ -1,0 +1,78 @@
+---
+title: Week One - Basic Model
+author: Grant Williams
+date: '2024-09-08'
+categories: ["R"]
+tags: ["R Markdown", "plot", "regression"]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
+
+# Introduction
+
+In this first blog post, my goal is to explore two central questions:
+
+## 1) How competitive are presidential elections in the United States?
+
+## 2) Which states vote blue/red and how consistently?
+
+At the end of this blog post, I will also be sharing my first electoral map prediction for the 2024 presidential election. Each week from here on out, I will be updating this model to consider additional predictors like real-time polling averages, historical trends in the electoral college, demographic changes in the United States, and economic conditions, etc.
+
+The code used to produce these visualizations is publicly available in my [github repository](https://github.com/grantbw4/election-blog) and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, [Matthew Dardet](https://www.matthewdardet.com/harvard-election-analytics-2024/).
+
+# Analysis 
+
+To begin to answer the first question of **how competitive presidential election are in the United States,** I used popular vote data from 1948-2020 to construct a line plot of the two-party vote share of each presidential election within that time span. I considered only election years after WWII as these elections are the most likely to be substantively similar to the one that will take place in November 2024. Though an imperfect start place, the end of WWII offers a "cultural reset" of sorts that distinguishes the modern era from a less technologically advanced and socially interconnected past.
+
+
+```{r include = FALSE}
+# Load in needed libraries
+library(ggplot2)
+library(maps)
+library(tidyverse)
+
+# Read presidential popular vote. 
+d_popvote <- read_csv("popvote_1948-2020.csv")
+
+# Subset data to most recent past election year. 
+d_popvote %>% 
+  filter(year == 2020) %>%
+  select(party, candidate, pv2p)
+
+# Pivot data to wide format with party names as columns and two-party vote share as values.
+(d_popvote_wide <- d_popvote %>%
+  select(year, party, pv2p) %>%
+  pivot_wider(names_from = party, values_from = pv2p))
+
+# Modify winner column to show "D" if Democrats win and "R" if Republicans win. 
+(d_popvote_wide <- d_popvote_wide %>%
+  mutate(winner = case_when(democrat > republican ~ "D",
+                            TRUE ~ "R")))
+
+# Summarize data with respect to winners. 
+d_popvote_wide %>%
+  group_by(winner) %>%
+  summarise(races = n())
+```
+
+```{r echo = FALSE}
+
+ggplot(d_popvote, aes(x = year, y = pv2p, colour = party)) +
+    geom_line(stat = "identity") +
+    scale_color_manual(values = c("dodgerblue4", "firebrick1"), name = "") +
+    xlab("") + ## no need to label an obvious axis
+    ylab("Two-Party National Popular Vote (%)") +
+    ggtitle("Presidential Vote Share (1948-2020)") + 
+    scale_x_continuous(breaks = seq(1948, 2020, 4)) + theme_bw()
+```
+
+Make State by State Map
+
+
+# Citations:
+
+# Data Sources: 
+
+Data are from US presidential election popular vote results 1948-2020.
