@@ -32,6 +32,7 @@ To begin to answer the first question of **how competitive presidential election
 library(ggplot2)
 library(maps)
 library(tidyverse)
+library(gridExtra)
 
 # Read presidential popular vote. 
 d_popvote <- read_csv("popvote_1948-2020.csv")
@@ -209,7 +210,7 @@ total_votes <- 538
 
 # Create a stacked bar chart
 ggplot(df_2024, aes(x = "", y = electoral_votes, fill = winner)) +
-  geom_bar(stat = "identity", width = .3) +
+  geom_bar(stat = "identity", width = .8) +
   geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "white", size = 5) +
   scale_fill_manual(values = c("dodgerblue4", "firebrick1")) +
   coord_flip() +
@@ -235,37 +236,80 @@ df_2016 <- data.frame(
   electoral_votes = c(232, 306),
   stringsAsFactors = FALSE  
 )
+
+# Manually Include Popular Vote totals for 2016 and 2020
+
+df_2016_pv <- data.frame(
+  winner = c("D", "R"),
+  popular_vote = c(51.11, 48.89),
+  stringsAsFactors = FALSE  
+)
+
+df_2020_pv <- data.frame(
+  winner = c("D", "R"),
+  popular_vote = c(52.27, 47.73),
+  stringsAsFactors = FALSE  
+)
 ```
 
 ```{r echo = FALSE}
 
-# Create a stacked bar chart for 2016
-ggplot(df_2016, aes(x = "", y = electoral_votes, fill = winner)) +
-  geom_bar(stat = "identity", width = .3) +
+# Create an electoral college chart for 2016
+ec_2016 <- ggplot(df_2016, aes(x = "", y = electoral_votes, fill = winner)) +
+  geom_bar(stat = "identity", width = .8) +
   geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "white", size = 5) +
   scale_fill_manual(values = c("dodgerblue4", "firebrick1")) +
   coord_flip() +
   theme_void() +
-  theme(legend.position = "right", plot.title = element_text(hjust = 0.5))+ 
-  labs(fill = "Party", title = "2016 Presidential Election Results") +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5))+ 
+  labs(fill = "Party", title = "2016 Electoral College") +
   scale_y_continuous(limits = c(0, 538)) +
   geom_hline(yintercept = 270, color = "white", linetype = "dashed")
 
-# Create a stacked bar chart for 2020
+# Create a pv college chart for 2016
+pv_2016 <- ggplot(df_2016_pv, aes(x = "", y = popular_vote, fill = winner)) +
+  geom_bar(stat = "identity", width = .8) +
+  geom_text(aes(label = popular_vote), position = position_stack(vjust = 0.5), color = "white", size = 5) +
+  scale_fill_manual(values = c("dodgerblue4", "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5))+ 
+  labs(fill = "Party", title = "2016 Two-Party Popular Vote") +
+  scale_y_continuous(limits = c(0, 100)) +
+  geom_hline(yintercept = 50, color = "white", linetype = "dashed")
 
-ggplot(df_2020, aes(x = "", y = electoral_votes, fill = winner)) +
-  geom_bar(stat = "identity", width = .3) +
+# Create an electoral college chart for 2020
+ec_2020 <- ggplot(df_2020, aes(x = "", y = electoral_votes, fill = winner)) +
+  geom_bar(stat = "identity", width = .8) +
   geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "white", size = 5) +
   scale_fill_manual(values = c("dodgerblue4", "firebrick1")) +
   coord_flip() +
   theme_void() +
-  theme(legend.position = "right", plot.title = element_text(hjust = 0.5))+ 
-  labs(fill = "Party", title = "2020 Presidential Election Results") +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5))+ 
+  labs(fill = "Party", title = "2020 Electoral College") +
   scale_y_continuous(limits = c(0, 538)) +
   geom_hline(yintercept = 270, color = "white", linetype = "dashed")
+
+# Create a pv college chart for 2020
+pv_2020 <- ggplot(df_2020_pv, aes(x = "", y = popular_vote, fill = winner)) +
+  geom_bar(stat = "identity", width = .8) +
+  geom_text(aes(label = popular_vote), position = position_stack(vjust = 0.5), color = "white", size = 5) +
+  scale_fill_manual(values = c("dodgerblue4", "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5))+ 
+  labs(fill = "Party", title = "2020 Two-Party Popular Vote") +
+  scale_y_continuous(limits = c(0, 100)) +
+  geom_hline(yintercept = 50, color = "white", linetype = "dashed")
+
+grid.arrange(ec_2016, ec_2020, pv_2016, pv_2020, ncol = 2)
+
 ```
 
 # Citations:
+
+2016 Presidential Election Results NYT
+
 
 # Data Sources: 
 
