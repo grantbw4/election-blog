@@ -26,11 +26,6 @@ tags: ["R Markdown", "plot", "regression"]
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 <p>From this line plot, we can see that presidential elections have become increasingly competitive in recent decades, perhaps reflecting increased polarization in the country between the two major parties: Republican and Democratic. With the exception of 1948 and 1976, presidential elections after WWII and before 1992 did not produce national, two-party popular vote shares that were less than 10 percentage points apart. In the eight presidential elections following and including 1992, the two-party popular vote share has not <strong>exceeded</strong> 10 percentage points in difference, signalling that presidential elections in the United States have become very competitive in the last few decades.</p>
 <p>To answer the second question of <strong>which states vote blue/red and how consistently,</strong> I will produce a panel data set of the party of the candidate that took the majority of the popular vote in each state for each year between 1992 and 2020 and then use this panel data set to produce a grid of electoral maps for each year color-coded by the winning party for each state. I choose to begin with 1992 as this is when elections began to consistently tighten in the United States and I am chiefly interested in how states have voted within recent memory.</p>
-<pre><code>## Warning in left_join(filter(d_pvstate_wide, year &gt;= 1992), states_map, by = &quot;region&quot;): Detected an unexpected many-to-many relationship between `x` and `y`.
-## ℹ Row 1 of `x` matches multiple rows in `y`.
-## ℹ Row 1 of `y` matches multiple rows in `x`.
-## ℹ If a many-to-many relationship is expected, set `relationship =
-##   &quot;many-to-many&quot;` to silence this warning.</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <p>These graphs seem to reveal certain regional trends in voting behavior. The Northeast, West Coast, and Great Lakes states seem to pretty consistently vote for Democrats, whereas the South, Mountain West, and Plains states tend to vote for Republicans. Other regions, like the Midwest appear to be more variable. Just from visual inspection, there appear to certain states like Arizona, Michigan, and Pennsylvania, among others, that have voted for different parties in just the past two election cycles.</p>
 <p>Given that the ultimate goal of this blog is top predict the 2024 election cycle, a match up between Harris and Trump, I am interested in seeing the two-party margin of victory in each state in 2016 and 2020 as Trump was a candidate in both of these elections. This will give me a sense of which states are most competitive.</p>
@@ -39,22 +34,10 @@ From these two graphs, I can see that, in the two most recent election cycles, s
 <p>As a first pass at constructing a model to predict the 2024 election, I will weight the vote share of the 2016 and 2020 elections in each state to produce an estimate for this year’s national presidential election using the following formula:</p>
 <p><span class="math display">\[ Y_{2024_i} = \frac{3}{4} * Y_{2020_i} + \frac{1}{4}*Y_{2016_i}\]</span>
 The following map, with a custom theme and state labels, is produced.</p>
-<pre class="r"><code>
-# Plot the margin of victory in a U.S. state map.
-pv2p_2024_states |&gt;
-    left_join(states_map, by = &quot;region&quot;) |&gt;
-    ggplot(aes(long, lat, group = group)) +
-    geom_polygon(aes(fill = pv2p_2024_margin), color = &quot;black&quot;) +
-    ggtitle(&quot;2024 Presidential Forecast (Simplified Electoral Cycle Model)&quot;) + 
-    scale_fill_gradient2(high = &quot;firebrick1&quot;, 
-                         mid = &quot;white&quot;,
-                         name = &quot;win margin&quot;,
-                         low = &quot;dodgerblue4&quot;, 
-                         breaks = c(-50,-25,0,25,50), 
-                         limits=c(-50,50)) + 
-  theme_void()</code></pre>
 <p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+Now, let’s compare this estimate to the actual electoral college totals from 2020 and 204.</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-2.png" width="672" /></p>
 </div>
 <div id="citations" class="section level1">
 <h1>Citations:</h1>

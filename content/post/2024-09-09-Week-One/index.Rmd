@@ -6,7 +6,7 @@ categories: ["R"]
 tags: ["R Markdown", "plot", "regression"]
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning = FALSE}
 knitr::opts_chunk$set(collapse = TRUE)
 ```
 
@@ -105,7 +105,7 @@ pv_margins_map <- d_pvstate_wide |>
 
 ```
 
-```{r echo = FALSE}
+```{r echo = FALSE, warning = FALSE}
 
 # Make grid version of maps. 
 d_pvstate_wide |>
@@ -162,7 +162,7 @@ pv2p_2024_states <- d_pvstate_wide |>
 
 ```
 
-```{r}
+```{r echo = FALSE}
 
 # Plot the margin of victory in a U.S. state map.
 pv2p_2024_states |>
@@ -209,13 +209,58 @@ total_votes <- 538
 
 # Create a stacked bar chart
 ggplot(df_2024, aes(x = "", y = electoral_votes, fill = winner)) +
-  geom_bar(stat = "identity", width = .8) +
+  geom_bar(stat = "identity", width = .3) +
   geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "white", size = 5) +
   scale_fill_manual(values = c("dodgerblue4", "firebrick1")) +
   coord_flip() +
   theme_void() +
   theme(legend.position = "right", plot.title = element_text(hjust = 0.5))+ 
   labs(fill = "Party", title = "2024 Presidential Forecast: Week One") +
+  scale_y_continuous(limits = c(0, 538)) +
+  geom_hline(yintercept = 270, color = "white", linetype = "dashed")
+```
+Now, let's compare this estimate to the actual electoral college totals from 2020 and 204.
+
+```{r include = FALSE}
+
+# Manually Include Electoral College totals for 2016 and 2020
+df_2020 <- data.frame(
+  winner = c("D", "R"),
+  electoral_votes = c(303, 235),
+  stringsAsFactors = FALSE  
+)
+
+df_2016 <- data.frame(
+  winner = c("D", "R"),
+  electoral_votes = c(232, 306),
+  stringsAsFactors = FALSE  
+)
+```
+
+```{r echo = FALSE}
+
+# Create a stacked bar chart for 2016
+ggplot(df_2016, aes(x = "", y = electoral_votes, fill = winner)) +
+  geom_bar(stat = "identity", width = .3) +
+  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "white", size = 5) +
+  scale_fill_manual(values = c("dodgerblue4", "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5))+ 
+  labs(fill = "Party", title = "2016 Presidential Election Results") +
+  scale_y_continuous(limits = c(0, 538)) +
+  geom_hline(yintercept = 270, color = "white", linetype = "dashed")
+
+# Create a stacked bar chart for 2020
+
+ggplot(df_2020, aes(x = "", y = electoral_votes, fill = winner)) +
+  geom_bar(stat = "identity", width = .3) +
+  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "white", size = 5) +
+  scale_fill_manual(values = c("dodgerblue4", "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5))+ 
+  labs(fill = "Party", title = "2020 Presidential Election Results") +
   scale_y_continuous(limits = c(0, 538)) +
   geom_hline(yintercept = 270, color = "white", linetype = "dashed")
 ```
