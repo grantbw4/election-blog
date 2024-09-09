@@ -2,33 +2,33 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://example.org/categories/</loc>
+    <loc>https://grantbw4.github.io/election-blog/categories/</loc>
     <lastmod>2020-12-01T21:13:14-05:00</lastmod>
   </url><url>
-    <loc>https://example.org/post/2020/12/01/hello-r-markdown/</loc>
+    <loc>https://grantbw4.github.io/election-blog/post/2020/12/01/hello-r-markdown/</loc>
     <lastmod>2020-12-01T21:13:14-05:00</lastmod>
   </url><url>
-    <loc>https://example.org/</loc>
+    <loc>https://grantbw4.github.io/election-blog/</loc>
     <lastmod>2020-12-01T21:13:14-05:00</lastmod>
   </url><url>
-    <loc>https://example.org/tags/plot/</loc>
+    <loc>https://grantbw4.github.io/election-blog/tags/plot/</loc>
     <lastmod>2020-12-01T21:13:14-05:00</lastmod>
   </url><url>
-    <loc>https://example.org/post/</loc>
+    <loc>https://grantbw4.github.io/election-blog/post/</loc>
     <lastmod>2020-12-01T21:13:14-05:00</lastmod>
   </url><url>
-    <loc>https://example.org/categories/r/</loc>
+    <loc>https://grantbw4.github.io/election-blog/categories/r/</loc>
     <lastmod>2020-12-01T21:13:14-05:00</lastmod>
   </url><url>
-    <loc>https://example.org/tags/r-markdown/</loc>
+    <loc>https://grantbw4.github.io/election-blog/tags/r-markdown/</loc>
     <lastmod>2020-12-01T21:13:14-05:00</lastmod>
   </url><url>
-    <loc>https://example.org/tags/regression/</loc>
+    <loc>https://grantbw4.github.io/election-blog/tags/regression/</loc>
     <lastmod>2020-12-01T21:13:14-05:00</lastmod>
   </url><url>
-    <loc>https://example.org/tags/</loc>
+    <loc>https://grantbw4.github.io/election-blog/tags/</loc>
     <lastmod>2020-12-01T21:13:14-05:00</lastmod>
   </url><url>
-    <loc>https://example.org/about/</loc>
+    <loc>https://grantbw4.github.io/election-blog/about/</loc>
   </url>
 </urlset>

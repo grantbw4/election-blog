@@ -1,6 +1,6 @@
-baseurl: "https://example.org/"  # please update this to your actual URL
+baseurl: "https://grantbw4.github.io/election-blog/"  # please update this to your actual URL
 languageCode: "en-us"
-title: "A minimal Hugo website"
+title: "Grant's Election Blog"
 theme: "hugo-xmin"
 googleAnalytics: ""
 disqusShortname: ""
