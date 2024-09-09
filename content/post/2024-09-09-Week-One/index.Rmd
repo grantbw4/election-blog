@@ -307,6 +307,7 @@ pv_2020 <- ggplot(df_2020_pv, aes(x = "", y = popular_vote, fill = winner)) +
 grid.arrange(ec_2016, ec_2020, pv_2016, pv_2020, ncol = 2)
 
 ```
+
 *These electoral college totals do not consider unfaithful electors.*
 
 In displaying the popular vote and electoral college results side-by-side, it is clear that, in both 2016 and 2020, the Republican party lost the two-party national popular vote. It, however, in 2016, still managed to solidly win the electoral college. This could reflect a bias in the electoral college in favor of Republicans, perhaps because, despite there being more Democrats, they tend to cluster in urban cities and populous states like California and New York. For example, a 65-35 win for a Democratic candidate in California does not do more for the Democratic candidate than a 51-49 win would have, despite the potential millions in additional votes for the Democratic candidate that the former outcome would have provided.
