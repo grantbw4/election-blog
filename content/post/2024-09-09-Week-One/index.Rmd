@@ -143,6 +143,7 @@ ggplot(pv_margins_map, aes(long, lat, group = group)) +
                             theme(aspect.ratio=.6) + 
   labs(title = "Win Margin for Each State by Year")
 ```
+
 From these two graphs, I can see that, in the two most recent election cycles, states like Arizona, Pennsylvania, Georgia, and North Carolina have had exceptionally narrow win margins and are likely to serve as swing states in the 2024 election.
 
 As a first pass at constructing a model to predict the 2024 election, I will weight the vote share of the 2016 and 2020 elections in each state to produce an estimate for this year's national presidential election using the following formula:
