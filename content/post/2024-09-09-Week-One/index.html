@@ -33,17 +33,22 @@ tags: ["R Markdown", "plot", "regression"]
 From these two graphs, I can see that, in the two most recent election cycles, states like Arizona, Pennsylvania, Georgia, and North Carolina have had exceptionally narrow win margins and are likely to serve as swing states in the 2024 election.</p>
 <p>As a first pass at constructing a model to predict the 2024 election, I will weight the vote share of the 2016 and 2020 elections in each state to produce an estimate for this year’s national presidential election using the following formula:</p>
 <p><span class="math display">\[ Y_{2024_i} = \frac{3}{4} * Y_{2020_i} + \frac{1}{4}*Y_{2016_i}\]</span>
-The following map, with a custom theme and state labels, is produced.</p>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
-Now, let’s compare this estimate to the actual electoral college totals from 2020 and 204.</p>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+The following map with the projected win margin for each state is produced. Below it is the forecasted electoral college total. This was produced by merging a year-by-year breakdown of each state’s total electoral votes with the two-party popular vote data frame for each state and year.</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>As we can see, my first model, a simplified electoral cycle model that relies exclusively on the two-party popular vote shares from the 2016 and 2020 election, predict a Harris win with 276 electoral votes compared to Trump’s 262.</p>
+<p>I would like to <strong>further explore the electoral college</strong> by investigating who actually won the elections in our data set and the potential bias the electoral college could give either party. I will do this by comparing the nationwide electoral college results with the nationwide two-party popular vote totals for both the 2016 and 2020 elections. This data was published by the Associated Press and shared by .</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+</p>
+<p>In displaying the popular vote and electoral college results side-by-side, it is clear that, in both 2016 and 2020, the Republican party lost the two-party national popular vote. It, however, in 2016, still managed to solidly win the electoral college. This could reflect a bias in the electoral college in favor of Republicans, perhaps because, despite there being more Democrats, they tend to cluster in urban cities and populous states like California and New York. For example, a 65-35 win for a Democratic candidate in California does not do more for the Democratic candidate than a 51-49 win would have, despite the potential millions in additional votes for the Democratic candidate that the former outcome would have provided.</p>
+<p>J. Miles Coleman and Kyle Kondik in their <a href="https://centerforpolitics.org/crystalball/a-brief-history-of-electoral-college-bias/">Center for Politics</a> article, <a href="https://centerforpolitics.org/crystalball/a-brief-history-of-electoral-college-bias/">“A Brief History of Electoral College Bias,”</a> explains how, though the electoral college has favored Republicans in recent years, it could very well exhibit a slight Democratic bias if states continue to shift demgraphically and electorally. For example, if “Arizona and Georgia” continue to shift leftward while “Michigan and Nevada simply maintain the way they voted in 2020,” the Electoral College will soon exhibit a Democratic lean. This suggests that the electoral college is not systemically biased toward either party, necessarily, but vacillates in how well it matches the national popular vote largely based on whether people of certain political leanings tend to cluster or not.</p>
 </div>
 <div id="citations" class="section level1">
 <h1>Citations:</h1>
-<p>2016 Presidential Election Results NYT</p>
+<p>“2016 Presidential Election Results.” , The New York Times, www.nytimes.com/elections/2016/results/president. Accessed 9 Sept. 2024.</p>
+<p>Coleman , J Miles, and Kyle Kondik. “A Brief History of Electoral College Bias.” , 6 July 2023, centerforpolitics.org/crystalball/a-brief-history-of-electoral-college-bias/.</p>
+<p>“Presidential Election Results: Biden Wins.” , The New York Times, 3 Nov. 2020, www.nytimes.com/interactive/2020/11/03/us/elections/results-president.html.</p>
 </div>
 <div id="data-sources" class="section level1">
 <h1>Data Sources:</h1>
-<p>Data are from US presidential election popular vote results 1948-2020.</p>
+<p>Data are from the US presidential election popular vote results from 1948-2020. National popular vote percentage totals are also drawn from for 2016 and 2020.</p>
 </div>
