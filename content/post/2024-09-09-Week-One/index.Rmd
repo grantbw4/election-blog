@@ -1,7 +1,7 @@
 ---
 title: Week One - Basic Model
 author: Grant Williams
-date: '2024-09-08'
+date: '2024-09-09'
 categories: ["R"]
 tags: ["R Markdown", "plot", "regression"]
 ---
@@ -65,11 +65,160 @@ ggplot(d_popvote, aes(x = year, y = pv2p, colour = party)) +
     xlab("") + ## no need to label an obvious axis
     ylab("Two-Party National Popular Vote (%)") +
     ggtitle("Presidential Vote Share (1948-2020)") + 
-    scale_x_continuous(breaks = seq(1948, 2020, 4)) + theme_bw()
+    scale_x_continuous(breaks = seq(1948, 2020, 4)) + 
+    theme_bw() + 
+    theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1))
+
 ```
 
-Make State by State Map
+From this line plot, we can see that presidential elections have become increasingly competitive in recent decades, perhaps reflecting increased polarization in the country between the two major parties: Republican and Democratic. With the exception of 1948 and 1976, presidential elections after WWII and before 1992 did not produce national, two-party popular vote shares that were less than 10 percentage points apart. In the eight presidential elections following and including 1992, the two-party popular vote share has not **exceeded** 10 percentage points in difference, signalling that presidential elections in the United States have become very competitive in the last few decades. 
 
+To answer the second question of **which states vote blue/red and how consistently,** I will produce a panel data set of the party of the candidate that took the majority of the popular vote in each state for each year between 1992 and 2020 and then use this panel data set to produce a grid of electoral maps for each year color-coded by the winning party for each state. I choose to begin with 1992 as this is when elections began to consistently tighten in the United States and I am chiefly interested in how states have voted within recent memory. 
+
+```{r include = FALSE}
+
+# Sequester shapefile of states from `maps` library.
+states_map <- map_data("state")
+unique(states_map$region)
+
+# Read/clean/merge state popular vote. 
+# Create wide version of dataset that can be used to compare candidate votes with one another. 
+d_pvstate_wide <- read_csv("clean_wide_state_2pv_1948_2020.csv")
+
+d_pvstate_wide$region <- tolower(d_pvstate_wide$state)
+
+pv_map <- d_pvstate_wide |>
+  filter(year == 2020) |>
+  left_join(states_map, by = "region")
+
+# Generate map of state winners using their vote count. 
+pv_win_map <- d_pvstate_wide |>
+    filter(year == 2020) |>
+    left_join(states_map, by = "region") |>
+    mutate(winner = ifelse(R_pv > D_pv, "republican", "democrat"))
+
+# Generate map of win-margins.
+pv_margins_map <- d_pvstate_wide |>
+    filter(year >= 2016) |>
+    left_join(states_map, by = "region") |>
+    mutate(win_margin = (R_pv2p-D_pv2p))
+
+```
+
+```{r echo = FALSE}
+
+# Make grid version of maps. 
+d_pvstate_wide |>
+    filter(year >= 1992) |>
+    left_join(states_map, by = "region") |>
+    mutate(winner = ifelse(R_pv > D_pv, "republican", "democrat")) |>
+    ggplot(aes(long, lat, group = group)) +
+    facet_wrap(facets = year ~.) + ## specify a grid by year
+    geom_polygon(aes(fill = winner), color = "white") +
+    scale_fill_manual(values = c("dodgerblue4", "firebrick1")) +
+    theme_void() +
+    theme(legend.position = "none") +
+    ggtitle("Presidential Vote Share by State (1980-2020)") + 
+    theme(strip.text = element_text(size = 12),
+          aspect.ratio=.7)
+```
+
+These graphs seem to reveal certain regional trends in voting behavior. The Northeast, West Coast, and Great Lakes states seem to pretty consistently vote for Democrats, whereas the South, Mountain West, and Plains states tend to vote for Republicans. Other regions, like the Midwest appear to be more variable. Just from visual inspection, there appear to certain states like Arizona, Michigan, and Pennsylvania, among others, that have voted for different parties in just the past two election cycles. 
+
+Given that the ultimate goal of this blog is top predict the 2024 election cycle, a match up between Harris and Trump, I am interested in seeing the two-party margin of victory in each state in 2016 and 2020 as Trump was a candidate in both of these elections. This will give me a sense of which states are most competitive. 
+
+```{r echo = FALSE}
+
+ggplot(pv_margins_map, aes(long, lat, group = group)) +
+       geom_polygon(aes(fill = win_margin), color = "black") +
+       scale_fill_gradient2(high = "firebrick1", 
+                            mid = "white",
+                            name = "win margin",
+                            low = "dodgerblue4", 
+                            breaks = c(-50,-25,0,25,50), 
+                            limits=c(-60,60)) +
+                            theme_void() + 
+                            facet_wrap(~year) + 
+                            theme(aspect.ratio=.6)
+```
+From these two graphs, I can see that, in the two most recent election cycles, states like Arizona, Pennsylvania, Georgia, and North Carolina have had exceptionally narrow win margins and are likely to serve as swing states in the 2024 election.
+
+As a first pass at constructing a model to predict the 2024 election, I will weight the vote share of the 2016 and 2020 elections in each state to produce an estimate for this year's national presidential election using the following formula:
+
+$$ Y_{2024_i} = \frac{3}{4} * Y_{2020_i} + \frac{1}{4}*Y_{2016_i}$$
+The following map, with a custom theme and state labels, is produced.
+
+```{r include = FALSE}
+
+# Create prediction (pv2p and margin) based on simplified electoral cycle model: 
+# vote_2024 = 3/4*vote_2020 + 1/4*vote_2016 (lag1, lag2, respectively). 
+pv2p_2024_states <- d_pvstate_wide |> 
+    filter(year == 2020) |>
+    group_by(state) |> 
+  summarise(D_pv2p_2024 = 0.75*D_pv2p + 0.25*D_pv2p_lag1,
+            R_pv2p_2024 = 0.75*R_pv2p + 0.25*R_pv2p_lag1) |>
+  mutate(pv2p_2024_margin = R_pv2p_2024 - D_pv2p_2024,
+         region = tolower(state))
+
+```
+
+```{r}
+
+# Plot the margin of victory in a U.S. state map.
+pv2p_2024_states |>
+    left_join(states_map, by = "region") |>
+    ggplot(aes(long, lat, group = group)) +
+    geom_polygon(aes(fill = pv2p_2024_margin), color = "black") +
+    ggtitle("2024 Presidential Forecast (Simplified Electoral Cycle Model)") + 
+    scale_fill_gradient2(high = "firebrick1", 
+                         mid = "white",
+                         name = "win margin",
+                         low = "dodgerblue4", 
+                         breaks = c(-50,-25,0,25,50), 
+                         limits=c(-50,50)) + 
+  theme_void()
+
+
+```
+```{r include = FALSE}
+
+# Generate projected state winners and merge with electoral college votes to make 
+# summary of electoral college vote distributions. 
+pv2p_2024_states <- pv2p_2024_states |>
+    mutate(winner = ifelse(R_pv2p_2024 > D_pv2p_2024, "R", "D"),
+           year = 2024)
+
+ec <- read_csv("ec_full.csv")
+ec[which(ec$state == "D.C."),]$state <- "District Of Columbia"
+write_csv(ec, "ec_full.csv")
+
+pv2p_2024_states <- pv2p_2024_states |>
+    left_join(ec, by = c("state", "year"))
+
+```
+
+```{r echo = FALSE}
+
+# I used ChatGPT to make this electoral college counter neater
+df_2024 <- pv2p_2024_states |> 
+    group_by(winner) |>
+    summarise(electoral_votes = sum(electors)) 
+
+# Calculate total votes (538 for the US electoral votes)
+total_votes <- 538
+
+# Create a stacked bar chart
+ggplot(df_2024, aes(x = "", y = electoral_votes, fill = winner)) +
+  geom_bar(stat = "identity", width = .8) +
+  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "white", size = 5) +
+  scale_fill_manual(values = c("dodgerblue4", "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5))+ 
+  labs(fill = "Party", title = "2024 Presidential Forecast: Week One") +
+  scale_y_continuous(limits = c(0, 538)) +
+  geom_hline(yintercept = 270, color = "white", linetype = "dashed")
+```
 
 # Citations:
 
