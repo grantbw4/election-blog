@@ -4,6 +4,10 @@ title: Home
 
 # Grant's 2024 Election Blog
 
+<div style="text-align: center;">
+  <img src="/images/grantphoto.jpg" alt="Grant" style="border-radius: 50%; width: 200px; height: 200px;">
+</div>
+
 ## _Harris versus Trump_
 
 Each week between September 9th and November 5th, the date of the 2024 election, I will be fine tuning a statistical model to predict the outcome of the presidential election. The details of each model can be found in the bulleted list below.
