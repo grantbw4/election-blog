@@ -5,7 +5,7 @@ title: Home
 # Grant's 2024 Election Blog
 
 <div style="text-align: center;">
-  <img src="https://grantbradywilliams.wordpress.com/wp-content/uploads/2021/08/img_0535-3-edited.jpg?w=1024&h=1024" alt="Grant" style="border-radius: 50%; width: 200px; height: 200px; float: right; margin-left: 20px;">
+  <img src="https://grantbradywilliams.wordpress.com/wp-content/uploads/2021/08/img_0535-3-edited.jpg?w=1024&h=1024" alt="Grant" style="border-radius: 50%; width: 200px; height: 200px; float: right; margin-left: 20px; margin-bottom: 20px;">
 </div>
 
 ## _Harris versus Trump_
