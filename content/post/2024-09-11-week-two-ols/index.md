@@ -19,7 +19,7 @@ The code used to produce these visualizations is publicly available in my [githu
 
 # Analysis 
 
-To begin to answer the first question of **whether it is possible to predict election outcomes using *only* the state of the economy** I will merge [Federal Reserve Economic Data](https://fred.stlouisfed.org/) from the St. Louis Fed with other economic data from the [Bureau of Economic Analysis](https://apps.bea.gov/iTable/?reqid=19&step=2&isuri=1&categories=survey#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjI2NCJdLFsiRmlyc3RfWWVhciIsIjE5NDciXSxbIkxhc3RfWWVhciIsIjIwMjQiXSxbIlNjYWxlIiwiMCJdLFsiU2VyaWVzIiwiUSJdXX0=). I will then perform various tests to explore the relationship between the state of the economy and the national popular vote share between 1948 and 2020.
+To begin to answer the first question of **whether it is possible to predict election outcomes using *only* the state of the economy,** I will merge [Federal Reserve Economic Data](https://fred.stlouisfed.org/) from the St. Louis Fed with other economic data from the [Bureau of Economic Analysis](https://apps.bea.gov/iTable/?reqid=19&step=2&isuri=1&categories=survey#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjI2NCJdLFsiRmlyc3RfWWVhciIsIjE5NDciXSxbIkxhc3RfWWVhciIsIjIwMjQiXSxbIlNjYWxlIiwiMCJdLFsiU2VyaWVzIiwiUSJdXX0=). I will then perform various tests to explore the relationship between the state of the economy and the national popular vote share between 1948 and 2020.
 
 
 
@@ -27,7 +27,7 @@ The first visualization that I will prepare is a scatterplot of the Q2 GDP growt
 
 I zeroed in on Q2 GDP growth in large part because of the findings of Professors Christopher H. Achen and Larry M. Bartels from Princeton and Vanderbilt respectively in their 2016 book ["Democracy for Realists: Why Elections Do Not Produce Responsive Government"](https://press.princeton.edu/books/hardcover/9780691169446/democracy-for-realists?srsltid=AfmBOorbMnYpN5HDv-R3lljwbHL-AeuvIkWja44IDFzswdHuuHMkUzuT). 
 
-Achen and Bartels make a strong case that voters are not fully retrospective in their decision-making; rather than equally weighting the performance of the incumbent president's party in the past four years, voters tend to base their ballot more explicitly off of what the voter has seen recently. The two authors demonstrate this by evidencing how the percent change in real disposable income between the most recent quarters leading up to the election (Q14 to Q15 of the 4-year cycle) accounts for a whopping 81% of the variance in the tenure-adjusted popular vote margin of the incumbent party for elections between 1952 and 2012. Longer-term RDI change between Q3 and Q15, however, accounts for only 54% of the variance.
+Achen and Bartels make a strong case that voters are not fully retrospective in their decision-making; rather than equally weighting the performance of the incumbent president's party in the past four years, voters tend to base their ballot more explicitly off of what the voter has seen recently. The two authors demonstrate this by evidencing how the percent change in real disposable income in quarter 2 of the presidential election year, the most recent quarter leading up to the election (Q14 to Q15 of the 4-year cycle) accounts for a whopping 81% of the variance in the tenure-adjusted popular vote margin of the incumbent party for elections between 1952 and 2012. Longer-term RDI change between Q3 and Q15, however, accounts for only 54% of the variance.
 
 Though I am not accounting for tenure advantage, and I am looking at two-party vote share rather than vote margin, I still expect Q2 GDP growth in the presidential election year (Q14-Q15) to be a useful predictor to investigate. 
 
@@ -93,7 +93,7 @@ When we plot the predicted popular vote shares for 2024 from each model, we get 
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 
-All of these models, however, are pretty imprecise, offering large prediction intervals that are not very informative for the outcome of the 2024 election. Given how they all offer predictions around 50 percentage points, our 2024 predictions do not seem hugely sensitive to how measure the economy — they are all similarly imprecise. For that reason, we can assume that the economic model of voting behavior, while helpful in identifying overall trends, requires additional information about polls and other political conditions to offer the sort of precision necessary to accurately forecast elections.
+All of these models, however, are pretty imprecise, offering large prediction intervals that are not very informative for the outcome of the 2024 election. Given how they all offer predictions around 50 percentage points, our 2024 predictions do not seem hugely sensitive to how we measure the economy — they are all similarly imprecise. For that reason, we can assume that the economic model of voting behavior, while helpful in identifying overall trends, requires additional information about polls and other political conditions to offer the sort of precision necessary to accurately forecast elections.
 
 # Citations:
 
