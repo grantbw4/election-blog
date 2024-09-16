@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Week Two - OLS | Grant&#39;s Election Blog</title>
+    <link rel="stylesheet" href="/election-blog/css/style.css" />
+    <link rel="stylesheet" href="/election-blog/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/election-blog/">Home</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Week Two - OLS</span></h1>
+<h2 class="author">Grant Williams</h2>
+<h2 class="date">2024/09/16</h2>
+</div>
+
+<main>
+<h1 id="introduction">Introduction</h1>
+<p>In this second blog post, I want to explore</p>
+<h2 id="1-whether-it-is-possible-to-predict-election-outcomes-using-only-the-state-of-the-economy">1) whether it is possible to predict election outcomes using <em>only</em> the state of the economy</h2>
+<h2 id="2-and-if-so-how-well">2) and, if so, how well</h2>
+<p>The code used to produce these visualizations is publicly available in my <a href="https://github.com/grantbw4/election-blog">github repository</a> and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, <a href="https://www.matthewdardet.com/harvard-election-analytics-2024/">Matthew Dardet</a>.</p>
+<h1 id="analysis">Analysis</h1>
+<p>To begin to answer the first question of <strong>whether it is possible to predict election outcomes using <em>only</em> the state of the economy</strong> I will <a href="https://fred.stlouisfed.org/">Federal Reserve Economic Data</a> from the St. Louis Fed with other economic data from the <a href="https://apps.bea.gov/iTable/?reqid=19&amp;step=2&amp;isuri=1&amp;categories=survey#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjI2NCJdLFsiRmlyc3RfWWVhciIsIjE5NDciXSxbIkxhc3RfWWVhciIsIjIwMjQiXSxbIlNjYWxlIiwiMCJdLFsiU2VyaWVzIiwiUSJdXX0=">Bureau of Economic Analysis</a>. I will then perform various tests to explore the relationship between the state of the economy and the national popular vote share between 1948 and 2020.</p>
+<p>The first visualization that I will prepare is a scatterplot of the Q2 GDP growth in the year of the presidential election versus the national two-party popular vote share won by the incumbent.</p>
+<p>I zeroed in on Q2 GDP growth in large part because of the findings of Professors Christopher H. Achen and Larry M. Bartels from Princeton and Vanderbilt respectively in their 2016 book <a href="https://press.princeton.edu/books/hardcover/9780691169446/democracy-for-realists?srsltid=AfmBOorbMnYpN5HDv-R3lljwbHL-AeuvIkWja44IDFzswdHuuHMkUzuT">&ldquo;Democracy for Realists: Why Elections Do Not Produce Responsive Government&rdquo;</a>.</p>
+<p>Achen and Bartels make a strong case that voters are not fully retrospective in their decision-making; rather than equally weighting the performance of the incumbent president&rsquo;s party in the past four years, voters tend to base their ballot more explicitly off of what the voter has seen recently. The two authors demonstrate this by evidencing how the percent change in real disposable income between the most recent quarters leading up to the election (Q14 to Q15) accounts for a whopping 81% of the variance in the tenure-adjusted popular vote margin of the incumbent party for elections between 1952 and 2012. Longer-term RDI change between Q3 and Q15, however, accounts for only 54% of the variance.</p>
+<p>Though I am not accounting for tenure advantage, and I am looking at two-party vote share rather than vote margin, I still expect Q2 GDP growth to be a useful predictor to investigate.</p>
+<img src="https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+<p>Noting how 2020 appears to be a significant outlier that could potentially be biasing the line of best fit, I performed this same analysis once more after having removed 2020. Since the primary objective of this blog is to predict the 2024 presidential election, I believe it is well-warranted to exclude economic data from Q2 of 2020, as this massive decline in GDP was attributable to the COVID-19 pandemic and less immediately to the governance of the Trump administration. Given how far outside of the pre-existing observation set 2020 was in terms of the magnitude of its economic decline, too, it is unlikely to be informative of the effect modest economic growth and decline has in more typical election years like the one we are currently experiencing in 2024.</p>
+<img src="https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<p>Plotting the scatterplot once more, this time without including 2020, we observe that the R squared term jumps from 0.14 to 0.283. In other words, once we remove the outlier of 2020 and regress the incumbent party&rsquo;s national two-party popular vote share on second quarter GDP growth, we observe that second quarter GDP Growth now accounts for 28.3% of the variance in the popular vote share versus the 14.0% of the popular vote share that it did beforehand.</p>
+<p>Using this model that estimates the incumbent party&rsquo;s two-party national vote share based exclusively off of the Q2 GDP growth, we predict that the Democratic party will win 51.58% of the national popular vote, but with a 95% prediction interval of between 41.86% and 61.31%.</p>
+<p>This prediction could be valid, or it could be based off of an inaccurate model. This gets into this blog post&rsquo;s second question of <strong>how well</strong> economic data can predict elections. I will prepare a number of different potential models that use a variety of independent variables and economic covariates, and we will make a prediction using the <em>best</em> one.</p>
+<p>Best, however, can be measured many ways. In data science, we have several tools at our disposal to evaluate models. To mitigate the risk of over-fitting, we can perform cross-validation where we randomly leave a fraction of the election years out of the data to be the test data, prepare a model using the remaining training data, and then calculate the mean out of sample error on the test years that we left out. We can do this over and over again. One constraint of presidential election data, however, is that there are relatively few elections from which we can evalaute the accuracy of our models, so model evaluation has its limitations.</p>
+<p>This is preferable to simply preparing many models and then choosing the one that has the lowest mean squared error or the highest R-squared value on the entire data set as these would very easily lead to overfitting.</p>
+<h2 id="evaluation">Evaluation</h2>
+<p>I will now prepare multiple predictive models using various combinations of national economic variables as predictors (1948-2016 election years). These models will be multiple linear regression OLS model, and I will evaluate them using cross-validation with 1000 simulations where 50% of the years are training data and 50% are test data.</p>
+<p>The three predictors I will consider are</p>
+<ol>
+<li>
+<p>RDPI (real disposable personal income) growth rate in quarter 2</p>
+</li>
+<li>
+<p>GDP growth rate in quarter 2</p>
+</li>
+<li>
+<p>unemployment rate in quarter 2</p>
+</li>
+</ol>
+<p>The seven model combinations are</p>
+<p>A) Predictor 1</p>
+<p>B) Predictor 2</p>
+<p>C) Predictor 3</p>
+<p>D) Predictors 1 and 2</p>
+<p>E) Predictors 1 and 3</p>
+<p>F) Predictors 2 and 3</p>
+<p>G) Predictors 1, 2, and 3</p>
+<img src="https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+<p>As is visible in the bar graph, model B had the lowest mean absolute out-of-sample error with 1.905321 percentage points of error. This model looked exclusively at the GDP growth rate in quarter 2 to predict the incumbent&rsquo;s two-party national popular vote share, meaning this covariate was most predictive of the two-party popular vote share. It is possible these three covariates were all fairly collinear, so predicting using combinations of the covariates didn&rsquo;t offer much aside from additional complexity with which to overfit.</p>
+<p>Visible below is the distribution of out-of-sample error across the 1000 cross-validation simulations. The distribution appears fairly unbiased.</p>
+<img src="https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+<p>When we plot the predicted popular vote shares for 2024 from each model, we get the following graph.</p>
+<img src="https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<p>All of these models, however, are pretty imprecise, offering large prediction intervals that are not very informative for the outcome of the 2024 election. For that reason, we can assume that the economic model of voting behavior, while helpful in identifying overall trends, requires additional information about polls and other political conditions to offer the sort of precision necessary to accurately forecast elections.</p>
+<h1 id="citations">Citations:</h1>
+<p>Achen, C. H., &amp; Bartels, L. M. (2016). Democracy for realists: <em>why elections do not produce responsive government.</em> Princeton University Press.</p>
+<h1 id="data-sources">Data Sources:</h1>
+<p>Data are from the US presidential election popular vote results from 1948-2020, the <a href="https://apps.bea.gov/iTable/?reqid=19&amp;step=2&amp;isuri=1&amp;categories=survey#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjI2NCJdLFsiRmlyc3RfWWVhciIsIjE5NDciXSxbIkxhc3RfWWVhciIsIjIwMjQiXSxbIlNjYWxlIiwiMCJdLFsiU2VyaWVzIiwiUSJdXX0=.">Bureau of Economic Analysis</a>, and <a href="https://fred.stlouisfed.org/">the Federal Reserve Bank of St. Louis</a>.</p>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+
+<script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
+
+  
+  <hr/>
+  © <a href="https://yihui.org">Yihui Xie</a>
+  
+  </footer>
+  </body>
+</html>
+

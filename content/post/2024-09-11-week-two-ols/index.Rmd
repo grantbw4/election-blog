@@ -7,20 +7,27 @@ categories: []
 tags: []
 ---
 
-####----------------------------------------------------------#
-#### Preamble
-####----------------------------------------------------------#
+# Introduction
 
-# Load libraries.
-```{r}
+In this second blog post, I want to explore 
+
+## 1) whether it is possible to predict election outcomes using *only* the state of the economy
+
+## 2) and, if so, how well
+
+The code used to produce these visualizations is publicly available in my [github repository](https://github.com/grantbw4/election-blog) and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, [Matthew Dardet](https://www.matthewdardet.com/harvard-election-analytics-2024/).
+
+# Analysis 
+
+To begin to answer the first question of **whether it is possible to predict election outcomes using *only* the state of the economy** I will [Federal Reserve Economic Data](https://fred.stlouisfed.org/) from the St. Louis Fed with other economic data from the [Bureau of Economic Analysis](https://apps.bea.gov/iTable/?reqid=19&step=2&isuri=1&categories=survey#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjI2NCJdLFsiRmlyc3RfWWVhciIsIjE5NDciXSxbIkxhc3RfWWVhciIsIjIwMjQiXSxbIlNjYWxlIiwiMCJdLFsiU2VyaWVzIiwiUSJdXX0=). I will then perform various tests to explore the relationship between the state of the economy and the national popular vote share between 1948 and 2020.
+
+```{r include = FALSE}
+# load packages
 library(car)
 library(tidyverse)
-```
 
-####----------------------------------------------------------#
 #### Read, merge, and process data.
-####----------------------------------------------------------#
-```{r}
+
 # Load popular vote data. 
 d_popvote <- read_csv("popvote_1948-2020.csv")
 
@@ -35,9 +42,6 @@ d_popvote <- read_csv("popvote_1948-2020.csv")
 # sp500_, $, 1927-2024 
 d_fred <- read_csv("fred_econ.csv")
 
-```
-
-```{r}
 
 # Load economic data from the BEA: https://apps.bea.gov/iTable/?reqid=19&step=2&isuri=1&categories=survey#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjI2NCJdLFsiRmlyc3RfWWVhciIsIjE5NDciXSxbIkxhc3RfWWVhciIsIjIwMjQiXSxbIlNjYWxlIiwiMCJdLFsiU2VyaWVzIiwiUSJdXX0=.
 # GDP, 1947-2024 (all)
@@ -72,9 +76,24 @@ d_inc_econ <- d_popvote |>
   # We are using second-quarter data since that is the latest 2024 release. 
   # Feel free to experiment with different data/combinations!
 
-####----------------------------------------------------------#
-#### Understanding the relationship between economy and vote share. 
-####----------------------------------------------------------#
+
+```
+
+The first visualization that I will prepare is a scatterplot of the Q2 GDP growth in the year of the presidential election versus the national two-party popular vote share won by the incumbent.
+
+I zeroed in on Q2 GDP growth in large part because of the findings of Professors Christopher H. Achen and Larry M. Bartels from Princeton and Vanderbilt respectively in their 2016 book ["Democracy for Realists: Why Elections Do Not Produce Responsive Government"](https://press.princeton.edu/books/hardcover/9780691169446/democracy-for-realists?srsltid=AfmBOorbMnYpN5HDv-R3lljwbHL-AeuvIkWja44IDFzswdHuuHMkUzuT). 
+
+Achen and Bartels make a strong case that voters are not fully retrospective in their decision-making; rather than equally weighting the performance of the incumbent president's party in the past four years, voters tend to base their ballot more explicitly off of what the voter has seen recently. The two authors demonstrate this by evidencing how the percent change in real disposable income between the most recent quarters leading up to the election (Q14 to Q15) accounts for a whopping 81% of the variance in the tenure-adjusted popular vote margin of the incumbent party for elections between 1952 and 2012. Longer-term RDI change between Q3 and Q15, however, accounts for only 54% of the variance.
+
+Though I am not accounting for tenure advantage, and I am looking at two-party vote share rather than vote margin, I still expect Q2 GDP growth to be a useful predictor to investigate. 
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+
+# Fit bivariate OLS. 
+reg_econ <- lm(pv2p ~ GDP_growth_quarterly, 
+               data = d_inc_econ)
+
+# reg_econ |> summary()
 
 # Create scatterplot to visualize relationship between Q2 GDP growth and 
 # incumbent vote share. 
@@ -84,66 +103,44 @@ d_inc_econ |>
   geom_hline(yintercept = 50, lty = 2) + 
   geom_vline(xintercept = 0.01, lty = 2) +
   labs(x = "Second Quarter GDP Growth (%)", 
-       y = "Incumbent Party's National Popular Vote Share") + 
+       y = "Incumbent Party's National Popular Vote Share",
+       caption = "Y = 51.25 + 0.274 * X \n
+       R Squared = 0.140") + 
+  geom_smooth(method = "lm")+
   theme_bw()
 
+```
+
+Noting how 2020 appears to be a significant outlier that could potentially be biasing the line of best fit, I performed this same analysis once more after having removed 2020. Since the primary objective of this blog is to predict the 2024 presidential election, I believe it is well-warranted to exclude economic data from Q2 of 2020, as this massive decline in GDP was attributable to the COVID-19 pandemic and less immediately to the governance of the Trump administration. Given how far outside of the pre-existing observation set 2020 was in terms of the magnitude of its economic decline, too, it is unlikely to be informative of the effect modest economic growth and decline has in more typical election years like the one we are currently experiencing in 2024.
+
+```{r include = FALSE, warning = FALSE}
 # Remove 2020 from plot.
 d_inc_econ_2 <- d_inc_econ |>
   filter(year != 2020)
+```
 
-d_inc_econ_2 |> 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = "Second Quarter GDP Growth (%)", 
-       y = "Incumbent Party's National Popular Vote Share") + 
-  theme_bw()
-
-# Compute correlations between Q2 GDP growth and incumbent vote 2-party vote share.
-cor(d_inc_econ$GDP_growth_quarterly, 
-    d_inc_econ$pv2p)
-cor(d_inc_econ_2$GDP_growth_quarterly, 
-    d_inc_econ_2$pv2p)
-
-# Fit bivariate OLS. 
-reg_econ <- lm(pv2p ~ GDP_growth_quarterly, 
-               data = d_inc_econ)
-reg_econ |> summary()
-
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+# Fit second bivariate OLS
 reg_econ_2 <- lm(pv2p ~ GDP_growth_quarterly, 
                          data = d_inc_econ_2)
-reg_econ_2 |> summary()
 
-# Can add bivariate regression lines to our scatterplots. 
-d_inc_econ |> 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_smooth(method = "lm", formula = y ~ x) +
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = "Second Quarter GDP Growth (%)", 
-       y = "Incumbent Party's National Popular Vote Share", 
-       title = "Y = 51.25 + 0.274 * X") + 
-  theme_bw() + 
-  theme(plot.title = element_text(size = 18))
+# reg_econ |> summary()
 
 d_inc_econ_2 |> 
   ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
   geom_text() + 
-  geom_smooth(method = "lm", formula = y ~ x) +
   geom_hline(yintercept = 50, lty = 2) + 
   geom_vline(xintercept = 0.01, lty = 2) + 
   labs(x = "Second Quarter GDP Growth (%)", 
-       y = "Incumbent Party's National Popular Vote Share", 
-       title = "Y = 49.38 + 0.737 * X") + 
-  theme_bw() + 
-  theme(plot.title = element_text(size = 18))
+       y = "Incumbent Party's National Popular Vote Share", caption = "Y = 49.38 + 0.737 * X \n
+       R Squared = 0.283") + 
+  geom_smooth(method = "lm") +
+  theme_bw()
+```
 
-# Evaluate the in-sample fit of your preferred model.
-# R2.
-summary(reg_econ_2)$r.squared
-summary(reg_econ_2)$adj.r.squared
+Plotting the scatterplot once more, this time without including 2020, we observe that the R squared term jumps from 0.14 to 0.283. In other words, once we remove the outlier of 2020 and regress the incumbent party's national two-party popular vote share on second quarter GDP growth, we observe that second quarter GDP Growth now accounts for 28.3% of the variance in the popular vote share versus the 14.0% of the popular vote share that it did beforehand.
+
+```{r include = FALSE}
 
 # Predicted and actual comparisons.
 plot(d_inc_econ$year, 
@@ -155,46 +152,10 @@ points(d_inc_econ$year, predict(reg_econ_2, d_inc_econ))
 # Residuals and regression innards. 
 plot(reg_econ_2)
 
-# MSE.
-hist(reg_econ_2$model$pv2p - reg_econ_2$fitted.values, 
-     main = "Histogram of True Y - Predicted Y")
-mse <- mean((reg_econ_2$model$pv2p - reg_econ_2$fitted.values)^2)
-mse
-sqrt(mse)
+```
 
-# Model Testing: Leave-One-Out
-(out_samp_pred <- predict(reg_econ_2, d_inc_econ[d_inc_econ$year == 2020,]))
-(out_samp_truth <- d_inc_econ |> filter(year == 2020) |> select(pv2p))
-out_samp_pred - out_samp_truth # Dangers of fundamentals-only model!
-# https://www.nytimes.com/2020/07/30/business/economy/q2-gdp-coronavirus-economy.html
+```{r include = FALSE}
 
-# Model Testing: Cross-Validation (One Run)
-years_out_samp <- sample(d_inc_econ_2$year, 9) 
-mod <- lm(pv2p ~ GDP_growth_quarterly, 
-          d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
-out_samp_pred <- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
-out_samp_truth <- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
-mean(out_samp_pred - out_samp_truth)
-
-# Model Testing: Cross-Validation (1000 Runs)
-out_samp_errors <- sapply(1:1000, function(i) {
-  years_out_samp <- sample(d_inc_econ_2$year, 9) 
-  mod <- lm(pv2p ~ GDP_growth_quarterly, 
-            d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
-  out_samp_pred <- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
-  out_samp_truth <- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
-  mean(out_samp_pred - out_samp_truth)
-})
-
-mean(abs(out_samp_errors))
-
-hist(out_samp_errors,
-     xlab = "",
-     main = "Mean Out-of-Sample Residual\n(1000 Runs of Cross-Validation)")
-
-####----------------------------------------------------------#
-#### Predicting 2024 results using simple economy model. 
-####----------------------------------------------------------#
 # Sequester 2024 data.
 GDP_new <- d_fred |> 
   filter(year == 2024 & quarter == 2) |> 
@@ -207,5 +168,180 @@ predict(reg_econ_2, GDP_new)
 predict(reg_econ_2, GDP_new, interval = "prediction")
 
 ```
+
+Using this model that estimates the incumbent party's two-party national vote share based exclusively off of the Q2 GDP growth, we predict that the Democratic party will win 51.58% of the national popular vote, but with a 95% prediction interval of between 41.86% and 61.31%.
+
+This prediction could be valid, or it could be based off of an inaccurate model. This gets into this blog post's second question of **how well** economic data can predict elections. I will prepare a number of different potential models that use a variety of independent variables and economic covariates, and we will make a prediction using the *best* one. 
+
+Best, however, can be measured many ways. In data science, we have several tools at our disposal to evaluate models. To mitigate the risk of over-fitting, we can perform cross-validation where we randomly leave a fraction of the election years out of the data to be the test data, prepare a model using the remaining training data, and then calculate the mean out of sample error on the test years that we left out. We can do this over and over again. One constraint of presidential election data, however, is that there are relatively few elections from which we can evalaute the accuracy of our models, so model evaluation has its limitations.
+
+This is preferable to simply preparing many models and then choosing the one that has the lowest mean squared error or the highest R-squared value on the entire data set as these would very easily lead to overfitting.
+
+## Evaluation
+
+I will now prepare multiple predictive models using various combinations of national economic variables as predictors (1948-2016 election years). These models will be multiple linear regression OLS model, and I will evaluate them using cross-validation with 1000 simulations where 50% of the years are training data and 50% are test data.
+
+The three predictors I will consider are 
+
+1) RDPI (real disposable personal income) growth rate in quarter 2
+
+2) GDP growth rate in quarter 2
+
+3) unemployment rate in quarter 2
+
+The seven model combinations are 
+
+A) Predictor 1
+
+B) Predictor 2
+
+C) Predictor 3
+
+D) Predictors 1 and 2
+
+E) Predictors 1 and 3
+
+F) Predictors 2 and 3
+
+G) Predictors 1, 2, and 3
+
+```{r echo = FALSE}
+
+# Model Testing: Cross-Validation (1000 Runs)
+
+# I used ChatGPT to adopt the original code to make these vectors and plot the following bar graph
+set.seed(111)
+# Initialize empty lists to store errors for each model
+out_samp_errorsG <- numeric(1000)
+out_samp_errorsF <- numeric(1000)
+out_samp_errorsE <- numeric(1000)
+out_samp_errorsD <- numeric(1000)
+out_samp_errorsC <- numeric(1000)
+out_samp_errorsB <- numeric(1000)
+out_samp_errorsA <- numeric(1000)
+
+# Model Testing: Cross-Validation (1000 Runs)
+for (i in 1:1000) {
+  years_out_samp <- sample(d_inc_econ_2$year, 9) 
+  
+  # Fit models
+  modG <- lm(pv2p ~ RDPI_growth_quarterly + GDP_growth_quarterly + unemployment, 
+             d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+  modF <- lm(pv2p ~ GDP_growth_quarterly + unemployment, 
+             d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+  modE <- lm(pv2p ~ RDPI_growth_quarterly + unemployment, 
+             d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+  modD <- lm(pv2p ~ RDPI_growth_quarterly + GDP_growth_quarterly, 
+             d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+  modC <- lm(pv2p ~ unemployment, 
+             d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+  modB <- lm(pv2p ~ GDP_growth_quarterly, 
+             d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+  modA <- lm(pv2p ~ RDPI_growth_quarterly, 
+             d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+  
+  # Make predictions
+  out_samp_predG <- predict(modG, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+  out_samp_predF <- predict(modF, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+  out_samp_predE <- predict(modE, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+  out_samp_predD <- predict(modD, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+  out_samp_predC <- predict(modC, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+  out_samp_predB <- predict(modB, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+  out_samp_predA <- predict(modA, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+  
+  # Actual values
+  out_samp_truth <- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
+  
+  # Calculate out-of-sample errors for each model
+  out_samp_errorsG[i] <- mean(out_samp_predG - out_samp_truth)
+  out_samp_errorsF[i] <- mean(out_samp_predF - out_samp_truth)
+  out_samp_errorsE[i] <- mean(out_samp_predE - out_samp_truth)
+  out_samp_errorsD[i] <- mean(out_samp_predD - out_samp_truth)
+  out_samp_errorsC[i] <- mean(out_samp_predC - out_samp_truth)
+  out_samp_errorsB[i] <- mean(out_samp_predB - out_samp_truth)
+  out_samp_errorsA[i] <- mean(out_samp_predA - out_samp_truth)
+}
+
+# Store all error vectors in a list
+all_out_samp_errors <- list(G = out_samp_errorsG,
+                            F = out_samp_errorsF,
+                            E = out_samp_errorsE,
+                            D = out_samp_errorsD,
+                            C = out_samp_errorsC,
+                            B = out_samp_errorsB,
+                            A = out_samp_errorsA)
+
+# Calculate the mean absolute error for each model
+mean_abs_errors <- sapply(all_out_samp_errors, function(errors) mean(abs(errors)))
+
+# Convert to a data frame for plotting
+model_names <- c("Model G", "Model F", "Model E", "Model D", "Model C", "Model B", "Model A")
+error_data <- data.frame(Model = model_names, MeanAbsError = mean_abs_errors)
+
+ggplot(error_data, aes(x = Model, y = MeanAbsError, fill = Model)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Mean Absolute Out-of-Sample Errors by Model Type", 
+       x = "Model", y = "Mean Absolute Error") +
+  theme_minimal() + theme(legend.position = "none") + scale_fill_viridis_d()
+```
+
+As is visible in the bar graph, model B had the lowest mean absolute out-of-sample error with 1.905321 percentage points of error. This model looked exclusively at the GDP growth rate in quarter 2 to predict the incumbent's two-party national popular vote share, meaning this covariate was most predictive of the two-party popular vote share. It is possible these three covariates were all fairly collinear, so predicting using combinations of the covariates didn't offer much aside from additional complexity with which to overfit.
+
+Visible below is the distribution of out-of-sample error across the 1000 cross-validation simulations. The distribution appears fairly unbiased.
+
+```{r echo = FALSE}
+hist(out_samp_errorsB,
+     xlab = "",
+     main = "Mean Out-of-Sample Residual For Model B \n(1000 Runs of Cross-Validation)")
+```
+
+When we plot the predicted popular vote shares for 2024 from each model, we get the following graph.
+
+```{r echo = FALSE}
+
+GDP_new <- d_fred |> 
+  filter(year == 2024 & quarter == 2) |> 
+  select(RDPI_growth_quarterly,GDP_growth_quarterly, unemployment)
+
+# Generate predictions with prediction intervals
+
+modG_p <- predict(modG, GDP_new, interval = "prediction")
+modF_p <- predict(modF, GDP_new, interval = "prediction")
+modE_p <- predict(modE, GDP_new, interval = "prediction")
+modD_p <- predict(modD, GDP_new, interval = "prediction")
+modC_p <- predict(modC, GDP_new, interval = "prediction")
+modB_p <- predict(modB, GDP_new, interval = "prediction")
+modA_p <- predict(modA, GDP_new, interval = "prediction")
+
+# Convert predictions to a data frame
+# I used ChatGPT to be more efficient in coding up this extraction
+pred_data <- data.frame(
+  Model = c("Model G", "Model F", "Model E", "Model D", "Model C", "Model B", "Model A"),
+  fit = c(modG_p[, "fit"], modF_p[, "fit"], modE_p[, "fit"], modD_p[, "fit"], modC_p[, "fit"], modB_p[, "fit"], modA_p[, "fit"]),
+  lwr = c(modG_p[, "lwr"], modF_p[, "lwr"], modE_p[, "lwr"], modD_p[, "lwr"], modC_p[, "lwr"], modB_p[, "lwr"], modA_p[, "lwr"]),
+  upr = c(modG_p[, "upr"], modF_p[, "upr"], modE_p[, "upr"], modD_p[, "upr"], modC_p[, "upr"], modB_p[, "upr"], modA_p[, "upr"])
+)
+
+# Plot with confidence intervals
+ggplot(pred_data, aes(x = Model, y = fit, fill = Model)) +
+  geom_bar(stat = "identity") +
+  geom_errorbar(aes(ymin = lwr, ymax = upr), width = 0.2) +
+  labs(title = "Predicted Incumbent Two-Party National Popular Vote by Model Type", 
+       x = "Model", y = "Two-Party National Popular Vote") +
+  theme_minimal() + 
+  theme(legend.position = "none") + 
+  scale_fill_viridis_d()
+
+```
+
+All of these models, however, are pretty imprecise, offering large prediction intervals that are not very informative for the outcome of the 2024 election. For that reason, we can assume that the economic model of voting behavior, while helpful in identifying overall trends, requires additional information about polls and other political conditions to offer the sort of precision necessary to accurately forecast elections.
+
+# Citations:
+
+Achen, C. H., & Bartels, L. M. (2016). Democracy for realists: *why elections do not produce responsive government.* Princeton University Press.
+
+# Data Sources: 
+
+Data are from the US presidential election popular vote results from 1948-2020, the [Bureau of Economic Analysis](https://apps.bea.gov/iTable/?reqid=19&step=2&isuri=1&categories=survey#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjI2NCJdLFsiRmlyc3RfWWVhciIsIjE5NDciXSxbIkxhc3RfWWVhciIsIjIwMjQiXSxbIlNjYWxlIiwiMCJdLFsiU2VyaWVzIiwiUSJdXX0=.), and [the Federal Reserve Bank of St. Louis](https://fred.stlouisfed.org/).
 
 

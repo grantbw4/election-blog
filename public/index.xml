@@ -6,8 +6,15 @@
     <description>Recent content in Home on Grant&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 09 Sep 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 16 Sep 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://grantbw4.github.io/election-blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Week Two - OLS</title>
+      <link>https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/</link>
+      <pubDate>Mon, 16 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/</guid>
+      <description>Introduction In this second blog post, I want to explore&#xA;1) whether it is possible to predict election outcomes using only the state of the economy 2) and, if so, how well The code used to produce these visualizations is publicly available in my github repository and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, Matthew Dardet.&#xA;Analysis To begin to answer the first question of whether it is possible to predict election outcomes using only the state of the economy I will Federal Reserve Economic Data from the St.</description>
+    </item>
     <item>
       <title>Week One - Basic Model</title>
       <link>https://grantbw4.github.io/election-blog/post/2024/09/09/week-one-basic-model/</link>
