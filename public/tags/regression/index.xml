@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Regression on Grant&#39;s Election Blog</title>
-    <link>http://localhost:7023/election-blog/tags/regression/</link>
+    <link>https://grantbw4.github.io/election-blog/tags/regression/</link>
     <description>Recent content in Regression on Grant&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 09 Sep 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:7023/election-blog/tags/regression/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://grantbw4.github.io/election-blog/tags/regression/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Week One - Basic Model</title>
-      <link>http://localhost:7023/election-blog/post/2024/09/09/week-one-basic-model/</link>
+      <link>https://grantbw4.github.io/election-blog/post/2024/09/09/week-one-basic-model/</link>
       <pubDate>Mon, 09 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:7023/election-blog/post/2024/09/09/week-one-basic-model/</guid>
+      <guid>https://grantbw4.github.io/election-blog/post/2024/09/09/week-one-basic-model/</guid>
       <description>Introduction In this first blog post, my goal is to explore two central questions:&#xA;1) How competitive are presidential elections in the United States? 2) Which states vote blue/red and how consistently? At the end of this blog post, I will also be sharing my first electoral map prediction for the 2024 presidential election. Each week from here on out, I will be updating this model to consider additional predictors like real-time polling averages, historical trends in the electoral college, demographic changes in the United States, and economic conditions, etc.</description>
     </item>
   </channel>

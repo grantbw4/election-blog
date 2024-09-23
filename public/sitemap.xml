@@ -2,39 +2,39 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:7023/election-blog/</loc>
+    <loc>https://grantbw4.github.io/election-blog/</loc>
     <lastmod>2024-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/post/</loc>
+    <loc>https://grantbw4.github.io/election-blog/post/</loc>
     <lastmod>2024-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/post/2024/09/23/week-three-polls/</loc>
+    <loc>https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/</loc>
     <lastmod>2024-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/post/2024/09/16/week-two-ols/</loc>
+    <loc>https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/</loc>
     <lastmod>2024-09-16T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/categories/</loc>
+    <loc>https://grantbw4.github.io/election-blog/categories/</loc>
     <lastmod>2024-09-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/tags/plot/</loc>
+    <loc>https://grantbw4.github.io/election-blog/tags/plot/</loc>
     <lastmod>2024-09-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/categories/r/</loc>
+    <loc>https://grantbw4.github.io/election-blog/categories/r/</loc>
     <lastmod>2024-09-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/tags/r-markdown/</loc>
+    <loc>https://grantbw4.github.io/election-blog/tags/r-markdown/</loc>
     <lastmod>2024-09-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/tags/regression/</loc>
+    <loc>https://grantbw4.github.io/election-blog/tags/regression/</loc>
     <lastmod>2024-09-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/tags/</loc>
+    <loc>https://grantbw4.github.io/election-blog/tags/</loc>
     <lastmod>2024-09-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/post/2024/09/09/week-one-basic-model/</loc>
+    <loc>https://grantbw4.github.io/election-blog/post/2024/09/09/week-one-basic-model/</loc>
     <lastmod>2024-09-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7023/election-blog/about/</loc>
+    <loc>https://grantbw4.github.io/election-blog/about/</loc>
   </url>
 </urlset>
