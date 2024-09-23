@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
+  <head><script src="/election-blog/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=election-blog/livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Week Three - Polls | Grant&#39;s Election Blog</title>
@@ -35,49 +35,63 @@
 <p>The code used to produce these visualizations is publicly available in my <a href="https://github.com/grantbw4/election-blog">github repository</a> and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, <a href="https://www.matthewdardet.com/harvard-election-analytics-2024/">Matthew Dardet</a>.</p>
 <h1 id="analysis">Analysis</h1>
 <p>First, I want to visualize polling data across years and identify whether there is a pattern for which weeks before the election (30 weeks before the election, 29 weeks before the election, 1 week before the election, etc.) are most predictive of the ultimate two-party national popular vote share of the election. I will do this by using a pre-processed, publicly available <a href="https://projects.fivethirtyeight.com/polls/">FiveThirtyEight data set</a> of national polling averages since 1968.</p>
-<p>I am choosing to look at 1988 because Michael Dukakis&rsquo;s &ldquo;death penalty&rdquo; gaffe has often been cited as the death knell of Dukakis&rsquo;s campaign, and I am curious if this is reflected in the polling data. I am also going to investigate 2020 and 2024 as I am very familiar with the timelines of these elections. Given that I am trying to predict the 2024 election, it seems important that I am intimately familiar with the voting trends of 2020, as these trends are the most recent and could best help me predict the outcome of 2024.</p>
-<p><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-5-2.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
-<p><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-6-2.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-6-3.png" width="672" /></p>
+<p>I am choosing to look at 1988 because Michael Dukakis&rsquo;s <a href="https://content.time.com/time/specials/packages/article/0,28804,1844704_1844706_1844712,00.html">&ldquo;death penalty&rdquo; gaffe</a> has often been cited as the death knell of Dukakis&rsquo;s campaign, and I am curious if this is reflected in the polling data. I am also going to investigate 2020 and 2024 as I am very familiar with the timelines of these elections. Given that I am trying to predict the 2024 election, it seems important that I am intimately familiar with the voting trends of 2020, as these trends are the most recent and could best help me predict the outcome of 2024.</p>
+<p><img src="/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /><img src="/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-5-2.png" width="672" /><img src="/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
+<p>From these graphs, we can see several things.</p>
+<p>Many of the events that pundits have characterized as determinative in elections have actually not been all that influential in candidates&rsquo; polling averages. For example, in the 1988 election, neither <a href="https://www.usnews.com/news/articles/2008/01/17/the-photo-op-that-tanked">Michael Dukakis&rsquo;s tank ad gaffe</a> nor George H.W. Bush&rsquo;s <a href="https://www.nytimes.com/2018/12/03/us/politics/bush-willie-horton.html">infamous Willie Horton ad</a> had much of an effect on the polling average. The <a href="https://content.time.com/time/specials/packages/article/0,28804,1844704_1844706_1844712,00.html">death penalty gaffe</a>, however, did appear to offer Bush a sizeable bump in the election.</p>
+<p>We can also see, in 2020, how the polls captured changes in voter sentiment following national emergencies and sizeable events like the COVID market crash and the George Floyd protests. Historically, each party&rsquo;s national conventions tend to boost the polling average of their respective candidate, but this effect has been more muted for the Democrats in recent elections.</p>
+<p>I also find the polling averages since 2024 to be incredibly interesting, specifically the massive boost the Democratic party experienced after Biden dropped out of the presidential election and endorsed Kamala Harris.</p>
+<p>In order to predict the 2024 election, I am going to construct a panel of the weekly two-party national popular vote polling averages in the 30 weeks leading up to the election between 1968 and 2020. I am then going to prepare a regression that assigns a coefficient to each of these weekly polling averages. This regression will then permit me to predict the 2024 election by plugging in this cycle&rsquo;s weekly polling averages so far.</p>
+<p>In order to prevent overfitting, I will use three regularization techniques: ridge regression, LASSO regression, and elastic net regression. I will then compare these regularized approaches to the more basic OLS approach that we employed in week two.</p>
+<p>Briefly stated, both ridge and LASSO regression employ a penalty term in the loss function that shrinks coefficients toward zero. Where OLS minimizes the sum of the squared residuals, Ridge also minimizes a penalty term that is proportional to the coefficients&rsquo; squared value. LASSO does something very similar, except its penalty term is proportional to the coefficients&rsquo; absolute value. This allows some coefficients to equal 0. Elastic Net combines both ridge and LASSO. These regularization techniques all mitigate the chance of overfitting because they preventing the calculation of large coefficients that fit statistical noise and do not consider the possibility of multicollinearity.</p>
+<p><img src="/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /><img src="/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-6-2.png" width="672" /><img src="/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-6-3.png" width="672" /></p>
+<p>From the plots above, we see that, with a larger penalty term hyperparameter, lambda, the regression coefficients shrink <strong>toward</strong> zero faster, in the case of ridge regression, and, in the case of LASSO regression, shrink <strong>to</strong> zero faster.</p>
+<p>By using cross-validation to minimize mean squared error, we will find an optimally predictive value for the hyperparameter, lambda, for each of the three regularization techniques. Once we do so, we observe the following coefficient plot.</p>
 <h1 id="coefficient-plot">Coefficient Plot</h1>
-<pre><code>## [1] 9.575001
-</code></pre>
-<pre><code>## [1] 4.642786
-</code></pre>
-<pre><code>## [1] 2.325853
-</code></pre>
-<img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
-<h1 id="polling-for-2024">Polling for 2024</h1>
+<img src="/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+<p>As is clear in the coefficient plot, the use of regularization techniques dramatically reduces the magnitude of the regression coefficients, perhaps reflecting the pervasiveness of the multicollinearity. Ultimately, our model suggests that the polls from the week of an election are the most important, though weeks as far back as 25 or 26 weeks before the election can still be predictive.</p>
+<p>Using the coefficients outputted from elastic-net regression, and inputting the polling data from 2024 thus far, we find that the Democratic nominee, Kamala Harris, is projected to walk away with 51.8% of the national two-party popular vote share.</p>
+<p>I am not wholly convinced, however, that using data from election cycles since 1968 to determine which polling weeks from 2024 will be most informative of 2024&rsquo;s ultimate outcome is the best way to predict the election. Many of the coefficient values could be products of the randomness of the timing of major campaign turning points rather than reflective of any underlying patterns. My instinct tells me that polling averages become more accurate as the election looms. For this reason, I want to explore some other techniques, like <em>ensembling</em> that other forecasters use.</p>
+<p>Ensembling permits us to merge the predictions of multiple models</p>
+<p>In this section, I will prepare two models to predict 2024&rsquo;s national two-party popular vote share:</p>
+<ol>
+<li>
+<p>An elastic net model using fundamental economic data from <a href="https://fred.stlouisfed.org/">the Federal Reserve Bank of St. Louis</a>.</p>
+</li>
+<li>
+<p>An elastic net model that exclusively uses polling data.</p>
+</li>
+</ol>
+<p>I will then ensemble these models using three approaches:</p>
+<ol>
+<li>
+<p><em>Unweighted</em>: We average the predictions from the fundamental and polling models.</p>
+</li>
+<li>
+<p><em>Silver Weighting Approach:</em> The weights on the polling model increase as election day nears.</p>
+</li>
+<li>
+<p><em>Gelman &amp; King Approach Weighting Approach:</em> The weights on the both the economic and polling model increase as election day nears.</p>
+</li>
+</ol>
+<p>The polling prediction of the Democratic candidate, Kamala Harris, is listed first.</p>
 <h1 id="elastic-net-using-only-fundamental-data">Elastic Net using only Fundamental Data</h1>
-<pre><code>##            s1
-## [1,] 51.23438
-## [2,] 47.63135
-</code></pre>
-<pre><code>##            s1
-## [1,] 50.57824
-## [2,] 47.98181
-</code></pre>
-<pre><code>##            s1
-## [1,] 51.51353
-## [2,] 49.14507
-</code></pre>
-<pre><code>## [1] 0.8556624
-</code></pre>
-<pre><code>## [1] 0.1443376
-</code></pre>
-<pre><code>##            s1
-## [1,] 51.71210
-## [2,] 50.22182
-</code></pre>
-<pre><code>## [1] 0.1443376
-</code></pre>
-<pre><code>## [1] 0.8556624
-</code></pre>
-<pre><code>##            s1
-## [1,] 51.31497
-## [2,] 48.06832
-</code></pre>
+<img src="/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-13-1.png" width="672" />
+<p>Though the ensemble prediction does not add up perfectly to 100 since we are predicting both Democratic and Republican vote share separately, we can clearly see the trend that all three ensemble models project that Harris will be the next president.</p>
+<h2 id="other-methods">Other Methods</h2>
+<p>In recent years, two of the leading voices in election forecasting, Nate Silver and G. Elliott Morris, have publicly sparred on Twitter over their divergent approaches to weighting fundamentals and poll-based forecasts.</p>
+<h1 id="silvers-approach">Silver&rsquo;s Approach</h1>
+<p>Nate Silver outlines his methodology on his site, the <a href="https://www.natesilver.net/p/model-methodology-2024">&ldquo;Silver Bulletin.&rdquo;</a></p>
+<p>In brief, Silver&rsquo;s model prioritizes real-time polls, considering them most predictive of the actual election (and adjusting for polling bias and down-ballot effects of other races). While he does consider economic predictors and political assets like incumbency, these are secondary in importance. His model also has no current assumption about turnout for Democrats versus Republicans.</p>
+<h1 id="morriss-approach">Morris&rsquo;s Approach</h1>
+<p>Morris explains his philosophy on ABC&rsquo;s election site, <a href="https://abcnews.go.com/538/538s-2024-presidential-election-forecast-works/story?id=110867585">FiveThirtyEight.</a></p>
+<p>Morris&rsquo;s model shares many similar characteristics to Silver&rsquo;s like reduced assumptions about COVID restrictions and a large emphasis on real-time polling data. Some of the most significant departures, however, are Morris&rsquo;s more aggressive adjustment for conventions and his assumption about intra-region state correlation. Morris&rsquo;s model also weights economic and political fundamentals more heavily, including these covariates alongside polling data rather than secondarily as Silver does.</p>
+<h1 id="my-opinion">My opinion</h1>
+<p>I personally tend to agree more with Nate Silver&rsquo;s model. My impression is that Morris bakes too many of his own hunches and beliefs into the election forecast. For example, the division of the United States into correlated regions seems incredibly arbitrary and baseless to me. Likewise, Morris believes very strongly in incumbency advantage and is fairly skeptical of the polls, and, for this reason, considers polling data and political and economic fundamentals alongside one another.</p>
+<p>I believe Nate Silver&rsquo;s approach to be much more scientific. It does not allow for as much uncertainty as Morris&rsquo;s and lets polls (adjusted for confidence and bias) speak for themselves as they primarily shape the model. Silver&rsquo;s model, in my mind, is more objective. To me, I don&rsquo;t see much need to assign much weight to electoral patterns and historic behavior when the connection between pre-election polls and actual voting outcomes are much more immediate.</p>
 <h1 id="citations">Citations:</h1>
-<p>Achen, C. H., &amp; Bartels, L. M. (2016). Democracy for realists: <em>why elections do not produce responsive government.</em> Princeton University Press.</p>
+<p>Morris, G. E. (2024, June 11). <em>How 538’s 2024 presidential election forecast works</em>. ABC News. <a href="https://abcnews.go.com/538/538s-2024-presidential-election-forecast-works/story?id=110867585">https://abcnews.go.com/538/538s-2024-presidential-election-forecast-works/story?id=110867585</a></p>
+<p>Silver, N. (2024, June 26). <em>2024 Presidential Election Model Methodology Update</em>. Silver Bulletin. <a href="https://www.natesilver.net/p/model-methodology-2024">https://www.natesilver.net/p/model-methodology-2024</a></p>
 <h1 id="data-sources">Data Sources:</h1>
 <p>Data are from the US presidential election popular vote results from 1948-2020, <a href="https://projects.fivethirtyeight.com/polls/">FiveThirtyEight</a>, and <a href="https://fred.stlouisfed.org/">the Federal Reserve Bank of St. Louis</a>.</p>
 
