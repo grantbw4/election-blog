@@ -6,8 +6,15 @@
     <description>Recent content in Posts on Grant&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 16 Sep 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 23 Sep 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://grantbw4.github.io/election-blog/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Week Three - Polls</title>
+      <link>https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/</link>
+      <pubDate>Mon, 23 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/</guid>
+      <description>Introduction In this third blog post, I want to explore how we can best use polls to predict election outcomes. I will do this through the following steps:&#xA;1) First, I am going to visualize poll accuracy over time. 2) Next, I will use various regularization techniques to create a model that will predict the 2024 election. 3) Then, I will use ensemble learning methods to combine models that incorporate both fundamental (economic) and polling data.</description>
+    </item>
     <item>
       <title>Week Two - OLS</title>
       <link>https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/</link>
