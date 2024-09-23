@@ -31,14 +31,11 @@
 <h2 id="1-first-i-am-going-to-visualize-poll-accuracy-over-time">1) First, I am going to visualize poll accuracy over time.</h2>
 <h2 id="2-next-i-will-use-various-regularization-techniques-to-create-a-model-that-will-predict-the-2024-election">2) Next, I will use various <em>regularization techniques</em> to create a model that will predict the 2024 election.</h2>
 <h2 id="3-then-i-will-use-ensemble-learning-methods-to-combine-models-that-incorporate-both-fundamental-economic-and-polling-data">3) Then, I will use <em>ensemble learning</em> methods to combine models that incorporate both fundamental (economic) and polling data.</h2>
-<h2 id="4-lastly-i-will-discuss-g-elliott-morris-and-nate-silvers-contrasting-approaches-when-it-comes-to-weighting-fundamental-and-poll-based-forecasts">4) Lastly, I will discuss G. Elliott Morris and Nate Silver&rsquo;s contrasting approaches when it comes to weighting fundamental and poll-based forecasts.</h2>
+<h2 id="4-lastly-i-will-discuss-g-elliott-morris-and-nate-silvers-contrasting-approaches-when-it-comes-to-weighting-fundamental-and-poll-based-forecasts">4) Lastly, I will discuss G. Elliott Morris and Nate Silver&rsquo;s <em>contrasting</em> approaches when it comes to weighting fundamental and poll-based forecasts.</h2>
 <p>The code used to produce these visualizations is publicly available in my <a href="https://github.com/grantbw4/election-blog">github repository</a> and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, <a href="https://www.matthewdardet.com/harvard-election-analytics-2024/">Matthew Dardet</a>.</p>
 <h1 id="analysis">Analysis</h1>
-<h1 id="citations">Citations:</h1>
-<p>Achen, C. H., &amp; Bartels, L. M. (2016). Democracy for realists: <em>why elections do not produce responsive government.</em> Princeton University Press.</p>
-<h1 id="data-sources">Data Sources:</h1>
-<p>Data are from the US presidential election popular vote results from 1948-2020, <a href="https://projects.fivethirtyeight.com/polls/">FiveThirtyEight</a>, and <a href="https://fred.stlouisfed.org/">the Federal Reserve Bank of St. Louis</a>.</p>
-<h1 id="poll-averages-in-2020">Poll averages in 2020</h1>
+<p>First, I want to visualize polling data across years and identify whether there is a pattern for which weeks before the election (30 weeks before the election, 29 weeks before the election, 1 week before the election, etc.) are most predictive of the ultimate two-party national popular vote share of the election. I will do this by using a pre-processed, publicly available <a href="https://projects.fivethirtyeight.com/polls/">FiveThirtyEight data set</a> of national polling averages since 1968.</p>
+<p>I am choosing to look at 1988 because Michael Dukakis&rsquo;s &ldquo;death penalty&rdquo; gaffe has often been cited as the death knell of Dukakis&rsquo;s campaign, and I am curious if this is reflected in the polling data. I am also going to investigate 2020 and 2024 as I am very familiar with the timelines of these elections. Given that I am trying to predict the 2024 election, it seems important that I am intimately familiar with the voting trends of 2020, as these trends are the most recent and could best help me predict the outcome of 2024.</p>
 <p><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-5-2.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
 <p><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-6-2.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/index_files/figure-html/unnamed-chunk-6-3.png" width="672" /></p>
 <h1 id="coefficient-plot">Coefficient Plot</h1>
@@ -79,6 +76,10 @@
 ## [1,] 51.31497
 ## [2,] 48.06832
 </code></pre>
+<h1 id="citations">Citations:</h1>
+<p>Achen, C. H., &amp; Bartels, L. M. (2016). Democracy for realists: <em>why elections do not produce responsive government.</em> Princeton University Press.</p>
+<h1 id="data-sources">Data Sources:</h1>
+<p>Data are from the US presidential election popular vote results from 1948-2020, <a href="https://projects.fivethirtyeight.com/polls/">FiveThirtyEight</a>, and <a href="https://fred.stlouisfed.org/">the Federal Reserve Bank of St. Louis</a>.</p>
 
 </main>
 
