@@ -59,40 +59,28 @@ $$
 I will also control for additional variables like Iraq war casualties, % change in county-level per capita income, and ad spending to mitigate omitted variable bias.
 
 
-% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-% Date and time: Sun, Sep 29, 2024 - 13:09:17
-\begin{table}[!htbp] \centering 
-  \caption{County Model Regression Results} 
-  \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lc} 
-\\[-1.8ex]\hline 
-\hline \\[-1.8ex] 
- & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
-\cline{2-2} 
-\\[-1.8ex] & Incumbent Vote Swing \\ 
-\hline \\[-1.8ex] 
- Federal Grants (%) & 0.004$^{***}$ \\ 
-  & (0.001) \\ 
-  & \\ 
- Competitive State & 0.155$^{*}$ \\ 
-  & (0.077) \\ 
-  & \\ 
- Federal Grants * Competitive State & 0.006$^{***}$ \\ 
-  & (0.002) \\ 
-  & \\ 
- Constant & $-$6.523$^{***}$ \\ 
-  & (0.085) \\ 
-  & \\ 
-\hline \\[-1.8ex] 
-Observations & 17,959 \\ 
-R$^{2}$ & 0.420 \\ 
-Adjusted R$^{2}$ & 0.419 \\ 
-\hline 
-\hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.05; `\(^{**}\)`p$<$0.01; `\(^{***}\)`p$<$0.001} \\ 
- & \multicolumn{1}{r}{Standard errors are in parentheses.} \\ 
-\end{tabular} 
-\end{table} 
+<table style="text-align:center"><caption><strong>County Model Regression Results</strong></caption>
+<tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td><em>Dependent variable:</em></td></tr>
+<tr><td></td><td colspan="1" style="border-bottom: 1px solid black"></td></tr>
+<tr><td style="text-align:left"></td><td>Incumbent Vote Swing</td></tr>
+<tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Federal Grants (%)</td><td>0.004<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.001)</td></tr>
+<tr><td style="text-align:left"></td><td></td></tr>
+<tr><td style="text-align:left">Competitive State</td><td>0.155<sup>*</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.077)</td></tr>
+<tr><td style="text-align:left"></td><td></td></tr>
+<tr><td style="text-align:left">Federal Grants * Competitive State</td><td>0.006<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.002)</td></tr>
+<tr><td style="text-align:left"></td><td></td></tr>
+<tr><td style="text-align:left">Constant</td><td>-6.523<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.085)</td></tr>
+<tr><td style="text-align:left"></td><td></td></tr>
+<tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Observations</td><td>17,959</td></tr>
+<tr><td style="text-align:left">R<sup>2</sup></td><td>0.420</td></tr>
+<tr><td style="text-align:left">Adjusted R<sup>2</sup></td><td>0.419</td></tr>
+<tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td style="text-align:right"><sup>*</sup>p<0.05; <sup>**</sup>p<0.01; <sup>***</sup>p<0.001</td></tr>
+<tr><td style="text-align:left"></td><td style="text-align:right">Standard errors are in parentheses.</td></tr>
+</table>
 
 After controlling for potential confounders, running the regression, and outputting the variables of interest, we can note the following:
 
@@ -106,11 +94,7 @@ All of these main coefficients of interest are statistically significant, and we
 
 # Incumbency in 2024
 
-Now that we have establsihed 
-
-Pork visualized
-
-Time for Change Model
+Now that we have established the relevancy of incumbency in the context of presidential elections, it is natural to consider the role that incumbency advantage will play in an election year as unprecedented as 2024.
 
 interesting election where both candidates are incumbents...but also no
 

@@ -200,7 +200,7 @@ pork_mod_county_2 <- lm(dvoteswing_inc ~ dpct_grants*comp_state + as.factor(year
 
 # I used Chat GPT for help here
 
-stargazer(pork_mod_county_2, type = "latex", 
+stargazer(pork_mod_county_2, type = "html", 
           title = "County Model Regression Results",
           dep.var.labels = "Incumbent Vote Swing",
           covariate.labels = c("Federal Grants (%)", 
@@ -225,11 +225,7 @@ All of these main coefficients of interest are statistically significant, and we
 
 # Incumbency in 2024
 
-Now that we have establsihed 
-
-Pork visualized
-
-Time for Change Model
+Now that we have established the relevancy of incumbency in the context of presidential elections, it is natural to consider the role that incumbency advantage will play in an election year as unprecedented as 2024.
 
 interesting election where both candidates are incumbents...but also no
 
