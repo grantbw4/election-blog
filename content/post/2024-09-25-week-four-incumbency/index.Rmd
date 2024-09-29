@@ -1,7 +1,7 @@
 ---
 title: Week Four - Incumbency
 author: 'Grant Williams'
-date: '2024-10-01'
+date: '2024-09-29'
 slug: week-four-incumbency
 categories: []
 tags: []
@@ -137,7 +137,7 @@ Many have hypothesized that incumbency advantage is largely the product of incum
 
 The code used to produce these visualizations is publicly available in my [github repository](https://github.com/grantbw4/election-blog) and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, [Matthew Dardet](https://www.matthewdardet.com/harvard-election-analytics-2024/).
 
-## Analysis
+# Analysis
 
 The term, **"pork,"** was first used to reference questionably appropriated public spending in the 19th-century by American author Edward Everett Hale in his 1863 short story, "The Children of the Public." Contained within his larger book. *The Man Without a Country*, "The Children of the Public" uses the imagery of pork barrels to suggest wasteful spending. At a time when refrigerators were not yet invented, pork would be salted and stored in large, wooden barrels. These wooden barrels were quite valuable. Hence, "pork barrel spending" is like taking a cut from this larger pool of resources. Examples of "pork" include earmarked investments in unimportant projects that go toward specific states or constituents, often to gain their favor or reward them for their support. 
 
@@ -182,11 +182,12 @@ $$
 $$
 
 $$
- \beta_t + \text{(Year Fixed Effects)} + \delta_t$$
+ \beta_t + \text{(Year Fixed Effects)} + \delta_t
+$$
 
 I will also control for additional variables like Iraq war casualties, % change in county-level per capita income, and ad spending to mitigate omitted variable bias.
 
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 # Pork county model. 
 d_pork_county <- read_csv("fedgrants_bycounty_1988-2008.csv")
@@ -199,7 +200,7 @@ pork_mod_county_2 <- lm(dvoteswing_inc ~ dpct_grants*comp_state + as.factor(year
 
 # I used Chat GPT for help here
 
-stargazer(pork_mod_county_2, type = "text", 
+stargazer(pork_mod_county_2, type = "latex", 
           title = "County Model Regression Results",
           dep.var.labels = "Incumbent Vote Swing",
           covariate.labels = c("Federal Grants (%)", 
@@ -222,7 +223,9 @@ After controlling for potential confounders, running the regression, and outputt
 
 All of these main coefficients of interest are statistically significant, and we can conclude that federal grant, *pork*, spending, does have a significant effect on incumbent vote share, and that it is greater in swing states. This would help explain why *pork* seems to go disproportionately to swing states.
 
-## Application
+# Incumbency in 2024
+
+Now that we have establsihed 
 
 Pork visualized
 

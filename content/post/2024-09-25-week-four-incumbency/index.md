@@ -1,7 +1,7 @@
 ---
 title: Week Four - Incumbency
 author: 'Grant Williams'
-date: '2024-10-01'
+date: '2024-09-29'
 slug: week-four-incumbency
 categories: []
 tags: []
@@ -30,7 +30,7 @@ Many have hypothesized that incumbency advantage is largely the product of incum
 
 The code used to produce these visualizations is publicly available in my [github repository](https://github.com/grantbw4/election-blog) and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, [Matthew Dardet](https://www.matthewdardet.com/harvard-election-analytics-2024/).
 
-## Analysis
+# Analysis
 
 The term, **"pork,"** was first used to reference questionably appropriated public spending in the 19th-century by American author Edward Everett Hale in his 1863 short story, "The Children of the Public." Contained within his larger book. *The Man Without a Country*, "The Children of the Public" uses the imagery of pork barrels to suggest wasteful spending. At a time when refrigerators were not yet invented, pork would be salted and stored in large, wooden barrels. These wooden barrels were quite valuable. Hence, "pork barrel spending" is like taking a cut from this larger pool of resources. Examples of "pork" include earmarked investments in unimportant projects that go toward specific states or constituents, often to gain their favor or reward them for their support. 
 
@@ -53,39 +53,46 @@ $$
 $$
 
 $$
- \beta_t + \text{(Year Fixed Effects)} + \delta_t$$`
+ \beta_t + \text{(Year Fixed Effects)} + \delta_t
+$$
 
 I will also control for additional variables like Iraq war casualties, % change in county-level per capita income, and ad spending to mitigate omitted variable bias.
 
 
-```
-## 
-## County Model Regression Results
-## ======================================================================
-##                                            Dependent variable:        
-##                                    -----------------------------------
-##                                           Incumbent Vote Swing        
-## ----------------------------------------------------------------------
-## Federal Grants (%)                              0.004***              
-##                                                  (0.001)              
-##                                                                       
-## Competitive State                                0.155*               
-##                                                  (0.077)              
-##                                                                       
-## Federal Grants * Competitive State              0.006***              
-##                                                  (0.002)              
-##                                                                       
-## Constant                                        -6.523***             
-##                                                  (0.085)              
-##                                                                       
-## ----------------------------------------------------------------------
-## Observations                                     17,959               
-## R2                                                0.420               
-## Adjusted R2                                       0.419               
-## ======================================================================
-## Note:                                    *p<0.05; **p<0.01; ***p<0.001
-##                                    Standard errors are in parentheses.
-```
+% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
+% Date and time: Sun, Sep 29, 2024 - 13:09:17
+\begin{table}[!htbp] \centering 
+  \caption{County Model Regression Results} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-2} 
+\\[-1.8ex] & Incumbent Vote Swing \\ 
+\hline \\[-1.8ex] 
+ Federal Grants (%) & 0.004$^{***}$ \\ 
+  & (0.001) \\ 
+  & \\ 
+ Competitive State & 0.155$^{*}$ \\ 
+  & (0.077) \\ 
+  & \\ 
+ Federal Grants * Competitive State & 0.006$^{***}$ \\ 
+  & (0.002) \\ 
+  & \\ 
+ Constant & $-$6.523$^{***}$ \\ 
+  & (0.085) \\ 
+  & \\ 
+\hline \\[-1.8ex] 
+Observations & 17,959 \\ 
+R$^{2}$ & 0.420 \\ 
+Adjusted R$^{2}$ & 0.419 \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.05; `\(^{**}\)`p$<$0.01; `\(^{***}\)`p$<$0.001} \\ 
+ & \multicolumn{1}{r}{Standard errors are in parentheses.} \\ 
+\end{tabular} 
+\end{table} 
 
 After controlling for potential confounders, running the regression, and outputting the variables of interest, we can note the following:
 
@@ -97,7 +104,9 @@ After controlling for potential confounders, running the regression, and outputt
 
 All of these main coefficients of interest are statistically significant, and we can conclude that federal grant, *pork*, spending, does have a significant effect on incumbent vote share, and that it is greater in swing states. This would help explain why *pork* seems to go disproportionately to swing states.
 
-## Application
+# Incumbency in 2024
+
+Now that we have establsihed 
 
 Pork visualized
 
