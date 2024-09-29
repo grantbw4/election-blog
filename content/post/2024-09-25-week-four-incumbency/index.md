@@ -7,10 +7,9 @@ categories: []
 tags: []
 ---
 
-
 # Introduction
 
-In this fourth blog post, I want to explore the subject of *incumbency.*
+In this fourth blog post, I want to explore the subject of **incumbency.**
 
 
 
@@ -53,7 +52,7 @@ $$
 $$
 
 $$
- \beta_t + \text{(Year Fixed Effects)} + \delta_t
+ \beta_t \text{(Year Fixed Effects)} + \delta_t \text{(Additional Controls)}
 $$
 
 I will also control for additional variables like Iraq war casualties, % change in county-level per capita income, and ad spending to mitigate omitted variable bias.
@@ -96,14 +95,19 @@ All of these main coefficients of interest are statistically significant, and we
 
 Now that we have established the relevancy of incumbency in the context of presidential elections, it is natural to consider the role that incumbency advantage will play in an election year as unprecedented as 2024.
 
-interesting election where both candidates are incumbents...but also no
+This election cycle is particularly distinct in that neither Trump nor Harris fits the usual profile of an "incumbent" — neither was the president in the term immediately previous this upcoming election. Biden was. However, it is arguable that both, also, could be considered incumbent to some extent — Trump, because he has served as president once before, and, Harris, because she was Vice President under Joe Biden. 
+
+My personal perspective is that Harris could be described as the "incumbent" candidate more accurately than Trump. Her name was on Biden's 2024 ticket and she was a highly visible presence on the campaign trail. While neither Harris nor Trump lack name recognition, Harris has full access to Biden's campaign funds since they ran on the same ticket, and she benefits from all the same network and "pork" advantages that a typical incumbent would. Both Trump and Harris also experienced relative ease in securing their respective party nominations, an advantage incumbents' usually possess. 
+
+Allan Lichtman, an American University professor who specializes in modern American history and political science, has accurately predicted 9 out of the 10 past presidential elections using a ["13 key guide."](https://www.usatoday.com/story/graphics/2024/09/29/allan-lichtman-election-prediction-system-explained/75352476007/) This guide relies heavily on incumbent party advantage, something Harris possesses that Trump does not. In this way, she stands to gain more from incumbency advantage than Trump despite not having been president before, herself. Lichtman has also predicted a Harris win, Kamala securing 8 of the 11 keys on which Lichtman took a position (Padilla 2024).
 
 # Citations:
-
 
 Hale, Edward Everett, et al. **The Man without a Country**. Little, Brown, and Company, 1898.
 
 Kriner, Douglas L., and Andrew Reeves “Presidential Particularism and Divide-the-Dollar Politics.” *American Political Science Review* 109.1 (2015): 155–171. Web.
+
+Padilla, Ramon. “Historian’s Election Prediction System Is (Almost) Always Correct. Here’s How It Works.” *USA Today*, Gannett Satellite Information Network, 29 Sept. 2024, www.usatoday.com/story/graphics/2024/09/29/allan-lichtman-election-prediction-system-explained/75352476007/. 
 
 “Reelection Rates over the Years.” *OpenSecrets*, www.opensecrets.org/elections-overview/reelection-rates. Accessed 28 Sept. 2024. 
 

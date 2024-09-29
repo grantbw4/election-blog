@@ -27,7 +27,7 @@
 
 <main>
 <h1 id="introduction">Introduction</h1>
-<p>In this fourth blog post, I want to explore the subject of <em>incumbency.</em></p>
+<p>In this fourth blog post, I want to explore the subject of <strong>incumbency.</strong></p>
 <img src="/election-blog/post/2024/09/29/week-four-incumbency/index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
 <p>In the 11 presidential elections since 1948 in which the incumbent president was running, the incumbent&rsquo;s bid was successful 7 times. As a percentage, this is roughly 64% of the time.</p>
 <p>Political pundits have long identified this apparent benefit of currently holding the political office for which one is running as <em>incumbency advantage.</em></p>
@@ -48,7 +48,7 @@ IncVoteSwing_t = \beta_0 + \beta_1(\Delta FedGrantSpend_t \text{ x }CompetitiveS
 $$$$
 \beta_2\Delta FedGrantSpend + \beta_3CompetitiveState_t + 
 $$$$
- \beta_t + \text{(Year Fixed Effects)} + \delta_t
+ \beta_t \text{(Year Fixed Effects)} + \delta_t \text{(Additional Controls)}
 $$<p>I will also control for additional variables like Iraq war casualties, % change in county-level per capita income, and ad spending to mitigate omitted variable bias.</p>
 <table style="text-align:center"><caption><strong>County Model Regression Results</strong></caption>
 <tr><td colspan="2" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td><em>Dependent variable:</em></td></tr>
@@ -87,10 +87,13 @@ $$<p>I will also control for additional variables like Iraq war casualties, % ch
 <p>All of these main coefficients of interest are statistically significant, and we can conclude that federal grant, <em>pork</em>, spending, does have a significant effect on incumbent vote share, and that it is greater in swing states. This would help explain why <em>pork</em> seems to go disproportionately to swing states.</p>
 <h1 id="incumbency-in-2024">Incumbency in 2024</h1>
 <p>Now that we have established the relevancy of incumbency in the context of presidential elections, it is natural to consider the role that incumbency advantage will play in an election year as unprecedented as 2024.</p>
-<p>interesting election where both candidates are incumbents&hellip;but also no</p>
+<p>This election cycle is particularly distinct in that neither Trump nor Harris fits the usual profile of an &ldquo;incumbent&rdquo; — neither was the president in the term immediately previous this upcoming election. Biden was. However, it is arguable that both, also, could be considered incumbent to some extent — Trump, because he has served as president once before, and, Harris, because she was Vice President under Joe Biden.</p>
+<p>My personal perspective is that Harris could be described as the &ldquo;incumbent&rdquo; candidate more accurately than Trump. Her name was on Biden&rsquo;s 2024 ticket and she was a highly visible presence on the campaign trail. While neither Harris nor Trump lack name recognition, Harris has full access to Biden&rsquo;s campaign funds since they ran on the same ticket, and she benefits from all the same network and &ldquo;pork&rdquo; advantages that a typical incumbent would. Both Trump and Harris also experienced relative ease in securing their respective party nominations, an advantage incumbents&rsquo; usually possess.</p>
+<p>Allan Lichtman, an American University professor who specializes in modern American history and political science, has accurately predicted 9 out of the 10 past presidential elections using a <a href="https://www.usatoday.com/story/graphics/2024/09/29/allan-lichtman-election-prediction-system-explained/75352476007/">&ldquo;13 key guide.&rdquo;</a> This guide relies heavily on incumbent party advantage, something Harris possesses that Trump does not. In this way, she stands to gain more from incumbency advantage than Trump despite not having been president before, herself. Lichtman has also predicted a Harris win, Kamala securing 8 of the 11 keys on which Lichtman took a position (Padilla 2024).</p>
 <h1 id="citations">Citations:</h1>
 <p>Hale, Edward Everett, et al. <strong>The Man without a Country</strong>. Little, Brown, and Company, 1898.</p>
 <p>Kriner, Douglas L., and Andrew Reeves “Presidential Particularism and Divide-the-Dollar Politics.” <em>American Political Science Review</em> 109.1 (2015): 155–171. Web.</p>
+<p>Padilla, Ramon. “Historian’s Election Prediction System Is (Almost) Always Correct. Here’s How It Works.” <em>USA Today</em>, Gannett Satellite Information Network, 29 Sept. 2024, <a href="https://www.usatoday.com/story/graphics/2024/09/29/allan-lichtman-election-prediction-system-explained/75352476007/">www.usatoday.com/story/graphics/2024/09/29/allan-lichtman-election-prediction-system-explained/75352476007/</a>.</p>
 <p>“Reelection Rates over the Years.” <em>OpenSecrets</em>, <a href="https://www.opensecrets.org/elections-overview/reelection-rates">www.opensecrets.org/elections-overview/reelection-rates</a>. Accessed 28 Sept. 2024.</p>
 <h1 id="data-sources">Data Sources:</h1>
 <p>Data are from the US presidential election popular vote results from 1948-2020 and <a href="https://www-cambridge-org.ezp-prod1.hul.harvard.edu/core/journals/american-political-science-review/article/presidential-particularism-and-dividethedollar-politics/962ABE4FC41A6FF3E1F95CE1B54D1ADD">Kriner and Reeves 2015</a>.</p>
