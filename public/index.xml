@@ -2,38 +2,45 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Home on Grant&#39;s Election Blog</title>
-    <link>https://grantbw4.github.io/election-blog/</link>
+    <link>http://localhost:4321/election-blog/</link>
     <description>Recent content in Home on Grant&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 23 Sep 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://grantbw4.github.io/election-blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 01 Oct 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:4321/election-blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Week Four - Incumbency</title>
+      <link>http://localhost:4321/election-blog/post/2024/10/01/week-four-incumbency/</link>
+      <pubDate>Tue, 01 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:4321/election-blog/post/2024/10/01/week-four-incumbency/</guid>
+      <description>Introduction In this fourth blog post, I want to explore the subject of incumbency.&#xA;In the 11 presidential elections since 1948 in which the incumbent president was running, the incumbent&amp;rsquo;s bid was successful 7 times. As a percentage, this is roughly 64% of the time.&#xA;Political pundits have long identified this apparent benefit of currently holding the political office for which one is running as incumbency advantage.&#xA;One need only take a look at the House reelection rates among incumbent candidates to see clear evidence of this advantage.</description>
+    </item>
     <item>
       <title>Week Three - Polls</title>
-      <link>https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/</link>
+      <link>http://localhost:4321/election-blog/post/2024/09/23/week-three-polls/</link>
       <pubDate>Mon, 23 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>https://grantbw4.github.io/election-blog/post/2024/09/23/week-three-polls/</guid>
+      <guid>http://localhost:4321/election-blog/post/2024/09/23/week-three-polls/</guid>
       <description>Introduction In this third blog post, I want to explore how we can best use polls to predict election outcomes. I will do this through the following steps:&#xA;1) First, I am going to visualize poll accuracy over time. 2) Next, I will use various regularization techniques to create a model that will predict the 2024 election. 3) Then, I will use ensemble learning methods to combine models that incorporate both fundamental (economic) and polling data.</description>
     </item>
     <item>
       <title>Week Two - OLS</title>
-      <link>https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/</link>
+      <link>http://localhost:4321/election-blog/post/2024/09/16/week-two-ols/</link>
       <pubDate>Mon, 16 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>https://grantbw4.github.io/election-blog/post/2024/09/16/week-two-ols/</guid>
+      <guid>http://localhost:4321/election-blog/post/2024/09/16/week-two-ols/</guid>
       <description>Introduction In this second blog post, I want to explore&#xA;1) whether it is possible to predict election outcomes using only the state of the economy 2) and, if so, how well The code used to produce these visualizations is publicly available in my github repository and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, Matthew Dardet.&#xA;Analysis To begin to answer the first question of whether it is possible to predict election outcomes using only the state of the economy, I will merge Federal Reserve Economic Data from the St.</description>
     </item>
     <item>
       <title>Week One - Basic Model</title>
-      <link>https://grantbw4.github.io/election-blog/post/2024/09/09/week-one-basic-model/</link>
+      <link>http://localhost:4321/election-blog/post/2024/09/09/week-one-basic-model/</link>
       <pubDate>Mon, 09 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>https://grantbw4.github.io/election-blog/post/2024/09/09/week-one-basic-model/</guid>
+      <guid>http://localhost:4321/election-blog/post/2024/09/09/week-one-basic-model/</guid>
       <description>Introduction In this first blog post, my goal is to explore two central questions:&#xA;1) How competitive are presidential elections in the United States? 2) Which states vote blue/red and how consistently? At the end of this blog post, I will also be sharing my first electoral map prediction for the 2024 presidential election. Each week from here on out, I will be updating this model to consider additional predictors like real-time polling averages, historical trends in the electoral college, demographic changes in the United States, and economic conditions, etc.</description>
     </item>
     <item>
       <title>About Hugo XMin</title>
-      <link>https://grantbw4.github.io/election-blog/about/</link>
+      <link>http://localhost:4321/election-blog/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://grantbw4.github.io/election-blog/about/</guid>
+      <guid>http://localhost:4321/election-blog/about/</guid>
       <description>XMin is the first Hugo theme I have designed. The original reason that I wrote it was I needed a minimal example of Hugo themes when I was writing the blogdown book. Basically I wanted a simple theme that supports a navigation menu, a home page, other single pages, lists of pages, blog posts, categories, tags, and RSS. That is all. Nothing fancy. In terms of CSS and JavaScript, I really want to keep them minimal.</description>
     </item>
   </channel>

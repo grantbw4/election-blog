@@ -44,47 +44,19 @@ As is visible, swing states appear to have historically received more federal gr
 
 To further test this **pork** theory, I will run a regression at the county level. I am interested in determining whether there is a statistically significant relationship between incumbent vote swing and federal grant spending and if this relationship differs for districts in competitive and non-competitive states. A state will be considered competitive if the losing candidate averaged at least 45% in the last three presidential elections. 
 
-`$$IncVoteSwing_t = \beta_0 + \beta_1(\Delta FedGrantSpend_t \text{ x }CompetitiveState_t) + \beta_2\Delta FedGrantSpend + \beta_3CompetitiveState_t +\beta_t \text{Year Fixed Effects} + \delta_t$$`
+
+$$
+IncVoteSwing_t = \beta_0 + \beta_1(\Delta FedGrantSpend_t \text{ x }CompetitiveState_t) +
+$$
+$$
+\beta_2\Delta FedGrantSpend + \beta_3CompetitiveState_t + 
+$$
+
+$$
+ \beta_t + \text{(Year Fixed Effects)} + \delta_t$$`
+
 I will also control for additional variables like Iraq war casualties, % change in county-level per capita income, and ad spending to mitigate omitted variable bias.
 
-
-``` r
-# Pork county model. 
-d_pork_county <- read_csv("fedgrants_bycounty_1988-2008.csv")
-```
-
-```
-## Rows: 18465 Columns: 16
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr  (3): state, county, state_abb
-## dbl (13): year, state_FIPS, county_FIPS, dvoteswing_inc, dpct_grants, dpc_in...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-```
-
-``` r
-pork_mod_county_2 <- lm(dvoteswing_inc ~ dpct_grants*comp_state + as.factor(year) +
-                          dpc_income + inc_ad_diff + inc_campaign_diff + 
-                          dhousevote_inc + iraq_cas2004 + iraq_cas2008 + 
-                          dpct_popl,
-                        data = d_pork_county)
-
-# I used Chat GPT for help here
-
-stargazer(pork_mod_county_2, type = "text", 
-          title = "County Model Regression Results",
-          dep.var.labels = "Incumbent Vote Swing",
-          covariate.labels = c("Federal Grants (%)", 
-                               "Competitive State", 
-                               "Federal Grants * Competitive State"),
-          omit = c("year", "dpc_income", "inc_ad_diff", "inc_campaign_diff", 
-                    "dhousevote_inc", "iraq_cas2004", "iraq_cas2008", "dpct_popl"),
-          star.cutoffs = c(0.05, 0.01, 0.001), 
-          notes = "Standard errors are in parentheses.", 
-          omit.stat = c("f", "ser"))
-```
 
 ```
 ## 
@@ -144,4 +116,4 @@ Kriner, Douglas L., and Andrew Reeves “Presidential Particularism and Divide-t
 
 # Data Sources: 
 
-Data are from the US presidential election popular vote results from 1948-2020, [Kriner and Reeves 2015](https://www-cambridge-org.ezp-prod1.hul.harvard.edu/core/journals/american-political-science-review/article/presidential-particularism-and-dividethedollar-politics/962ABE4FC41A6FF3E1F95CE1B54D1ADD), and [the Federal Reserve Bank of St. Louis](https://fred.stlouisfed.org/).
+Data are from the US presidential election popular vote results from 1948-2020 and [Kriner and Reeves 2015](https://www-cambridge-org.ezp-prod1.hul.harvard.edu/core/journals/american-political-science-review/article/presidential-particularism-and-dividethedollar-politics/962ABE4FC41A6FF3E1F95CE1B54D1ADD).
