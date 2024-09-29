@@ -1,12 +1,12 @@
 ---
-title: "Week Four - Incumbency"
-author: "Grant Williams"
-date: "2024-10-01"
-output: pdf_document
+title: Week Four - Incumbency
+author: 'Grant Williams'
+date: '2024-10-01'
+slug: week-four-incumbency
 categories: []
 tags: []
-slug: "week-four-incumbency"
 ---
+
 
 # Introduction
 
