@@ -220,7 +220,7 @@ After controlling for potential confounders, running the regression, and outputt
 
 3) The effect of federal grant spending on incumbent vote swing is greater in competitive states.
 
-All of these main coefficients of interest are statistically significant, and we can conclude that federal grant, *pork*, spending, does have a significant effect on incumbent vote share, and that it is greater in swing states. This would help explain why *pork* seems to go disproportionately to swing states.
+All of these main coefficients of interest are statistically significant, and we can conclude that federal grant spending, does have a significant effect on incumbent vote share, and that it is greater in swing states. This would help explain why *pork* seems to go disproportionately to swing states.
 
 # Incumbency in 2024
 
@@ -234,7 +234,7 @@ Allan Lichtman, an American University professor who specializes in modern Ameri
 
 # Citations:
 
-Hale, Edward Everett, et al. **The Man without a Country**. Little, Brown, and Company, 1898.
+Hale, Edward Everett, et al. *The Man without a Country*. Little, Brown, and Company, 1898.
 
 Kriner, Douglas L., and Andrew Reeves “Presidential Particularism and Divide-the-Dollar Politics.” *American Political Science Review* 109.1 (2015): 155–171. Web.
 
