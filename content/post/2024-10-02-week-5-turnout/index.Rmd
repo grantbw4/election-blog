@@ -740,7 +740,7 @@ totals <- ensemble.2.pred*(100/the_sum)
 
 Doing so, we find that the Democrats are projected to have a narrow lead in the two-party popular vote nationally.
 
-```{r, echo = TRUE, warning = FALSE, message = FALSE, results = 'asis'}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 paste0("Democrat two-party vote share: ", signif(totals[1]))
 paste0("Republican two-party vote share: ", signif(totals[2]))
