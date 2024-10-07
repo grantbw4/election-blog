@@ -47,15 +47,88 @@ Both [Sabato's Crystal Ball](https://centerforpolitics.org/crystalball/2024-pres
 - Pennsylvania
 - Wisconsin
 
-While it is not inconceivable that other states/districts could unexpectedly flip (Florida, Ohio, Nebraska 2nd district, Virgina, Texas, etc), it is highly unlikely that one of these states would 'decide' the election. If Florida were to go blue, for example, other more competitive states would have likely gone blue as well, clinching the election for Harris. While there exist realities where Texas or Florida or Ohio could be the tipping point of the presidential election, for the purposes of this week's blog post, I will focus on the seven most commonly cited battleground states.
+While it is not inconceivable that other states/districts could unexpectedly flip (Florida, Ohio, Nebraska 2nd district, Virgina, Texas, etc), it is unlikely that one of these states/districts would 'decide' the election. If Florida were to go blue, for example, other more competitive states would have likely gone blue as well, clinching the election for Harris. While there exist realities where Texas or Florida or Ohio could be the tipping point of the presidential election, for the purposes of this week's blog post, I will focus on the seven most commonly cited battleground states.
 
 With this assumption in place, assuming other states and districts vote as they did in 2020, the base electoral map for 2024 looks as follows:
 
 
 
+                  state      party electors
+1               alabama Republican        9
+2                alaska Republican        3
+3               arizona    Toss Up       11
+4              arkansas Republican        6
+5            california   Democrat       54
+6              colorado   Democrat       10
+7           connecticut   Democrat        7
+8              delaware   Democrat        3
+9  district of columbia   Democrat        3
+10              florida Republican       30
+11              georgia    Toss Up       16
+12               hawaii   Democrat        4
+13                idaho Republican        4
+14             illinois   Democrat       19
+15              indiana Republican       11
+16                 iowa Republican        6
+17               kansas Republican        6
+18             kentucky Republican        8
+19            louisiana Republican        8
+20                maine   Democrat        4
+21             maryland   Democrat       10
+22        massachusetts   Democrat       11
+23             michigan    Toss Up       15
+24            minnesota   Democrat       10
+25          mississippi Republican        6
+26             missouri Republican       10
+27              montana Republican        4
+28             nebraska Republican        5
+29               nevada    Toss Up        6
+30        new hampshire   Democrat        4
+31           new jersey   Democrat       14
+32           new mexico   Democrat        5
+33             new york   Democrat       28
+34       north carolina    Toss Up       16
+35         north dakota Republican        3
+36                 ohio Republican       17
+37             oklahoma Republican        7
+38               oregon   Democrat        8
+39         pennsylvania    Toss Up       19
+40         rhode island   Democrat        4
+41       south carolina Republican        9
+42         south dakota Republican        3
+43            tennessee Republican       11
+44                texas Republican       40
+45                 utah Republican        6
+46              vermont   Democrat        3
+47             virginia   Democrat       13
+48           washington   Democrat       12
+49        west virginia Republican        4
+50            wisconsin    Toss Up       10
+51              wyoming Republican        3
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-2.png" width="672" />
+
+As we can see, this election cycle is incredibly competitive. 93 electoral votes reside in the seven toss-up states. Neither the Democrats nor the Republicans can claim a clear edge in the electoral college.
+
+# Preparing My Electoral College Model
+
+Using state-level polling average data since 1980 from [FiveThirtyEight](https://projects.fivethirtyeight.com/polls/) and national economic data from the [Federal Reserve Bank of St. Louis](https://fred.stlouisfed.org/), I construct an elastic net model that uses the following fundamental and polling features:
+
+- Latest polling average for the Republican candidate within a state 
+- Latest polling average for the Democratic candidate within a state 
+- Average polling average for the Republican candidate within a state 
+- Average polling average for the Democratic candidate within a state 
+- A lag of the previous election's two-party vote share for the Democrats within a state
+- A lag of the previous election's two-party vote share for the Republicans within a state
+- A lag of the election previous to last election's two-party vote share for the Democrats within a state
+- A lag of the election previous to last election's two-party vote share for the Republicans within a state
+- Whether a candidate was incumbent 
+- GDP growth in the second quarter of the election year
+
+There are only 19 states for which we have polling averages for 2024. These 19 states include our 7 most competitive battleground states, a few other more competitive states, and a handful of non-competitive states (California, Montana, New York, Maryland, Missouri, etc.)
+
+We will train a model using all of the state-level polling data that we have access to since 1980, and then test this data on our 19 states on which we have 2024 polling data. We can then evaluate how sensible the predictions are given what we know about each state.
 
 
-As we can see, this election cycle is incredibly competitive.
 
 
 
@@ -67,53 +140,253 @@ As we can see, this election cycle is incredibly competitive.
 
 
 
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> state </th>
+   <th style="text-align:right;"> predicted_R_pv2p </th>
+   <th style="text-align:right;"> predicted_D_pv2p </th>
+   <th style="text-align:left;"> pred_winner </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Arizona </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 51.18836 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 48.83005 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> California </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 36.05299 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 64.07552 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Florida </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 52.90786 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 47.14231 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Georgia </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.96108 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.00612 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Maryland </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 33.37070 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 66.79296 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Michigan </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.37460 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.65696 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Minnesota </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 47.13201 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 52.91415 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Missouri </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 57.76436 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 42.32363 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Montana </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 60.02375 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 40.03506 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Nevada </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.83769 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.16282 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> New Hampshire </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 46.45587 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.62951 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> New Mexico </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 45.85702 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 54.35593 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> North Carolina </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.85404 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.12158 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Ohio </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 55.59012 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 44.48789 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Pennsylvania </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.14838 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.90991 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Texas </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 53.98995 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 46.00011 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Virginia </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 46.57183 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.52861 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Wisconsin </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.67900 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.37166 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> New York </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 45.07756 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 55.30182 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+</tbody>
+</table>
 
+Here, we can see that, apart from Arizona and Georgia, all of the 19 states on which we have data are projected to vote for the same party they did in 2020. This should give us some confidence in the accuracy of our model as it is in line with the historical behavior of the states. 
 
+I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 19 states 10,000 times, assuming a normal distribution around the current polling values with a standarad deviation of two percentage points.
 
+Doing so yields the following table.
+
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;font-weight: bold;"> State </th>
+   <th style="text-align:right;font-weight: bold;"> D Win Percentage </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Arizona </td>
+   <td style="text-align:right;"> 29.74 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> California </td>
+   <td style="text-align:right;"> 100.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Florida </td>
+   <td style="text-align:right;"> 6.94 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Georgia </td>
+   <td style="text-align:right;"> 33.20 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Maryland </td>
+   <td style="text-align:right;"> 100.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Michigan </td>
+   <td style="text-align:right;"> 74.75 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Minnesota </td>
+   <td style="text-align:right;"> 97.69 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Missouri </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Montana </td>
+   <td style="text-align:right;"> 0.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Nevada </td>
+   <td style="text-align:right;"> 63.17 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> New Hampshire </td>
+   <td style="text-align:right;"> 99.37 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> New Mexico </td>
+   <td style="text-align:right;"> 99.83 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> New York </td>
+   <td style="text-align:right;"> 99.92 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> North Carolina </td>
+   <td style="text-align:right;"> 41.66 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Ohio </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Pennsylvania </td>
+   <td style="text-align:right;"> 57.53 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Texas </td>
+   <td style="text-align:right;"> 1.27 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Virginia </td>
+   <td style="text-align:right;"> 99.01 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Wisconsin </td>
+   <td style="text-align:right;"> 72.99 </td>
+  </tr>
+</tbody>
+</table>
+
+As we can see, the seven battleground states exhibit much more uncertainty than the other states. California, for example, does not vote red in a single simulation, and even Florida votes blue less than 7% of the time in our simulations.
 
 # Projections 
 
+Using this model, our ultimate electoral college would look as follows, with Vice President Kamala Harris narrowly squeaking out a win.
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-2.png" width="672" />
+
+If we also wanted to model the national popular vote, we could use what we did in Week 3, using an elastic net on both fundamental and polling data, weighting such that the polls closer to November matter more. This was Nate Silver's approach.
+
+
+
+Doing so, we find that the Democrats are projected to have a narrow lead in the two-party popular vote nationally.
+
 
 ``` r
-voting_results <- voting_results %>% mutate(party = if_else(state %in% c("michigan", "wisconsin", "nevada", "pennsylvania"), "Democrat", party)) %>% mutate(party = if_else(state %in% c("arizona", "georgia", "north carolina"), "Republican", party))
-
-us_map <- us_map %>% select(-electors, -party) %>% left_join(voting_results, by = c("region" = "state"))
-
-ggplot(data = us_map, aes(x = long, y = lat, group = group, fill = factor(party))) +
-  geom_polygon(color = "black") +
-  theme_minimal() +
-  coord_fixed(1.3) +
-  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Republican" = "firebrick1", "Toss Up" = "beige")) +
-  labs(title = "2024 Base Electoral College Map", x = "", y = "", caption = "Hawaii is blue \nAlaska is red \nNebraska 2nd district is blue \nMaine's 2nd district is red") +
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(),
-    axis.text = element_blank(),
-    axis.ticks = element_blank()
-  )
+paste0("Democrat two-party vote share: ", signif(totals[1]))
 ```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+[1] "Democrat two-party vote share: 50.8563"
 
 ``` r
-df_2024 <- voting_results %>%
-  group_by(party) %>%
-  summarise(electoral_votes = sum(electors, na.rm = TRUE)) %>%
-  mutate(party = factor(party, levels = c("Democrat", "Toss Up", "Republican")))
-
-ggplot(df_2024, aes(x = "", y = electoral_votes, fill = party)) +
-  geom_bar(stat = "identity", width = .8) +
-  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "black", size = 5) +
-  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Toss Up" = "beige", "Republican" = "firebrick1")) +
-  coord_flip() +
-  theme_void() +
-  theme(legend.position = "right", plot.title = element_text(hjust = 0.5)) + 
-  labs(fill = "Party", title = "2024 Presidential Electoral College Base Prediction") +
-  scale_y_continuous(limits = c(0, 538)) +
-  geom_hline(yintercept = 270, color = "black", linetype = "dashed")
+paste0("Republican two-party vote share: ", signif(totals[2]))
 ```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-10-2.png" width="672" />
+[1] "Republican two-party vote share: 49.1437"
+
 # Citations:
 
 Kim, Seo-young Silvia, and Jan Zilinsky. 2021. “The Divided (But Not More Predictable) Electorate: A Machine Learning Analysis of Voting in American Presidential Elections.” *APSA Preprints.* doi: 10.33774/apsa-2021-45w3m-v2.  This content is a preprint and has not been peer-reviewed.
@@ -126,4 +399,4 @@ Wolfinger, Raymond E., and Steven J. Rosenstone. *Who Votes?* Yale University Pr
 
 # Data Sources: 
 
-Data are from the US presidential election popular vote results from 1948-2020 and [Kriner and Reeves 2015](https://www-cambridge-org.ezp-prod1.hul.harvard.edu/core/journals/american-political-science-review/article/presidential-particularism-and-dividethedollar-politics/962ABE4FC41A6FF3E1F95CE1B54D1ADD).
+Data are from the US presidential election popular vote results from 1948-2020, [state-level polling data for 1980 onwards](https://projects.fivethirtyeight.com/polls/), and economic data from the [St. Louis Fed](https://fred.stlouisfed.org/).

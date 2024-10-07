@@ -43,7 +43,7 @@ Both [Sabato's Crystal Ball](https://centerforpolitics.org/crystalball/2024-pres
 - Pennsylvania
 - Wisconsin
 
-While it is not inconceivable that other states/districts could unexpectedly flip (Florida, Ohio, Nebraska 2nd district, Virgina, Texas, etc), it is highly unlikely that one of these states would 'decide' the election. If Florida were to go blue, for example, other more competitive states would have likely gone blue as well, clinching the election for Harris. While there exist realities where Texas or Florida or Ohio could be the tipping point of the presidential election, for the purposes of this week's blog post, I will focus on the seven most commonly cited battleground states.
+While it is not inconceivable that other states/districts could unexpectedly flip (Florida, Ohio, Nebraska 2nd district, Virgina, Texas, etc), it is unlikely that one of these states/districts would 'decide' the election. If Florida were to go blue, for example, other more competitive states would have likely gone blue as well, clinching the election for Harris. While there exist realities where Texas or Florida or Ohio could be the tipping point of the presidential election, for the purposes of this week's blog post, I will focus on the seven most commonly cited battleground states.
 
 With this assumption in place, assuming other states and districts vote as they did in 2020, the base electoral map for 2024 looks as follows:
 
@@ -72,7 +72,7 @@ library(glmnet)
 library(maps)
 ```
 
-```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 #Electoral Map 
 
@@ -152,7 +152,27 @@ ggplot(df_2024, aes(x = "", y = electoral_votes, fill = party)) +
 
 ```
 
-As we can see, this election cycle is incredibly competitive.
+As we can see, this election cycle is incredibly competitive. 93 electoral votes reside in the seven toss-up states. Neither the Democrats nor the Republicans can claim a clear edge in the electoral college.
+
+# Preparing My Electoral College Model
+
+Using state-level polling average data since 1980 from [FiveThirtyEight](https://projects.fivethirtyeight.com/polls/) and national economic data from the [Federal Reserve Bank of St. Louis](https://fred.stlouisfed.org/), I construct an elastic net model that uses the following fundamental and polling features:
+
+- Latest polling average for the Republican candidate within a state 
+- Latest polling average for the Democratic candidate within a state 
+- Average polling average for the Republican candidate within a state 
+- Average polling average for the Democratic candidate within a state 
+- A lag of the previous election's two-party vote share for the Democrats within a state
+- A lag of the previous election's two-party vote share for the Republicans within a state
+- A lag of the election previous to last election's two-party vote share for the Democrats within a state
+- A lag of the election previous to last election's two-party vote share for the Republicans within a state
+- Whether a candidate was incumbent 
+- GDP growth in the second quarter of the election year
+
+There are only 19 states for which we have polling averages for 2024. These 19 states include our 7 most competitive battleground states, a few other more competitive states, and a handful of non-competitive states (California, Montana, New York, Maryland, Missouri, etc.)
+
+We will train a model using all of the state-level polling data that we have access to since 1980, and then test this data on our 19 states on which we have 2024 polling data. We can then evaluate how sensible the predictions are given what we know about each state.
+
 ```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 ####----------------------------------------------------------#
@@ -412,6 +432,10 @@ d_test <- d_test %>% mutate(pred_winner = ifelse(predicted_R_pv2p >= predicted_D
 
 d_test %>% select(state, predicted_R_pv2p, predicted_D_pv2p, pred_winner)
 
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
 d_test %>%
   select(state, predicted_R_pv2p, predicted_D_pv2p, pred_winner) %>%
   kable() %>%
@@ -420,8 +444,14 @@ d_test %>%
   row_spec(which(d_test$pred_winner == "D"), background = "dodgerblue4")
 ```
 
-```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+Here, we can see that, apart from Arizona and Georgia, all of the 19 states on which we have data are projected to vote for the same party they did in 2020. This should give us some confidence in the accuracy of our model as it is in line with the historical behavior of the states. 
 
+I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 19 states 10,000 times, assuming a normal distribution around the current polling values with a standarad deviation of two percentage points.
+
+Doing so yields the following table.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+set.seed(111)
 # Number of simulations
 n_simulations <- 10000
 polling_error_sd <- 2
@@ -464,10 +494,13 @@ democrat_summary %>%
   row_spec(0, bold = TRUE)
 ```
 
+As we can see, the seven battleground states exhibit much more uncertainty than the other states. California, for example, does not vote red in a single simulation, and even Florida votes blue less than 7% of the time in our simulations.
 
 # Projections 
 
-```{r}
+Using this model, our ultimate electoral college would look as follows, with Vice President Kamala Harris narrowly squeaking out a win.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 voting_results <- voting_results %>% mutate(party = if_else(state %in% c("michigan", "wisconsin", "nevada", "pennsylvania"), "Democrat", party)) %>% mutate(party = if_else(state %in% c("arizona", "georgia", "north carolina"), "Republican", party))
 
@@ -501,9 +534,219 @@ ggplot(df_2024, aes(x = "", y = electoral_votes, fill = party)) +
   labs(fill = "Party", title = "2024 Presidential Electoral College Base Prediction") +
   scale_y_continuous(limits = c(0, 538)) +
   geom_hline(yintercept = 270, color = "black", linetype = "dashed")
+```
 
+If we also wanted to model the national popular vote, we could use what we did in Week 3, using an elastic net on both fundamental and polling data, weighting such that the polls closer to November matter more. This was Nate Silver's approach.
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Read data (processed FiveThirtyEight polling average datasets).
+d_pollav_natl <- read_csv("national_polls_1968-2024.csv")
+
+# Read election results data. 
+d_vote <- read_csv("popvote_1948-2020.csv")
+d_vote$party[d_vote$party == "democrat"] <- "DEM"
+d_vote$party[d_vote$party == "republican"] <- "REP"
+
+# Shape and merge polling and election data using November polls. 
+d_poll_nov <- d_vote |> 
+  left_join(d_pollav_natl |> 
+              group_by(year, party) |> 
+              top_n(1, poll_date) |> 
+              select(-candidate), 
+            by = c("year", "party")) |> 
+  rename(nov_poll = poll_support) |> 
+  filter(year <= 2020) |> 
+  drop_na()
+
+# Create dataset of polling average by week until the election. 
+d_poll_weeks <- d_pollav_natl |> 
+  group_by(year, party, weeks_left) |>
+  summarize(mean_poll_week = mean(poll_support)) |> 
+  filter(weeks_left <= 30) |> 
+  pivot_wider(names_from = weeks_left, values_from = mean_poll_week) |> 
+  left_join(d_vote, by = c("year", "party"))
+ 
+# Split into training and testing data based on inclusion or exclusion of 2024. 
+d_poll_weeks_train <- d_poll_weeks |> 
+  filter(year <= 2020)
+d_poll_weeks_test <- d_poll_weeks |> 
+  filter(year == 2024)
+
+colnames(d_poll_weeks)[3:33] <- paste0("poll_weeks_left_", 0:30)
+colnames(d_poll_weeks_train)[3:33] <- paste0("poll_weeks_left_", 0:30)
+colnames(d_poll_weeks_test)[3:33] <- paste0("poll_weeks_left_", 0:30)
+
+
+# Comparison of OLS and regularized regression methods. 
+ols.pollweeks <- lm(paste0("pv2p ~ ", paste0( "poll_weeks_left_", 0:30, collapse = " + ")), 
+                    data = d_poll_weeks_train)
+#summary(ols.pollweeks) # N.B. Inestimable: p (31) > n (30)! 
+
+# Separate data into X and Y for training. 
+x.train <- d_poll_weeks_train |>
+  ungroup() |> 
+  select(all_of(starts_with("poll_weeks_left_"))) |> 
+  as.matrix()
+y.train <- d_poll_weeks_train$pv2p
+
+
+# Ridge. 
+ridge.pollsweeks <- glmnet(x = x.train, y = y.train, alpha = 0) # Set ridge using alpha = 0. 
+
+# Lasso.
+lasso.pollsweeks <- glmnet(x = x.train, y = y.train, alpha = 1) # Set lasso using alpha = 1.
+
+# Elastic net.
+enet.pollsweeks <- glmnet(x = x.train, y = y.train, alpha = 0.5) # Set elastic net using alpha = 0.5.
+
+set.seed(101)
+cv.ridge.pollweeks <- cv.glmnet(x = x.train, y = y.train, alpha = 0)
+cv.lasso.pollweeks <- cv.glmnet(x = x.train, y = y.train, alpha = 1)
+cv.enet.pollweeks <- cv.glmnet(x = x.train, y = y.train, alpha = 0.5)
+
+# Get minimum lambda values 
+lambda.min.ridge <- cv.ridge.pollweeks$lambda.min
+lambda.min.lasso <- cv.lasso.pollweeks$lambda.min
+lambda.min.enet <- cv.enet.pollweeks$lambda.min
+
+# Predict on training data using lambda values that minimize MSE.
+mse.ridge <- mean((predict(ridge.pollsweeks, s = lambda.min.ridge, newx = x.train) - y.train)^2)
+mse.lasso <- mean((predict(lasso.pollsweeks, s = lambda.min.lasso, newx = x.train) - y.train)^2)
+mse.enet <- mean((predict(enet.pollsweeks, s = lambda.min.enet, newx = x.train) - y.train)^2)
+
+# First check how many weeks of polling we have for 2024. 
+d_pollav_natl |> 
+  filter(year == 2024) |> 
+  select(weeks_left) |> 
+  distinct() |> 
+  range() # take 5:30
+
+x.train <- d_poll_weeks_train |>
+  ungroup() |> 
+  select(all_of(paste0("poll_weeks_left_", 5:30))) |> 
+  as.matrix()
+y.train <- d_poll_weeks_train$pv2p
+x.test <- d_poll_weeks_test |>
+  ungroup() |> 
+  select(all_of(paste0("poll_weeks_left_", 5:30))) |> 
+  as.matrix()
+
+# Using elastic-net for simplicity. 
+set.seed(02138)
+enet.poll <- cv.glmnet(x = x.train, y = y.train, alpha = 0.5)
+lambda.min.enet.poll <- enet.poll$lambda.min
+
+# Predict 2024 Democratic national pv2p share using elastic-net. 
+polls.pred <- predict(enet.poll, s = lambda.min.enet.poll, newx = x.test)
+
+polls.pred
+
+# Estimate models using polls alone, fundamentals alone, and combined fundamentals and polls. 
+# Read economic data. 
+d_econ <- read_csv("fred_econ.csv") |> 
+  filter(quarter == 2)
+
+# Combine datasets and create vote lags. 
+d_combined <- d_econ |> 
+  left_join(d_poll_weeks, by = "year") |> 
+  filter(year %in% c(unique(d_vote$year), 2024)) |> 
+  group_by(party) |> 
+  mutate(pv2p_lag1 = lag(pv2p, 1), 
+         pv2p_lag2 = lag(pv2p, 2)) |> 
+  ungroup() |> 
+  mutate(gdp_growth_x_incumbent = GDP_growth_quarterly * incumbent, 
+         rdpi_growth_quarterly = RDPI_growth_quarterly * incumbent,
+         cpi_x_incumbent = CPI * incumbent,
+         unemployment_x_incumbent = unemployment * incumbent,
+         sp500_x_incumbent = sp500_close * incumbent) # Generate interaction effects.
+
+# Create fundamentals-only dataset and split into training and test sets. 
+d_fund <- d_combined |> 
+  select("year", "pv2p", "GDP", "GDP_growth_quarterly", "RDPI", "RDPI_growth_quarterly", "CPI", "unemployment", "sp500_close",
+         "incumbent", "gdp_growth_x_incumbent", "rdpi_growth_quarterly", "cpi_x_incumbent", "unemployment_x_incumbent", "sp500_x_incumbent", 
+         "pv2p_lag1", "pv2p_lag2") 
+x.train.fund <- d_fund |> 
+  filter(year <= 2020) |>
+  select(-c(year, pv2p)) |> 
+  slice(-c(1:9)) |> 
+  as.matrix()
+y.train.fund <- d_fund |> 
+  filter(year <= 2020) |> 
+  select(pv2p) |> 
+  slice(-c(1:9)) |> 
+  as.matrix()
+x.test.fund <- d_fund |> 
+  filter(year == 2024) |> 
+  select(-c(year, pv2p)) |> 
+  drop_na() |> 
+  as.matrix()
+
+# Estimate elastic-net using fundamental variables only.
+set.seed(101)
+enet.fund <- cv.glmnet(x = x.train.fund, y = y.train.fund, intercept = FALSE, alpha = 0.5)
+lambda.min.enet.fund <- enet.fund$lambda.min
+
+# Predict 2024 national pv2p share using elastic-net. 
+(fund.pred <- predict(enet.fund, s = lambda.min.enet.fund, newx = x.test.fund))
+
+d_combo <- d_combined |> 
+  select("year", "pv2p", "GDP", "GDP_growth_quarterly", "RDPI", "RDPI_growth_quarterly", "CPI", "unemployment", "sp500_close",
+         "incumbent", "gdp_growth_x_incumbent", "rdpi_growth_quarterly", "cpi_x_incumbent", "unemployment_x_incumbent", "sp500_x_incumbent", 
+         "pv2p_lag1", "pv2p_lag2", all_of(paste0("poll_weeks_left_", 5:30))) 
+
+x.train.combined <- d_combo |> 
+  filter(year <= 2020) |> 
+  select(-c(year, pv2p)) |> 
+  slice(-c(1:9)) |> 
+  as.matrix()
+y.train.combined <- d_combo |>
+  filter(year <= 2020) |> 
+  select(pv2p) |> 
+  slice(-c(1:9)) |> 
+  as.matrix()
+x.test.combined <- d_combo |>
+  filter(year == 2024) |> 
+  select(-c(year, pv2p)) |> 
+  drop_na() |> 
+  as.matrix()
+  
+# Estimate combined model.
+set.seed(1)
+enet.combined <- cv.glmnet(x = x.train.combined, y = y.train.combined, intercept = FALSE, alpha = 0.5)
+lambda.min.enet.combined <- enet.combined$lambda.min
+
+# Predict 2024 national pv2p share using elastic-net.
+combo.pred <- predict(enet.combined, s = lambda.min.enet.combined, newx = x.test.combined)
+
+# Ensemble 1: Predict based on unweighted (or equally weighted) ensemble model between polls and fundamentals models. 
+unweighted.ensemble.pred <- (polls.pred + fund.pred)/2
+
+# Ensemble 2: Weight based on polls mattering closer to November. (Nate Silver)
+election_day_2024 <- "2024-11-05"
+today <- "2024-10-07"
+days_left <- as.numeric(as.Date(election_day_2024) - as.Date(today))
+
+poll_model_weight <- 1- (1/sqrt(days_left))
+fund_model_weight <- 1/sqrt(days_left)
+
+ensemble.2.pred <- as.numeric(polls.pred * poll_model_weight + fund.pred * fund_model_weight)
+
+the_sum <- sum(ensemble.2.pred)
+
+totals <- ensemble.2.pred*(100/the_sum)
 
 ```
+
+Doing so, we find that the Democrats are projected to have a narrow lead in the two-party popular vote nationally.
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE, results = 'asis'}
+
+paste0("Democrat two-party vote share: ", signif(totals[1]))
+paste0("Republican two-party vote share: ", signif(totals[2]))
+
+```
+
 # Citations:
 
 Kim, Seo-young Silvia, and Jan Zilinsky. 2021. “The Divided (But Not More Predictable) Electorate: A Machine Learning Analysis of Voting in American Presidential Elections.” *APSA Preprints.* doi: 10.33774/apsa-2021-45w3m-v2.  This content is a preprint and has not been peer-reviewed.
@@ -516,4 +759,4 @@ Wolfinger, Raymond E., and Steven J. Rosenstone. *Who Votes?* Yale University Pr
 
 # Data Sources: 
 
-Data are from the US presidential election popular vote results from 1948-2020 and [Kriner and Reeves 2015](https://www-cambridge-org.ezp-prod1.hul.harvard.edu/core/journals/american-political-science-review/article/presidential-particularism-and-dividethedollar-politics/962ABE4FC41A6FF3E1F95CE1B54D1ADD).
+Data are from the US presidential election popular vote results from 1948-2020, [state-level polling data for 1980 onwards](https://projects.fivethirtyeight.com/polls/), and economic data from the [St. Louis Fed](https://fred.stlouisfed.org/).
