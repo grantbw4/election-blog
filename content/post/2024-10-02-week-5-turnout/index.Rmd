@@ -72,15 +72,21 @@ library(glmnet)
 library(maps)
 ```
 
-```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+```{r, incude = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
-#Electoral Map 
+# Electoral Map 
 
+# Load Map
 us_map <- map_data("state")
 
+
+# Only want 2024 info and we're making things lowercase
 d_ec <- read_csv("corrected_ec_1948_2024.csv") %>% filter(year == 2024) %>% mutate(state = tolower(state))
 
+# Add in electoral info
 us_map <- us_map %>% left_join(d_ec, by = c("region" = "state"))
+
+# used ChatGPT to get this list of states
 
 voting_results <- data.frame(
   state = c(
@@ -109,14 +115,24 @@ voting_results <- data.frame(
     "Republican", "Republican", "Democrat", "Democrat", "Democrat", 
     "Republican", "Toss Up", "Republican"))
 
+# Add in party info
 voting_results <- voting_results %>% mutate(state = tolower(state))
 
 voting_results %>% left_join(d_ec %>% select(state, electors), by = "state")
 
 us_map <- us_map %>% left_join(voting_results, by = c("region" = "state"))
 
+# Fix DC 
 us_map <- us_map %>%
   mutate(party = ifelse(region == "district of columbia", "Democrat", party))
+
+```
+
+```{r, incude = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Plot Electoral College Map
+
+# I used Chat GPT to help produce these graphs
 
 ggplot(data = us_map, aes(x = long, y = lat, group = group, fill = factor(party))) +
   geom_polygon(color = "black") +
@@ -138,6 +154,8 @@ df_2024 <- voting_results %>%
   group_by(party) %>%
   summarise(electoral_votes = sum(electors, na.rm = TRUE)) %>%
   mutate(party = factor(party, levels = c("Democrat", "Toss Up", "Republican")))
+
+# Plot Electoral College Chart
 
 ggplot(df_2024, aes(x = "", y = electoral_votes, fill = party)) +
   geom_bar(stat = "identity", width = .8) +
@@ -368,6 +386,9 @@ summary(mod_lm_rep)
 ```
 
 ```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# I used ChatGPT to help me get the intersection
+
 # Select columns without any NAs in d_train
 d_train <- d_train %>% select_if(~ !any(is.na(.)))
 
@@ -383,7 +404,6 @@ t <- d %>%
     R_pv2p_lag2 = lag(R_pv2p, 2)
   )
 
-# Ensure you do not filter out important data prematurely
 d_test <- d_test %>% select_if(~ !any(is.na(.)))
 
 # Add lagged variables to the test set for the year 2024
@@ -399,6 +419,8 @@ d_train <- d_train %>% select(all_of(common_columns))
 ```
 
 ```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# I used ChatGPT to help do the Elastic Net regression
 
 # Prepare your features and target variables
 features <- c("latest_pollav_REP", "latest_pollav_DEM", 
@@ -436,6 +458,8 @@ d_test %>% select(state, predicted_R_pv2p, predicted_D_pv2p, pred_winner)
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
+# I used ChatGPT for guidance on stylizing the kable table
+
 d_test %>%
   select(state, predicted_R_pv2p, predicted_D_pv2p, pred_winner) %>%
   kable() %>%
@@ -451,6 +475,9 @@ I will now use a simulation to get an estimate of how confident we are in these 
 Doing so yields the following table.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# I used ChatGPT to help with encoding this simulation of the polling error
+
 set.seed(111)
 # Number of simulations
 n_simulations <- 10000
@@ -501,6 +528,8 @@ As we can see, the seven battleground states exhibit much more uncertainty than 
 Using this model, our ultimate electoral college would look as follows, with Vice President Kamala Harris narrowly squeaking out a win.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Display the electoral college map and chart
 
 voting_results <- voting_results %>% mutate(party = if_else(state %in% c("michigan", "wisconsin", "nevada", "pennsylvania"), "Democrat", party)) %>% mutate(party = if_else(state %in% c("arizona", "georgia", "north carolina"), "Republican", party))
 
