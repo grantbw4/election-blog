@@ -72,13 +72,12 @@ library(glmnet)
 library(maps)
 ```
 
-```{r, incude = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 # Electoral Map 
 
 # Load Map
 us_map <- map_data("state")
-
 
 # Only want 2024 info and we're making things lowercase
 d_ec <- read_csv("corrected_ec_1948_2024.csv") %>% filter(year == 2024) %>% mutate(state = tolower(state))
@@ -128,7 +127,7 @@ us_map <- us_map %>%
 
 ```
 
-```{r, incude = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 # Plot Electoral College Map
 
@@ -771,10 +770,10 @@ totals <- ensemble.2.pred*(100/the_sum)
 
 Doing so, we find that the Democrats are projected to have a narrow lead in the two-party popular vote nationally (after scaling so that the estimates sum to 100%).
 
-```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 
-paste0("Democrat two-party vote share: ", signif(totals[1]))
-paste0("Republican two-party vote share: ", signif(totals[2]))
+cat("Democrat two-party vote share: ", signif(totals[1], 4), "%\n")
+cat("Republican two-party vote share: ", signif(totals[2], 4), "%\n")
 
 ```
 
