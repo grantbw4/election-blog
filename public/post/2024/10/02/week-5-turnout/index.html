@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Week Five: Turnout | Grant&#39;s Election Blog</title>
+    <link rel="stylesheet" href="/election-blog/css/style.css" />
+    <link rel="stylesheet" href="/election-blog/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/election-blog/">Home</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Week Five: Turnout</span></h1>
+<h2 class="author">Grant Williams</h2>
+<h2 class="date">2024/10/02</h2>
+</div>
+
+<main>
+<script src="https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/index_files/kePrint/kePrint.js"></script>
+<link href="https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/index_files/lightable/lightable.css" rel="stylesheet" />
+<script src="https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/index_files/kePrint/kePrint.js"></script>
+<link href="https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/index_files/lightable/lightable.css" rel="stylesheet" />
+<h1 id="introduction">Introduction</h1>
+<p>In this fifth blog post, I am going to discuss two areas of election forecasting: <strong>turnout</strong> and <strong>demographics</strong>.</p>
+<p>Then, I am going to prepare a baseline model to predict the 2024 election. Over the next 4 weeks until the November 5th election, I will fine tune this model and ultimately use it to predict the next president of the United States of America.</p>
+<p><em>The code used to produce these visualizations is publicly available in my <a href="https://github.com/grantbw4/election-blog">github repository</a> and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, <a href="https://www.matthewdardet.com/harvard-election-analytics-2024/">Matthew Dardet</a>.</em></p>
+<h1 id="analysis">Analysis</h1>
+<p>The United States&rsquo; current priors and general beliefs about turnout and demographics are informed, in part, by longstanding academic literature on the subject.</p>
+<p>Two of the most influential publications are <em>Who Votes?</em>, a 1980 book by <a href="https://yalebooks.yale.edu/book/9780300025521/who-votes/">Professors Wolfinger and Rosenstone</a>, and <em>Mobilization, Participation, and Democracy in America</em>, a 1993 book by <a href="https://www.amazon.com/Mobilization-Participation-Democracy-America-Politics/dp/0024036609">Professors Rosenstone and Hansen</a>. Both of these publications popularized theories about the connection between demographics and voter turnout that would permeate US society for decades to come.</p>
+<p>Wolfinger and Rosenstone ran OLS regressions on census data between 1972 and 1974 to determine that education was the key demographic variable influencing turnout; age, marital status, and the restrictiveness of voter registration laws also dispalyed high rates of correlation. In 1993, Rosenstone and Hansen expanded upon Wolfinger and Rosenstone&rsquo;s findings, determining that those most likely to vote tended to be white, wealthy, and educated. They also uncovered, however, using data from the <a href="https://electionstudies.org/">American National Election Studies (ANES)</a> that turnout was highly affected by mobilization efforts within social networks. These two studies gave the strong impression that demographics were of significant relevance to turnout.</p>
+<p>This prevailing narrative, however, has faced increased scrutiny in recent years.</p>
+<p>Professors <a href="https://global.oup.com/academic/product/the-turnout-myth-9780190089450?cc=us&amp;lang=en&amp;">Shaw and Petrocik</a>, for example, challenged <em>The Turnout Myth</em> in their 2020 book of the same title, finding no evidence in the past 50 years of presidential election data that higher rates of turnout benefit Democrats, as the conventional narrative would suggest. Instead, Shaw and Petrocik argue that &ldquo;turnout does not consistently help either party&rdquo; (Shaw &amp; Petrocik 2020).</p>
+<p>Another two professors, using logistic regressions and random forest models on demographic data from the <a href="https://electionstudies.org/">American National Election Studies (ANES)</a> between 1952 and 2020, observed results that similarly pour cold water on assumptions about demographics&rsquo; high predictiveness of turnout. Leveraging public opinion surveys, <a href="https://link.springer.com/article/10.1007/s11109-022-09816-z">Professors Kim and Zilinsky</a> determined that predictions using the demographic &ldquo;variables of age, gender, race, education, and income&rdquo; exhibited less than 64% accuracy out-of-sample, regardless of whether the predictions were made with a random forest or a logistic regression model. Including party identification, however, improves the accuracy by between 20 and 30 percentage points. The improvement possible by including even all of the additional covariates found in a voter file (marital status, homeownership, etc.), at this point, is fairly marginal.</p>
+<p>For these reasons, in my first electoral college and national popular vote model, I am not going to explicitly include demographic variables. Instead, I will consider polling averages, fundamental economic conditions, and party registration. In future weeks, I hope to include additional analysis from voter files and more explicitly model turnout and demographics at the state level, but, for this first week, I will start with something simpler.</p>
+<h1 id="my-model">My Model</h1>
+<p>Both <a href="https://centerforpolitics.org/crystalball/2024-president/">Sabato&rsquo;s Crystal Ball</a> of the Center for Politics and the <a href="https://www.cookpolitical.com/ratings/presidential-race-ratings">Cook Political Report</a> list the same seven states as &ldquo;toss-ups.&rdquo; These include the following:</p>
+<ul>
+<li>Arizona</li>
+<li>Georgia</li>
+<li>Michigan</li>
+<li>Nevada</li>
+<li>North Carolina</li>
+<li>Pennsylvania</li>
+<li>Wisconsin</li>
+</ul>
+<p>While it is not inconceivable that other states/districts could unexpectedly flip (Florida, Ohio, Nebraska 2nd district, Virgina, Texas, etc), it is highly unlikely that one of these states would &lsquo;decide&rsquo; the election. If Florida were to go blue, for example, other more competitive states would have likely gone blue as well, clinching the election for Harris. While there exist realities where Texas or Florida or Ohio could be the tipping point of the presidential election, for the purposes of this week&rsquo;s blog post, I will focus on the seven most commonly cited battleground states.</p>
+<p>With this assumption in place, assuming other states and districts vote as they did in 2020, the base electoral map for 2024 looks as follows:</p>
+<p>As we can see, this election cycle is incredibly competitive.</p>
+<h1 id="projections">Projections</h1>
+<pre><code class="language-r">voting_results &lt;- voting_results %&gt;% mutate(party = if_else(state %in% c(&quot;michigan&quot;, &quot;wisconsin&quot;, &quot;nevada&quot;, &quot;pennsylvania&quot;), &quot;Democrat&quot;, party)) %&gt;% mutate(party = if_else(state %in% c(&quot;arizona&quot;, &quot;georgia&quot;, &quot;north carolina&quot;), &quot;Republican&quot;, party))
+
+us_map &lt;- us_map %&gt;% select(-electors, -party) %&gt;% left_join(voting_results, by = c(&quot;region&quot; = &quot;state&quot;))
+
+ggplot(data = us_map, aes(x = long, y = lat, group = group, fill = factor(party))) +
+  geom_polygon(color = &quot;black&quot;) +
+  theme_minimal() +
+  coord_fixed(1.3) +
+  scale_fill_manual(values = c(&quot;Democrat&quot; = &quot;dodgerblue4&quot;, &quot;Republican&quot; = &quot;firebrick1&quot;, &quot;Toss Up&quot; = &quot;beige&quot;)) +
+  labs(title = &quot;2024 Base Electoral College Map&quot;, x = &quot;&quot;, y = &quot;&quot;, caption = &quot;Hawaii is blue \nAlaska is red \nNebraska 2nd district is blue \nMaine's 2nd district is red&quot;) +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+</code></pre>
+<img src="https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+<pre><code class="language-r">df_2024 &lt;- voting_results %&gt;%
+  group_by(party) %&gt;%
+  summarise(electoral_votes = sum(electors, na.rm = TRUE)) %&gt;%
+  mutate(party = factor(party, levels = c(&quot;Democrat&quot;, &quot;Toss Up&quot;, &quot;Republican&quot;)))
+
+ggplot(df_2024, aes(x = &quot;&quot;, y = electoral_votes, fill = party)) +
+  geom_bar(stat = &quot;identity&quot;, width = .8) +
+  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = &quot;black&quot;, size = 5) +
+  scale_fill_manual(values = c(&quot;Democrat&quot; = &quot;dodgerblue4&quot;, &quot;Toss Up&quot; = &quot;beige&quot;, &quot;Republican&quot; = &quot;firebrick1&quot;)) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = &quot;right&quot;, plot.title = element_text(hjust = 0.5)) + 
+  labs(fill = &quot;Party&quot;, title = &quot;2024 Presidential Electoral College Base Prediction&quot;) +
+  scale_y_continuous(limits = c(0, 538)) +
+  geom_hline(yintercept = 270, color = &quot;black&quot;, linetype = &quot;dashed&quot;)
+</code></pre>
+<img src="https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/index_files/figure-html/unnamed-chunk-10-2.png" width="672" />
+# Citations:
+<p>Kim, Seo-young Silvia, and Jan Zilinsky. 2021. “The Divided (But Not More Predictable) Electorate: A Machine Learning Analysis of Voting in American Presidential Elections.” <em>APSA Preprints.</em> doi: 10.33774/apsa-2021-45w3m-v2.  This content is a preprint and has not been peer-reviewed.</p>
+<p>Rosenstone, Steven J., and John Mark Hansen. <em>Mobilization, Participation, and Democracy in America.</em> Macmillan Pub. Co: Maxwell Macmillan Canada: Maxwell Macmillan International, 1993.</p>
+<p>Shaw, Daron, and John Petrocik. <em>The Turnout Myth: Voting Rates and Partisan Outcomes in American National Elections.</em> 1st ed., Oxford University Press, 2020, <a href="https://doi.org/10.1093/oso/9780190089450.001.0001">https://doi.org/10.1093/oso/9780190089450.001.0001</a>.</p>
+<p>Wolfinger, Raymond E., and Steven J. Rosenstone. <em>Who Votes?</em> Yale University Press, 1980.</p>
+<h1 id="data-sources">Data Sources:</h1>
+<p>Data are from the US presidential election popular vote results from 1948-2020 and <a href="https://www-cambridge-org.ezp-prod1.hul.harvard.edu/core/journals/american-political-science-review/article/presidential-particularism-and-dividethedollar-politics/962ABE4FC41A6FF3E1F95CE1B54D1ADD">Kriner and Reeves 2015</a>.</p>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+
+<script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
+
+  
+  <hr/>
+  © <a href="https://yihui.org">Yihui Xie</a>
+  
+  </footer>
+  </body>
+</html>
+
