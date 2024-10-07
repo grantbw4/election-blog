@@ -6,8 +6,15 @@
     <description>Recent content in Posts on Grant&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 29 Sep 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 02 Oct 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://grantbw4.github.io/election-blog/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Week Five: Turnout</title>
+      <link>https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/</link>
+      <pubDate>Wed, 02 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/</guid>
+      <description>Introduction In this fifth blog post, I am going to discuss two areas of election forecasting: turnout and demographics.&#xA;Then, I am going to prepare a baseline model to predict the 2024 election. Over the next 4 weeks until the November 5th election, I will fine tune this model and ultimately use it to predict the next president of the United States of America.&#xA;The code used to produce these visualizations is publicly available in my github repository and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, Matthew Dardet.</description>
+    </item>
     <item>
       <title>Week Four - Incumbency</title>
       <link>https://grantbw4.github.io/election-blog/post/2024/09/29/week-four-incumbency/</link>
