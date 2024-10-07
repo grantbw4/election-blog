@@ -1,0 +1,519 @@
+---
+title: 'Week Five: Turnout'
+author: Grant Williams
+date: '2024-10-02'
+slug: week-5-turnout
+categories: []
+tags: []
+---
+
+# Introduction
+
+In this fifth blog post, I am going to discuss two areas of election forecasting: **turnout** and **demographics**.
+
+Then, I am going to prepare a baseline model to predict the 2024 election. Over the next 4 weeks until the November 5th election, I will fine tune this model and ultimately use it to predict the next president of the United States of America.
+
+*The code used to produce these visualizations is publicly available in my [github repository](https://github.com/grantbw4/election-blog) and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, [Matthew Dardet](https://www.matthewdardet.com/harvard-election-analytics-2024/).*
+
+# Analysis
+
+The United States' current priors and general beliefs about turnout and demographics are informed, in part, by longstanding academic literature on the subject.
+
+Two of the most influential publications are *Who Votes?*, a 1980 book by [Professors Wolfinger and Rosenstone](https://yalebooks.yale.edu/book/9780300025521/who-votes/), and *Mobilization, Participation, and Democracy in America*, a 1993 book by [Professors Rosenstone and Hansen](https://www.amazon.com/Mobilization-Participation-Democracy-America-Politics/dp/0024036609). Both of these publications popularized theories about the connection between demographics and voter turnout that would permeate US society for decades to come. 
+
+Wolfinger and Rosenstone ran OLS regressions on census data between 1972 and 1974 to determine that education was the key demographic variable influencing turnout; age, marital status, and the restrictiveness of voter registration laws also dispalyed high rates of correlation. In 1993, Rosenstone and Hansen expanded upon Wolfinger and Rosenstone's findings, determining that those most likely to vote tended to be white, wealthy, and educated. They also uncovered, however, using data from the [American National Election Studies (ANES)](https://electionstudies.org/) that turnout was highly affected by mobilization efforts within social networks. These two studies gave the strong impression that demographics were of significant relevance to turnout.
+
+This prevailing narrative, however, has faced increased scrutiny in recent years. 
+
+Professors [Shaw and Petrocik](https://global.oup.com/academic/product/the-turnout-myth-9780190089450?cc=us&lang=en&), for example, challenged *The Turnout Myth* in their 2020 book of the same title, finding no evidence in the past 50 years of presidential election data that higher rates of turnout benefit Democrats, as the conventional narrative would suggest. Instead, Shaw and Petrocik argue that "turnout does not consistently help either party" (Shaw & Petrocik 2020). 
+
+Another two professors, using logistic regressions and random forest models on demographic data from the [American National Election Studies (ANES)](https://electionstudies.org/) between 1952 and 2020, observed results that similarly pour cold water on assumptions about demographics' high predictiveness of turnout. Leveraging public opinion surveys, [Professors Kim and Zilinsky](https://link.springer.com/article/10.1007/s11109-022-09816-z) determined that predictions using the demographic "variables of age, gender, race, education, and income" exhibited less than 64% accuracy out-of-sample, regardless of whether the predictions were made with a random forest or a logistic regression model. Including party identification, however, improves the accuracy by between 20 and 30 percentage points. The improvement possible by including even all of the additional covariates found in a voter file (marital status, homeownership, etc.), at this point, is fairly marginal.
+
+For these reasons, in my first electoral college and national popular vote model, I am not going to explicitly include demographic variables. Instead, I will consider polling averages, fundamental economic conditions, and party registration. In future weeks, I hope to include additional analysis from voter files and more explicitly model turnout and demographics at the state level, but, for this first week, I will start with something simpler. 
+
+# My Model 
+
+Both [Sabato's Crystal Ball](https://centerforpolitics.org/crystalball/2024-president/) of the Center for Politics and the [Cook Political Report](https://www.cookpolitical.com/ratings/presidential-race-ratings) list the same seven states as "toss-ups." These include the following: 
+
+- Arizona
+- Georgia
+- Michigan
+- Nevada
+- North Carolina
+- Pennsylvania
+- Wisconsin
+
+While it is not inconceivable that other states/districts could unexpectedly flip (Florida, Ohio, Nebraska 2nd district, Virgina, Texas, etc), it is highly unlikely that one of these states would 'decide' the election. If Florida were to go blue, for example, other more competitive states would have likely gone blue as well, clinching the election for Harris. While there exist realities where Texas or Florida or Ohio could be the tipping point of the presidential election, for the purposes of this week's blog post, I will focus on the seven most commonly cited battleground states.
+
+With this assumption in place, assuming other states and districts vote as they did in 2020, the base electoral map for 2024 looks as follows:
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+rm(list = ls())
+cat("\014")
+# Load libraries.
+## install via `install.packages("name")`
+library(car)
+library(caret)
+library(CVXR)
+library(foreign)
+library(glmnet)
+library(haven)
+library(janitor)
+library(kableExtra)
+library(maps)
+library(mlr3)
+library(randomForest)
+library(ranger)
+library(RColorBrewer)
+library(sf)
+library(tidyverse)
+library(viridis)
+library(glmnet)
+library(maps)
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+#Electoral Map 
+
+us_map <- map_data("state")
+
+d_ec <- read_csv("corrected_ec_1948_2024.csv") %>% filter(year == 2024) %>% mutate(state = tolower(state))
+
+us_map <- us_map %>% left_join(d_ec, by = c("region" = "state"))
+
+voting_results <- data.frame(
+  state = c(
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California", 
+    "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", 
+    "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", 
+    "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", 
+    "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", 
+    "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+    "New Jersey", "New Mexico", "New York", "North Carolina", 
+    "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", 
+    "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
+    "Texas", "Utah", "Vermont", "Virginia", "Washington", 
+    "West Virginia", "Wisconsin", "Wyoming"
+  ),
+  party = c(
+    "Republican", "Republican", "Toss Up", "Republican", "Democrat", 
+    "Democrat", "Democrat", "Democrat", "Democrat", "Republican", 
+    "Toss Up", "Democrat", "Republican", "Democrat", "Republican", 
+    "Republican", "Republican", "Republican", "Republican", "Democrat", 
+    "Democrat", "Democrat", "Toss Up", "Democrat", "Republican", 
+    "Republican", "Republican", "Republican", "Toss Up", "Democrat", 
+    "Democrat", "Democrat", "Democrat", "Toss Up", 
+    "Republican", "Republican", "Republican", "Democrat", "Toss Up", 
+    "Democrat", "Republican", "Republican", "Republican", 
+    "Republican", "Republican", "Democrat", "Democrat", "Democrat", 
+    "Republican", "Toss Up", "Republican"))
+
+voting_results <- voting_results %>% mutate(state = tolower(state))
+
+voting_results %>% left_join(d_ec %>% select(state, electors), by = "state")
+
+us_map <- us_map %>% left_join(voting_results, by = c("region" = "state"))
+
+us_map <- us_map %>%
+  mutate(party = ifelse(region == "district of columbia", "Democrat", party))
+
+ggplot(data = us_map, aes(x = long, y = lat, group = group, fill = factor(party))) +
+  geom_polygon(color = "black") +
+  theme_minimal() +
+  coord_fixed(1.3) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Republican" = "firebrick1", "Toss Up" = "beige")) +
+  labs(title = "2024 Base Electoral College Map", x = "", y = "", caption = "Hawaii is blue \nAlaska is red \nNebraska 2nd district is blue \nMaine's 2nd district is red") +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+voting_results <- voting_results %>%
+  left_join(d_ec %>% select(state, electors), by = "state")
+
+df_2024 <- voting_results %>%
+  group_by(party) %>%
+  summarise(electoral_votes = sum(electors, na.rm = TRUE)) %>%
+  mutate(party = factor(party, levels = c("Democrat", "Toss Up", "Republican")))
+
+ggplot(df_2024, aes(x = "", y = electoral_votes, fill = party)) +
+  geom_bar(stat = "identity", width = .8) +
+  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "black", size = 5) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Toss Up" = "beige", "Republican" = "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5)) + 
+  labs(fill = "Party", title = "2024 Presidential Electoral College Base Prediction") +
+  scale_y_continuous(limits = c(0, 538)) +
+  geom_hline(yintercept = 270, color = "black", linetype = "dashed")
+
+```
+
+As we can see, this election cycle is incredibly competitive.
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+####----------------------------------------------------------#
+#### Read, merge, and process data.
+####----------------------------------------------------------#
+
+# Read in FRED data
+d_fred <- read_csv("fred_econ.csv")
+
+# Read popular vote datasets. 
+d_popvote <- read_csv("popvote_1948_2020.csv")
+d_state_popvote <- read_csv("state_popvote_1948_2020.csv")
+
+# Read elector distribution dataset. 
+d_ec <- read_csv("corrected_ec_1948_2024.csv")
+
+# Read and merge demographics data. 
+d_demos <- read_csv("demographics.csv")[,-1]
+
+# Read primary turnout data. 
+d_turnout <- read_csv("turnout_1789_2020.csv")
+d_state_turnout <- read_csv("state_turnout_1980_2022.csv")
+d_state_turnout <- d_state_turnout |> 
+  mutate(vep_turnout = as.numeric(str_remove(vep_turnout, "%"))/100) |> 
+  select(year, state, vep_turnout)
+
+# Read polling data. 
+d_polls <- read_csv("national_polls_1968-2024.csv")
+d_state_polls <- read_csv("state_polls_1968-2024.csv")
+
+# Process state-level polling data. 
+d_pollav_state <- d_state_polls |> 
+  group_by(year, state, party) |>
+  mutate(mean_pollav = mean(poll_support, na.rm = TRUE)) |>
+  top_n(1, poll_date) |> 
+  rename(latest_pollav = poll_support) |>
+  select(-c(weeks_left, days_left, poll_date, candidate, before_convention)) |>
+  pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+####----------------------------------------------------------#
+#### Simulation examples. 
+####----------------------------------------------------------#
+
+# Merge data.
+d <- d_pollav_state |> 
+  left_join(d_state_popvote, by = c("year", "state")) |>  
+  left_join(d_popvote |> filter(party == "democrat"), by = "year") |> 
+  left_join(d_demos, by = c("year", "state")) |> 
+  left_join(d_state_turnout, by = c("year", "state")) |> 
+  filter(year >= 1980) |> 
+  ungroup()
+
+d <- d %>% mutate(incumbent = as.numeric(incumbent),
+             incumbent_party = as.numeric(incumbent_party),
+             prev_admin = as.numeric(prev_admin))
+
+d <- d %>% merge(d_fred %>% filter(quarter == 2), by = "year")
+
+# Sequester states for which we have polling data for 2024. 
+states.2024 <- unique(d$state[d$year == 2024])
+states.2024 <- states.2024[-which(states.2024 == "Nebraska Cd 2")]
+
+# Subset and split data.
+d <- d |> 
+  filter(state %in% states.2024)
+
+d_train <- d |> 
+  filter(year < 2024)
+d_test <- d |> 
+  filter(year == 2024)
+
+```
+
+```{r include = FALSE, eval = FALSE}
+
+# I used chatgpt to estimate the demographic values for 2024 but I decided against using this 
+
+demographic_vars <- c(
+  "total_pop", 
+  "white", 
+  "black", 
+  "american_indian", 
+  "asian_pacific_islander", 
+  "other_race", 
+  "two_or_more_races", 
+  "hispanic_white", 
+  "hispanic_black", 
+  "hispanic_american_indian", 
+  "hispanic_asian_pacific_islander", 
+  "hispanic_other_race", 
+  "hispanic_two_or_more_races", 
+  "not_hispanic_white", 
+  "not_hispanic_black", 
+  "not_hispanic_american_indian", 
+  "not_hispanic_asian_pacific_islander", 
+  "not_hispanic_other_race", 
+  "not_hispanic_two_or_more_races", 
+  "under_5", 
+  "age_5_to_9", 
+  "age_10_to_14", 
+  "age_15_to_17", 
+  "age_18_to_19", 
+  "age_20", 
+  "age_21", 
+  "age_22_to_24", 
+  "age_25_to_29", 
+  "age_30_to_34", 
+  "age_35_to_44", 
+  "age_45_to_54", 
+  "age_55_to_59", 
+  "age_60_to_61", 
+  "age_62_to_64", 
+  "age_65_to_74", 
+  "age_75_to_84", 
+  "age_85_and_over", 
+  "less_than_college", 
+  "bachelors", 
+  "graduate", 
+  "under18"
+)
+# Subset to get only the necessary years (2016 and 2020)
+d_train_small <- d_train %>% filter(year %in% c(2016, 2020))
+
+# Create a dataframe for the 2024 predictions
+d_pred_2024 <- d_test %>% 
+  select(state) %>%  # start with just the state column
+  mutate(year = 2024)
+
+# Loop through each demographic variable
+for (var in demographic_vars) {
+  
+  # Create a new column for the predicted value
+  new_col <- paste0("predicted_", var)
+  
+  # Calculate the 2024 predictions based on changes from 2016 to 2020
+  d_pred_2024 <- d_pred_2024 %>%
+    left_join(
+      d_train_small %>%
+        filter(year == 2016) %>%
+        select(state, !!sym(var)) %>%
+        rename(value_2016 = !!sym(var)),
+      by = "state"
+    ) %>%
+    left_join(
+      d_train_small %>%
+        filter(year == 2020) %>%
+        select(state, !!sym(var)) %>%
+        rename(value_2020 = !!sym(var)),
+      by = "state"
+    ) %>%
+    mutate(
+      # Calculate the change and predict for 2024
+      !!new_col := value_2020 + ((value_2020 - value_2016) * (2024 - 2020) / (2020 - 2016))
+    ) %>%
+    select(-value_2016, -value_2020)  # Remove temporary columns
+}
+
+# Now d_pred_2024 contains the projected demographic values for 2024 with separate columns for each variable
+d_pred_2024
+
+# Remove "predicted_" from column names if it exists
+d_pred_2024 <- d_pred_2024 %>%
+  rename_with(~gsub("^predicted_", "", .x), everything())
+
+d_test_updated<- d_test %>%select(-all_of(demographic_vars))
+
+d_test <- d_test_updated %>% left_join(d_pred_2024, by = c("year","state"))
+
+d_test %>% mutate(DminusR = latest_pollav_DEM - latest_pollav_REP) %>% 
+  select(state, DminusR)
+
+```
+
+```{r include = FALSE, eval = FALSE}
+
+# Example pooled model with turnout and demographics. 
+mod_lm_dem <- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout + total_pop + white + black + american_indian + 
+                 asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
+                 less_than_college + bachelors + graduate + incumbent + incumbent_party, 
+                 data = d_train)
+summary(mod_lm_dem)
+mod_lm_rep <- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout + total_pop + white + black + american_indian + 
+                 asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
+                   less_than_college + bachelors + graduate,
+                 data = d_train)
+summary(mod_lm_rep)
+
+# shows that demographic variables are not always predictive
+
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+# Select columns without any NAs in d_train
+d_train <- d_train %>% select_if(~ !any(is.na(.)))
+
+# Create lagged variables in the main dataset 'd'
+t <- d %>% 
+  filter(year >= 2016) %>% 
+  arrange(year) %>% 
+  group_by(state) %>% 
+  mutate(
+    D_pv2p_lag1 = lag(D_pv2p, 1),
+    R_pv2p_lag1 = lag(R_pv2p, 1), 
+    D_pv2p_lag2 = lag(D_pv2p, 2),
+    R_pv2p_lag2 = lag(R_pv2p, 2)
+  )
+
+# Ensure you do not filter out important data prematurely
+d_test <- d_test %>% select_if(~ !any(is.na(.)))
+
+# Add lagged variables to the test set for the year 2024
+d_test <- d_test %>% left_join(t %>% filter(year == 2024) %>% 
+                                 select(state, year, D_pv2p, R_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2), 
+                               by = c("state", "year"))
+
+# Identify common columns between train and test datasets
+common_columns <- intersect(names(d_train), names(d_test))
+
+# Keep only the common columns in d_train
+d_train <- d_train %>% select(all_of(common_columns))
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Prepare your features and target variables
+features <- c("latest_pollav_REP", "latest_pollav_DEM", 
+              "mean_pollav_REP", "mean_pollav_DEM","D_pv2p_lag1", "D_pv2p_lag2","R_pv2p_lag2", "R_pv2p_lag1", "incumbent", "GDP_growth_quarterly") 
+
+# Create model matrices
+X_train <- model.matrix(~ ., data = d_train[, features])
+y_R_train <- d_train$R_pv2p
+y_D_train <- d_train$D_pv2p
+
+X_test <- model.matrix(~ ., data = d_test[, features])
+
+# Fit the Elastic Net model
+alpha_value <- 0.5  # You can adjust this for mixing LASSO (alpha = 1) and Ridge (alpha = 0)
+model_R <- glmnet(X_train, y_R_train, alpha = alpha_value)
+model_D <- glmnet(X_train, y_D_train, alpha = alpha_value)
+
+# Cross-validation to find the best lambda
+cv_model_R <- cv.glmnet(X_train, y_R_train, alpha = alpha_value)
+cv_model_D <- cv.glmnet(X_train, y_D_train, alpha = alpha_value)
+
+# Get the best lambda values
+best_lambda_R <- cv_model_R$lambda.min
+best_lambda_D <- cv_model_D$lambda.min
+
+# Predict on the test set using the best lambda
+d_test$predicted_R_pv2p <- as.numeric(predict(cv_model_R, newx = X_test, s = best_lambda_R))
+d_test$predicted_D_pv2p <- as.numeric(predict(cv_model_D, newx = X_test, s = best_lambda_D))
+
+d_test <- d_test %>% mutate(pred_winner = ifelse(predicted_R_pv2p >= predicted_D_pv2p, "R", "D"))
+
+d_test %>% select(state, predicted_R_pv2p, predicted_D_pv2p, pred_winner)
+
+d_test %>%
+  select(state, predicted_R_pv2p, predicted_D_pv2p, pred_winner) %>%
+  kable() %>%
+  kable_styling("striped") %>%
+  row_spec(which(d_test$pred_winner == "R"), background = "firebrick1") %>%
+  row_spec(which(d_test$pred_winner == "D"), background = "dodgerblue4")
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Number of simulations
+n_simulations <- 10000
+polling_error_sd <- 2
+
+# Create a data frame to store results
+simulation_results <- data.frame(
+  state = rep(d_test$state, each = n_simulations),
+  predicted_R_pv2p = numeric(n_simulations * nrow(d_test)),
+  predicted_D_pv2p = numeric(n_simulations * nrow(d_test)),
+  pred_winner = character(n_simulations * nrow(d_test)),
+  stringsAsFactors = FALSE
+)
+
+# Perform simulations
+for (i in 1:nrow(d_test)) {
+  # Get the latest polling averages for the current state
+  latest_R <- d_test$latest_pollav_REP[i]
+  latest_D <- d_test$latest_pollav_DEM[i]
+  
+  # Simulate polling averages for both parties
+  simulated_R <- rnorm(n_simulations, mean = latest_R, sd = polling_error_sd)
+  simulated_D <- rnorm(n_simulations, mean = latest_D, sd = polling_error_sd)
+  
+  # Update the results data frame
+  simulation_results$predicted_R_pv2p[((i - 1) * n_simulations + 1):(i * n_simulations)] <- simulated_R
+  simulation_results$predicted_D_pv2p[((i - 1) * n_simulations + 1):(i * n_simulations)] <- simulated_D
+  
+  # Determine the winner based on simulated values
+  simulation_results$pred_winner[((i - 1) * n_simulations + 1):(i * n_simulations)] <- ifelse(simulated_R >= simulated_D, "R", "D")
+}
+
+# Summarize results for Democrats
+democrat_summary <- simulation_results %>%
+  group_by(state) %>%
+  summarise(D_win_percentage = mean(pred_winner == "D") * 100, .groups = 'drop')
+
+democrat_summary %>%
+  kable(col.names = c("State", "D Win Percentage")) %>%
+  kable_styling("striped") %>%
+  row_spec(0, bold = TRUE)
+```
+
+
+# Projections 
+
+```{r}
+
+voting_results <- voting_results %>% mutate(party = if_else(state %in% c("michigan", "wisconsin", "nevada", "pennsylvania"), "Democrat", party)) %>% mutate(party = if_else(state %in% c("arizona", "georgia", "north carolina"), "Republican", party))
+
+us_map <- us_map %>% select(-electors, -party) %>% left_join(voting_results, by = c("region" = "state"))
+
+ggplot(data = us_map, aes(x = long, y = lat, group = group, fill = factor(party))) +
+  geom_polygon(color = "black") +
+  theme_minimal() +
+  coord_fixed(1.3) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Republican" = "firebrick1", "Toss Up" = "beige")) +
+  labs(title = "2024 Base Electoral College Map", x = "", y = "", caption = "Hawaii is blue \nAlaska is red \nNebraska 2nd district is blue \nMaine's 2nd district is red") +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+df_2024 <- voting_results %>%
+  group_by(party) %>%
+  summarise(electoral_votes = sum(electors, na.rm = TRUE)) %>%
+  mutate(party = factor(party, levels = c("Democrat", "Toss Up", "Republican")))
+
+ggplot(df_2024, aes(x = "", y = electoral_votes, fill = party)) +
+  geom_bar(stat = "identity", width = .8) +
+  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "black", size = 5) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Toss Up" = "beige", "Republican" = "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5)) + 
+  labs(fill = "Party", title = "2024 Presidential Electoral College Base Prediction") +
+  scale_y_continuous(limits = c(0, 538)) +
+  geom_hline(yintercept = 270, color = "black", linetype = "dashed")
+
+
+```
+# Citations:
+
+Kim, Seo-young Silvia, and Jan Zilinsky. 2021. “The Divided (But Not More Predictable) Electorate: A Machine Learning Analysis of Voting in American Presidential Elections.” *APSA Preprints.* doi: 10.33774/apsa-2021-45w3m-v2.  This content is a preprint and has not been peer-reviewed.
+
+Rosenstone, Steven J., and John Mark Hansen. *Mobilization, Participation, and Democracy in America.* Macmillan Pub. Co: Maxwell Macmillan Canada: Maxwell Macmillan International, 1993.
+
+Shaw, Daron, and John Petrocik. *The Turnout Myth: Voting Rates and Partisan Outcomes in American National Elections.* 1st ed., Oxford University Press, 2020, https://doi.org/10.1093/oso/9780190089450.001.0001.
+
+Wolfinger, Raymond E., and Steven J. Rosenstone. *Who Votes?* Yale University Press, 1980.
+
+# Data Sources: 
+
+Data are from the US presidential election popular vote results from 1948-2020 and [Kriner and Reeves 2015](https://www-cambridge-org.ezp-prod1.hul.harvard.edu/core/journals/american-political-science-review/article/presidential-particularism-and-dividethedollar-politics/962ABE4FC41A6FF3E1F95CE1B54D1ADD).
