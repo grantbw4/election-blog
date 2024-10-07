@@ -467,7 +467,7 @@ d_test %>%
   row_spec(which(d_test$pred_winner == "D"), background = "dodgerblue4")
 ```
 
-Here, we can see that, apart from Arizona and Georgia, all of the 19 states on which we have data are projected to vote for the same party they did in 2020. This should give us some confidence in the accuracy of our model as it is in line with the historical behavior of the states. 
+Here, we can see that, apart from Arizona, Pennsylvania, and Georgia, all of the 19 states on which we have data are projected to vote for the same party they did in 2020. This should give us some confidence in the accuracy of our model as it is in line with the historical behavior of the states. 
 
 I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 19 states 10,000 times, assuming a normal distribution around the current polling values with a standarad deviation of two percentage points.
 
@@ -520,7 +520,7 @@ democrat_summary %>%
   row_spec(0, bold = TRUE)
 ```
 
-As we can see, the seven battleground states exhibit much more uncertainty than the other states. California, for example, does not vote red in a single simulation, and even Florida votes blue less than 7% of the time in our simulations.
+As we can see, the seven battleground states exhibit much more uncertainty than the other states. California, for example, does not vote red in a single simulation, and even Florida votes blue less than 7% of the time in our simulations. I will use the Democratic win percentages for the battleground states to estimate whether they will vote blue or red in 2024.
 
 # Projections 
 
