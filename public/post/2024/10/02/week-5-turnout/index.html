@@ -55,6 +55,7 @@
 </ul>
 <p>While it is not inconceivable that other states/districts could unexpectedly flip (Florida, Ohio, Nebraska 2nd district, Virgina, Texas, etc), it is unlikely that one of these states/districts would &lsquo;decide&rsquo; the election. If Florida were to go blue, for example, other more competitive states would have likely gone blue as well, clinching the election for Harris. While there exist realities where Texas or Florida or Ohio could be the tipping point of the presidential election, for the purposes of this week&rsquo;s blog post, I will focus on the seven most commonly cited battleground states.</p>
 <p>With this assumption in place, assuming other states and districts vote as they did in 2020, the base electoral map for 2024 looks as follows:</p>
+<p><img src="https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/index_files/figure-html/unnamed-chunk-3-1.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/index_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
 <p>As we can see, this election cycle is incredibly competitive. 93 electoral votes reside in the seven toss-up states. Neither the Democrats nor the Republicans can claim a clear edge in the electoral college.</p>
 <h1 id="preparing-my-electoral-college-model">Preparing My Electoral College Model</h1>
 <p>Using state-level polling average data since 1980 from <a href="https://projects.fivethirtyeight.com/polls/">FiveThirtyEight</a> and national economic data from the <a href="https://fred.stlouisfed.org/">Federal Reserve Bank of St. Louis</a>, I construct an elastic net model that uses the following fundamental and polling features:</p>
@@ -84,115 +85,115 @@
 <tbody>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Arizona </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 51.11018 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 51.15208 </td>
    <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 48.97038 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> California </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 35.84429 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 35.90048 </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 64.21084 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Florida </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 52.76533 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 52.83008 </td>
    <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 47.35331 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Georgia </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.94383 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.97893 </td>
    <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.12645 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Maryland </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 33.17605 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 33.19779 </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 66.82108 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Michigan </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.27922 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.32397 </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.79956 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Minnesota </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 47.03575 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 47.07088 </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.02218 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Missouri </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 57.61375 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 57.65774 </td>
    <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 42.48869 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Montana </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 59.90203 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 59.94613 </td>
    <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 40.20801 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Nevada </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.75643 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.81304 </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.34117 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> New Hampshire </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 46.33470 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 46.35984 </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.70689 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> New Mexico </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 45.56926 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 45.62168 </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 54.50897 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> North Carolina </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.81408 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.85924 </td>
    <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.26993 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Ohio </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 55.42775 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 55.48688 </td>
    <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 44.69062 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
-   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Pennsylvania </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.02202 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.06351 </td>
-   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Pennsylvania </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.06977 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.06351 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Texas </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 53.93622 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 53.98087 </td>
    <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 46.15672 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Virginia </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 46.41384 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 46.45415 </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.65000 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Wisconsin </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.56003 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.60798 </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.52409 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> New York </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 44.56574 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 44.65824 </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 55.56768 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
