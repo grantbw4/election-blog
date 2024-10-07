@@ -761,13 +761,15 @@ fund_model_weight <- 1/sqrt(days_left)
 
 ensemble.2.pred <- as.numeric(polls.pred * poll_model_weight + fund.pred * fund_model_weight)
 
+# rescale to add to 100
+
 the_sum <- sum(ensemble.2.pred)
 
 totals <- ensemble.2.pred*(100/the_sum)
 
 ```
 
-Doing so, we find that the Democrats are projected to have a narrow lead in the two-party popular vote nationally.
+Doing so, we find that the Democrats are projected to have a narrow lead in the two-party popular vote nationally (after scaling so that the estimates sum to 100%).
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
