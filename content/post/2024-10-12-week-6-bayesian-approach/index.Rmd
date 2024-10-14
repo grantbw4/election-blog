@@ -70,8 +70,6 @@ d_ec <- read_csv("corrected_ec_1948_2024.csv")
 # Read ads datasets. 
 ad_campaigns <- read_csv("ad_campaigns_2000-2012.csv")
 ad_creative <- read_csv("ad_creative_2000-2012.csv")
-ads_2020 <- read_csv("ads_2020.csv")
-facebook_ads_2020 <- read_csv("facebook_ads_2020.csv")
 facebook_ads_biden_2020 <- read_csv("facebook_ads_biden_2020.csv")
 campaign_spending <- read_csv("FEC_contributions_by_state_2008_2024.csv")
 
