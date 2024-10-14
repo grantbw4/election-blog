@@ -127,7 +127,7 @@ us_map <- us_map %>%
 
 ```
 
-```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 # Plot Electoral College Map
 
