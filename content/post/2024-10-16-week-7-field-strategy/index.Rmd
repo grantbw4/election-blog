@@ -184,6 +184,7 @@ state_forecast_trends |>
   theme_bw()
 
 ```
+
 As we can see in the graphs, the lines constructed through linear regression are not bounded by 0% and 100%. If, for example, a Republican were to be running in California with a 90+% polling average, we would project that he/she would garner over 100% of the vote, which is not possible. Similarly, there exists a negative sloping line for Democrats in Mississippi, which is the opposite of what we would logically expect.
 
 Now, let's see if we can correct this by using logistic regressions instead.
@@ -283,7 +284,6 @@ state_glm_forecast_outputs |>
   theme(axis.title.y = element_text(size=6.5))
 
 ```
-
 # Simulations
 
 Now that we have a measure of the probability of a state-eligible voter voting for each party, we can run simulations to produce a distribution of the number of votes cast for each candidate. Let's do this first with Pennsylvania, for example.

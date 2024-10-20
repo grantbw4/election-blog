@@ -56,6 +56,7 @@ Below, we have two graphs: A map of the United States made with linear regressio
 These linear models have, on the x-axis, the hypothetical poll support for the Republican and Democratic party (depending on which line, red or blue you are looking at), and, on the y-axis, the predicted two-party vote share for each party. These linear regressions were created by analyzing the polling averages and two-party vote share outcomes for every state's presidential election since 1980. We will be looking at the polling average in each state up to 8 weeks before the presidential election.
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
+
 As we can see in the graphs, the lines constructed through linear regression are not bounded by 0% and 100%. If, for example, a Republican were to be running in California with a 90+% polling average, we would project that he/she would garner over 100% of the vote, which is not possible. Similarly, there exists a negative sloping line for Democrats in Mississippi, which is the opposite of what we would logically expect.
 
 Now, let's see if we can correct this by using logistic regressions instead.
@@ -65,7 +66,6 @@ Now, let's see if we can correct this by using logistic regressions instead.
 This time, using logistic regression instead of linear regression, we get the following graphs that do not exhibit the same extrapolation issues. Here, we should be careful to note that our logistic regression is modeling the probability of a state-eligible voter voting for each party. Since this is a probability between 0 and 100% and not a measure of two-party vote share, we should not be concerned that the points do not line up with the graphs.
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-2.png" width="672" />
-
 # Simulations
 
 Now that we have a measure of the probability of a state-eligible voter voting for each party, we can run simulations to produce a distribution of the number of votes cast for each candidate. Let's do this first with Pennsylvania, for example.
