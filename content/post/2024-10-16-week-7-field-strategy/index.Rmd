@@ -1,0 +1,607 @@
+---
+title: 'Week 7: Logistic Regression'
+author: Grant Williams
+date: '2024-10-19'
+slug: week-7-logic-regression
+categories: []
+tags: []
+---
+
+# Introduction
+
+In this seventh blog post, I am going to explore the use of logistic regression as opposed to linear regression while creating my models and simulations and evaluate how my electoral college projections change.
+
+My projections from last week (which used elastic net linear regression) are available [here](https://grantbw4.github.io/election-blog/post/2024/10/12/week-6-bayesian-approach/).
+
+*The code used to produce these visualizations is publicly available in my [github repository](https://github.com/grantbw4/election-blog) and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, [Matthew Dardet](https://www.matthewdardet.com/harvard-election-analytics-2024/).*
+
+# Analysis
+
+Though linear regression is an accessible, easy-to-use modelling tool with interpretable coefficients, there exist [reasons to believe](https://www.spiceworks.com/tech/artificial-intelligence/articles/linear-regression-vs-logistic-regression/) that it might be a less suitable regression model compared to logistic regression when it comes to polling. Here are a couple.
+
+## Issues with Extrapolation:
+
+In linear regression, there is no guarantee that a predicted vote share will fall between 0 and 100. OLS regression is simply minimizing the residual sum of squares, meaning that, if new data falls outside of what has historically been observed, we run the risk of extrapolating the outcome of that new observation to a value that is nonsensical. Logistic regression, on the other hand, bounds all predictions within a range. In our case, where we are predicting a given party's two-party vote share given its polling average, this prediction would be between 0 and 100.
+
+## Probability-based Framework
+
+In many ways, using logistic regression makes intuitively more sense in the context of an election. In the case of two-party vote share, each person's vote is necessarily binary: they either vote Republican or Democrat. The total number of trials is also fixed in a given year, this value being equivalent to the fraction of the voting-aged population that turns out. Given that logistic regression models the probability of a "success" in any trial, logistic regression is arguably better suited to be applied to the data.
+
+## Visualizations
+
+Provided these reservations, I am motivated to explore logistic regression.
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+rm(list = ls())
+cat("\014")
+# Load libraries.
+## install via `install.packages("name")`
+library(geofacet)
+library(ggpubr)
+library(ggthemes)
+library(haven)
+library(kableExtra)
+library(maps)
+library(mgcv)
+library(mgcViz)
+library(RColorBrewer)
+library(scales)
+library(sf)
+library(spData)
+library(stargazer)
+library(tidygeocoder)
+library(tidyverse)
+library(tigris)
+library(tmap)
+library(tmaptools)
+library(viridis)
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+####----------------------------------------------------------#
+#### Read, merge, and process data.
+####----------------------------------------------------------#
+
+# Read popular vote datasets. 
+d_popvote <- read_csv("popvote_1948_2020.csv")
+d_state_popvote <- read_csv("state_popvote_1948_2020.csv")
+d_state_popvote[d_state_popvote$state == "District of Columbia",]$state <- "District Of Columbia"
+
+# Read elector distribution dataset. 
+d_ec <- read_csv("corrected_ec_1948_2024.csv")
+
+# Read polling data. 
+d_polls <- read_csv("national_polls_1968-2024.csv")
+d_state_polls <- read_csv("state_polls_1968-2024.csv")
+
+# Read turnout data. 
+d_turnout <- read_csv("state_turnout_1980_2022.csv")
+
+# Read county turnout. 
+d_county_turnout <- read_csv("county_turnout.csv")
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+####----------------------------------------------------------#
+#### Binomial simulations for election prediction. 
+####----------------------------------------------------------#
+
+# Merge popular vote and polling data. 
+d <- d_state_popvote |> 
+  inner_join(d_state_polls |> filter(weeks_left <= 8)) |> 
+  mutate(state_abb = state.abb[match(state, state.name)])
+
+# Generate state-specific univariate poll-based forecasts with linear model.
+state_forecast <- list()
+state_forecast_outputs <- data.frame()
+for (s in unique(d$state_abb)) {
+  # Democrat model.
+  state_forecast[[s]]$dat_D <- d |> filter(state_abb == s, party == "DEM")
+  state_forecast[[s]]$mod_D <- lm(D_pv ~ poll_support, 
+                                  state_forecast[[s]]$dat_D)
+  
+  # Republican model.
+  state_forecast[[s]]$dat_R <- d |> filter(state_abb == s, party == "REP")
+  state_forecast[[s]]$mod_R <- lm(R_pv ~ poll_support, 
+                                  state_forecast[[s]]$dat_R)
+  
+  if (nrow(state_forecast[[s]]$dat_R) > 2) {
+    # Save state-level model estimates. 
+    state_forecast_outputs <- rbind(state_forecast_outputs, 
+                                    rbind(cbind.data.frame(
+                                      intercept = summary(state_forecast[[s]]$mod_D)$coefficients[1,1], 
+                                      intercept_se = summary(state_forecast[[s]]$mod_D)$coefficients[1,2],
+                                      slope = summary(state_forecast[[s]]$mod_D)$coefficients[2,1], 
+                                      state_abb = s, 
+                                      party = "DEM"), 
+                                    rbind(cbind.data.frame(
+                                     intercept = summary(state_forecast[[s]]$mod_R)$coefficients[1,1],
+                                     intercept_se = summary(state_forecast[[s]]$mod_R)$coefficients[1,2],
+                                     slope = summary(state_forecast[[s]]$mod_R)$coefficients[2,1],
+                                     state_abb = s,
+                                     party = "REP"
+                                    ))))
+  }
+}
+```
+
+Below, we have two graphs: A map of the United States made with linear regression models, and a side-by-side comparison of the linear regression models in California and Florida.
+
+These linear models have, on the x-axis, the hypothetical poll support for the Republican and Democratic party (depending on which line, red or blue you are looking at), and, on the y-axis, the predicted two-party vote share for each party. These linear regressions were created by analyzing the polling averages and two-party vote share outcomes for every state's presidential election since 1980. We will be looking at the polling average in each state up to 8 weeks before the presidential election.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Make graphs of polls in different states/parties at different levels of strength/significance of outcome. 
+state_forecast_trends <- state_forecast_outputs |> 
+  mutate(`0` = intercept, 
+         `25` = intercept + slope*25, 
+         `50` = intercept + slope*50, 
+         `75` = intercept + slope*75, 
+         `100` = intercept + slope*100) |>
+  select(-intercept, -slope) |> 
+  gather(x, y, -party, -state_abb, -intercept_se) |> 
+  mutate(x = as.numeric(x))
+
+# Q: What's wrong with this map? 
+# A: (1.) no polls in some states
+#    (2.) very high variance for some states (Nevada)/negative slopes for others (Mississippi)
+#    (3.) y is not always in the [0, 100] range
+ggplot(state_forecast_trends, aes(x=x, y=y, ymin=y-intercept_se, ymax=y+intercept_se)) + 
+  facet_geo(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  coord_cartesian(ylim=c(0, 100)) +
+  scale_color_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("blue", "red")) +
+  xlab("Hypothetical Poll Support") +
+  ylab("Predicted Voteshare\n(pv = A + B * poll)") +
+  ggtitle("") +
+  theme_bw()
+
+state_forecast_trends |>
+  filter(state_abb == "CA" | state_abb == "FL")|>
+  ggplot(aes(x=x, y=y, ymin=y-intercept_se, ymax=y+intercept_se)) + 
+  facet_wrap(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_hline(yintercept = 100, lty = 3) +
+  geom_hline(yintercept = 0, lty = 3) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  ## N.B. You can, in fact, combine *different* data and aesthetics
+  ##       in one ggplot; but this usually needs to come at the end 
+  ##       and you must explicitly override all previous aesthetics
+  geom_text(data = d |> filter(state_abb == "CA", party=="DEM"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "CA", party=="REP"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "FL", party=="DEM"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "FL", party=="REP"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  scale_color_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("blue", "red")) +
+  xlab("Hypothetical Poll Support") +
+  ylab("Predicted Voteshare\n(pv = A + B * poll)") +
+  theme_bw()
+
+```
+As we can see in the graphs, the lines constructed through linear regression are not bounded by 0% and 100%. If, for example, a Republican were to be running in California with a 90+% polling average, we would project that he/she would garner over 100% of the vote, which is not possible. Similarly, there exists a negative sloping line for Democrats in Mississippi, which is the opposite of what we would logically expect.
+
+Now, let's see if we can correct this by using logistic regressions instead.
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Merge turnout data into main dataset. 
+d <- d |> 
+  left_join(d_turnout, by = c("state", "year")) |> 
+  filter(year >= 1980) # Filter to when turnout dataset begins. 
+
+# Generate probabilistic univariate poll-based state forecasts. 
+state_glm_forecast <- list()
+state_glm_forecast_outputs <- data.frame()
+for (s in unique(d$state_abb)) {
+  # Democrat model. 
+  state_glm_forecast[[s]]$dat_D <- d |> filter(state_abb == s, party == "DEM")
+  state_glm_forecast[[s]]$mod_D <- glm(cbind(votes_D, vep - votes_D) ~ poll_support, # Cbind(N Success, N Total) for Binomial Model 
+                                      state_glm_forecast[[s]]$dat_D, 
+                                      family = binomial(link = "logit"))
+  
+  # Republican model. 
+  state_glm_forecast[[s]]$dat_R <- d |> filter(state_abb == s, party == "REP")
+  state_glm_forecast[[s]]$mod_R <- glm(cbind(votes_R, vep - votes_R) ~ poll_support, 
+                                      state_glm_forecast[[s]]$dat_R, 
+                                      family = binomial(link = "logit"))
+  
+  if (nrow(state_glm_forecast[[s]]$dat_R) > 2) {
+    for (hypo_avg_poll in seq(from = 0, to = 100, by = 10)) { 
+      # Democrat prediction. 
+      D_pred_vote_prob <- predict(state_glm_forecast[[s]]$mod_D, 
+                                  newdata = data.frame(poll_support = hypo_avg_poll), se = TRUE, type = "response")
+      D_pred_qt <- qt(0.975, df = df.residual(state_glm_forecast[[s]]$mod_D)) # Used in the prediction interval formula. 
+      
+      # Republican prediction. 
+      R_pred_vote_prob <- predict(state_glm_forecast[[s]]$mod_R, 
+                                  newdata = data.frame(poll_support = hypo_avg_poll), se = TRUE, type = "response")
+      R_pred_qt <- qt(0.975, df = df.residual(state_glm_forecast[[s]]$mod_R)) # Used in the prediction interval formula.
+      
+      # Save predictions. 
+      state_glm_forecast_outputs <- rbind(state_glm_forecast_outputs, 
+                                          cbind.data.frame(x = hypo_avg_poll,
+                                                           y = D_pred_vote_prob$fit*100,
+                                                           ymin = (D_pred_vote_prob$fit - D_pred_qt*D_pred_vote_prob$se.fit)*100,
+                                                           ymax = (D_pred_vote_prob$fit + D_pred_qt*D_pred_vote_prob$se.fit)*100,
+                                                           state_abb = s, 
+                                                           party = "DEM"),
+                                          cbind.data.frame(x = hypo_avg_poll,
+                                                           y = R_pred_vote_prob$fit*100,
+                                                           ymin = (R_pred_vote_prob$fit - R_pred_qt*R_pred_vote_prob$se.fit)*100,
+                                                           ymax = (R_pred_vote_prob$fit + R_pred_qt*R_pred_vote_prob$se.fit)*100,
+                                                           state_abb = s, 
+                                                           party = "REP"))
+    }
+  }
+}
+
+```
+
+This time, using logistic regression instead of linear regression, we get the following graphs that do not exhibit the same extrapolation issues. Here, we should be careful to note that our logistic regression is modeling the probability of a state-eligible voter voting for each party. Since this is a probability between 0 and 100% and not a measure of two-party vote share, we should not be concerned that the points do not line up with the graphs.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Make graphs of polls in different states/parties at different levels of strength/significance of outcome. 
+ggplot(state_glm_forecast_outputs, aes(x=x, y=y, ymin=ymin, ymax=ymax)) + 
+  facet_geo(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  coord_cartesian(ylim=c(0, 100)) +
+  scale_color_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("blue", "red")) +
+  xlab("Hypothetical Poll Support") +
+  ylab('Probability of State-Eligible Voter Voting for Party') +
+  theme_bw()
+
+state_glm_forecast_outputs |>
+  filter(state_abb == "CA" | state_abb == "FL") |>
+  ggplot(aes(x=x, y=y, ymin=ymin, ymax=ymax)) + 
+  facet_wrap(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  coord_cartesian(ylim=c(0, 100)) +
+  geom_text(data = d |> filter(state_abb == "CA", party=="DEM"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "CA", party=="REP"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "FL", party=="DEM"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "FL", party=="REP"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  scale_color_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("blue", "red")) +
+  xlab("Hypothetical Poll Support") +
+  ylab('Probability of\nState-Eligible Voter\nVoting for Party') +
+  ggtitle("Binomial Logit") + 
+  theme_bw() + 
+  theme(axis.title.y = element_text(size=6.5))
+
+```
+
+# Simulations
+
+Now that we have a measure of the probability of a state-eligible voter voting for each party, we can run simulations to produce a distribution of the number of votes cast for each candidate. Let's do this first with Pennsylvania, for example.
+
+First, let's plot the historical voting-eligible population in Pennsylvania using historical voter turnout data. 
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Simulating a distribution of potential election results in Pennsylvania for 2024. 
+# First step. Let's use GAM (general additive model) to impute VEP in Pennsylvania for 2024 using historical VEP.
+
+# Get historical eligible voting population in Pennsylvania. 
+vep_PA_2020 <- as.integer(d_turnout$vep[d_turnout$state == "Pennsylvania" & d_turnout$year == 2020])
+vep_PA <- d_turnout |> filter(state == "Pennsylvania") |> select(vep, year)
+
+# Fit regression for 2024 VEP prediction. 
+lm_vep_PA <- lm(vep ~ year, vep_PA)
+
+plot(x = vep_PA$year, y = vep_PA$vep, xlab = "Year", ylab = "VEP", main = "Voting-Eligible Population in Pennsylvania by Year")
+abline(lm_vep_PA, col = "red")
+
+```
+
+Rather than apply a linear model to something that appears visibly non-linear, let's use a general additive model that employs splines to fit the data.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+vep_PA_2024_ols <- predict(lm_vep_PA, newdata = data.frame(year = 2024)) |> as.numeric()
+
+gam_vep_PA <- mgcv::gam(vep ~ s(year), data = vep_PA)
+print(plot(getViz(gam_vep_PA), ) + l_points() + l_fitLine(linetype = 3) + l_ciLine(colour = 2) + labs(y = "Voting-Eligible Population (VEP)") + theme_get())
+
+# Use generalized additive model (GAM) to predict 2024 VEP in Pennsylvania.
+vep_PA_2024_gam <- predict(gam_vep_PA, newdata = data.frame(year = 2024)) |> as.numeric()
+
+```
+
+We take a weighted 75:25 weighted average of the GAM model and OLS model to get a predicted VEP population for 2024. With this VEP population, we can fit two logistic models, one for Republicans and another Democrats, to estimate the probability of a stte-eligible voter voting for each party's candidate based on that candidate's average polling support over the last 60 days. 
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Take weighted average of linear and GAM predictions for final prediction. 
+vep_PA_2024 <- as.integer(0.75 * vep_PA_2024_gam + 0.25 * vep_PA_2024_ols)
+
+# Split datasets by party. 
+PA_D <- d |> filter(state == "Pennsylvania" & party == "DEM")
+PA_R <- d |> filter(state == "Pennsylvania" & party == "REP")
+
+# Fit Democrat and Republican models. 
+PA_D_glm <- glm(cbind(votes_R, vep - votes_R) ~ poll_support, data = PA_D, family = binomial(link = "logit"))
+PA_R_glm <- glm(cbind(votes_R, vep - votes_R) ~ poll_support, data = PA_R, family = binomial(link = "logit"))
+
+# Get predicted draw probabilities for D and R. 
+PA_pollav_D <- d_state_polls$poll_support[d_state_polls$state == "Pennsylvania" & d_state_polls$days_left <= 60 & d_state_polls$party == "DEM" & d_state_polls$year == 2024] |> mean(na.rm = T)
+PA_pollav_R <- d_state_polls$poll_support[d_state_polls$state == "Pennsylvania" & d_state_polls$days_left <= 60 & d_state_polls$party == "REP" & d_state_polls$year == 2024] |> mean(na.rm = T)
+PA_sdpoll_D <- 2
+PA_sdpoll_R <- 2
+
+(prob_D_vote_PA_2024 <- predict(PA_D_glm, newdata = data.frame(poll_support = PA_pollav_D), se = TRUE, type = "response")[[1]] |> as.numeric())
+(prob_R_vote_PA_2024 <- predict(PA_R_glm, newdata = data.frame(poll_support = PA_pollav_R), se = TRUE, type = "response")[[1]] |> as.numeric())
+
+```
+
+After running our code, we find that, given our current polling average of 47.9% for Democrats and 47.05% for Republicans, given the historical data and the logistic model, we can expect a state-eligible voter to vote for a Democrat 27.9% of the time and a Republican 29.9% of the time. This would align with the narrative that Democrats tend to underperform relative to the polls in Pennsylvania.
+
+We can then run a simulation to estimate the number of votes that each candidate will receive given the calculated predicted probabilities and a 2 percentage-point standard deviation.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+set.seed(1)
+
+# I used Chat GPT to help construct the visual
+
+# Simulations incorporating prior for SD. 
+sim_D_votes_PA_2024 <- rbinom(n = 10000, size = vep_PA_2024, prob = rnorm(10000, prob_D_vote_PA_2024, PA_sdpoll_D/100))
+sim_R_votes_PA_2024 <- rbinom(n = 10000, size = vep_PA_2024, prob = rnorm(10000, prob_R_vote_PA_2024, PA_sdpoll_R/100))
+
+  sim_results <- data.frame(
+    D_votes = sim_D_votes_PA_2024,
+    R_votes = sim_R_votes_PA_2024
+  ) %>% mutate(winner = if_else(D_votes >= R_votes, "D", "R"))
+
+  
+# Plot with ggplot2
+ggplot(sim_results, aes(x = D_votes, y = R_votes, color = winner)) +
+  geom_point(alpha = 0.5) +  # Add transparency for clarity
+  scale_color_manual(values = c("D" = "blue", "R" = "red")) +  # Color code by party
+  labs(
+    title = "Simulated Vote Totals for Democrats and Republicans in Pennsylvania",
+    x = "Democratic Votes (Harris)",
+    y = "Republican Votes (Trump)",
+    color = "Winner"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.title = element_text(size = 12)
+  )
+
+# Determine the winner in each simulation
+
+# Count wins for each candidate
+win_count <- table(sim_results$winner)
+
+# Convert to a data frame for pretty formatting
+win_df <- as.data.frame(win_count)
+
+# Create a prettier table using kableExtra
+win_df %>%
+  kbl(col.names = c("Candidate", "Simulations Won"), align = "c") %>%
+  kable_paper(full_width = F) %>%
+  row_spec(1, bold = TRUE, color = "white", background = "blue") %>%
+  row_spec(2, bold = TRUE, color = "white", background = "red")
+
+```
+
+We observe that, according to this model, Harris would lose Pennsylvania in the majority of our simulations.
+
+If we do this same thing for our other six swing states (Arizona, Georgia, Michigan, Nevada, North Carolina, and Wisconsin), we get the following graphs.
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# I used ChatGPT to formulate my past code
+
+# Write a function that will produce the two graphs of interest for each state
+
+# Define function to simulate election results, plot, and generate table
+simulate_election_results <- function(state_name) {
+  
+  # Retrieve relevant state data for the given state
+  vep_state_2020 <- as.integer(d_turnout$vep[d_turnout$state == state_name & d_turnout$year == 2020])
+  vep_state <- d_turnout |> filter(state == state_name) |> select(vep, year)
+  
+  # Split datasets by party. 
+state_D <- d |> filter(state == state_name & party == "DEM")
+state_R <- d |> filter(state == state_name & party == "REP")
+
+# Fit Democrat and Republican models. 
+state_D_glm <- glm(cbind(votes_R, vep - votes_R) ~ poll_support, data = state_D, family = binomial(link = "logit"))
+state_R_glm <- glm(cbind(votes_R, vep - votes_R) ~ poll_support, data = state_R, family = binomial(link = "logit"))
+  
+  # Fit models for the Voting-Eligible Population (VEP)
+  lm_vep_state <- lm(vep ~ year, vep_state)
+  vep_state_2024_ols <- predict(lm_vep_state, newdata = data.frame(year = 2024)) |> as.numeric()
+  
+  gam_vep_state <- mgcv::gam(vep ~ s(year), data = vep_state)
+  vep_state_2024_gam <- predict(gam_vep_state, newdata = data.frame(year = 2024)) |> as.numeric()
+  
+  # Final prediction for VEP using a weighted average of GAM and OLS models
+  vep_state_2024 <- as.integer(0.75 * vep_state_2024_gam + 0.25 * vep_state_2024_ols)
+  
+  # Retrieve polling data for Democrats and Republicans
+  pollav_D <- d_state_polls$poll_support[d_state_polls$state == state_name & d_state_polls$days_left <= 60 & d_state_polls$party == "DEM" & d_state_polls$year == 2024] |> mean(na.rm = TRUE)
+  pollav_R <- d_state_polls$poll_support[d_state_polls$state == state_name & d_state_polls$days_left <= 60 & d_state_polls$party == "REP" & d_state_polls$year == 2024] |> mean(na.rm = TRUE)
+  
+  # Set standard deviations for polling
+  sdpoll_D <- 2
+  sdpoll_R <- 2
+  
+prob_D_vote_state_2024 <- predict(state_D_glm, newdata = data.frame(poll_support = pollav_D), se = TRUE, type = "response")[[1]] |> as.numeric()
+prob_R_vote_state_2024 <- predict(state_R_glm, newdata = data.frame(poll_support = pollav_R), se = TRUE, type = "response")[[1]] |> as.numeric()
+  
+  set.seed(1)
+
+  # Simulate vote totals for each party
+  sim_D_votes <- rbinom(n = 10000, size = vep_state_2024, prob = rnorm(10000, prob_D_vote_state_2024, sdpoll_D / 100))
+  sim_R_votes <- rbinom(n = 10000, size = vep_state_2024, prob = rnorm(10000, prob_R_vote_state_2024, sdpoll_R / 100))
+  
+  # Create data frame for ggplot2
+  sim_results <- data.frame(
+    D_votes = sim_D_votes,
+    R_votes = sim_R_votes
+  ) %>% mutate(winner = if_else(D_votes >= R_votes, "D", "R"))
+  
+  # Plot the simulated vote totals with color coding
+  p <- ggplot(sim_results, aes(x = D_votes, y = R_votes, color = winner)) +
+    geom_point(alpha = 0.5) +
+    scale_color_manual(values = c("D" = "blue", "R" = "red")) +
+    labs(
+      title = paste("Simulated Vote Totals for Democrats and Republicans in", state_name),
+      x = "Democratic Votes",
+      y = "Republican Votes",
+      color = "Winner"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 14),
+      axis.title = element_text(size = 12)
+    )
+  
+  # Print the plot
+  print(p)
+  
+  # Calculate the number of wins for each candidate
+  win_count <- table(sim_results$winner)
+  
+  # Convert to a data frame for the table
+  win_df <- as.data.frame(win_count)
+  
+  # Create and print the kableExtra table
+  win_df %>%
+    kbl(col.names = c("Candidate", "Simulations Won"), align = "c") %>%
+    kable_paper(full_width = FALSE) %>%
+    row_spec(1, bold = TRUE, color = "white", background = "blue") %>%
+    row_spec(2, bold = TRUE, color = "white", background = "red")
+}
+
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+simulate_election_results("Arizona")
+simulate_election_results("Georgia")
+simulate_election_results("Michigan")
+simulate_election_results("Nevada")
+simulate_election_results("North Carolina")
+simulate_election_results("Wisconsin")
+
+```
+
+These simulations indicate Harris victories in Arizona, North Carolina, Georgia, and Nevada, and Trump victories elsewhere.
+
+Ultimately this would result in the following electoral college map in Harris's favor.
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Load Map
+us_map <- map_data("state")
+
+# Only want 2024 info and we're making things lowercase
+d_ec <- read_csv("corrected_ec_1948_2024.csv") %>% filter(year == 2024) %>% mutate(state = tolower(state))
+
+# Add in electoral info
+us_map <- us_map %>% left_join(d_ec, by = c("region" = "state"))
+
+# used ChatGPT to get this list of states
+
+voting_results <- data.frame(
+  state = c(
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California", 
+    "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", 
+    "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", 
+    "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", 
+    "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", 
+    "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+    "New Jersey", "New Mexico", "New York", "North Carolina", 
+    "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", 
+    "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
+    "Texas", "Utah", "Vermont", "Virginia", "Washington", 
+    "West Virginia", "Wisconsin", "Wyoming"
+  ),
+  party = c(
+    "Republican", "Republican", "Democrat", "Republican", "Democrat", 
+    "Democrat", "Democrat", "Democrat", "Democrat", "Republican", 
+    "Democrat", "Democrat", "Republican", "Democrat", "Republican", 
+    "Republican", "Republican", "Republican", "Republican", "Democrat", 
+    "Democrat", "Democrat", "Republican", "Democrat", "Republican", 
+    "Republican", "Republican", "Republican", "Democrat", "Democrat", 
+    "Democrat", "Democrat", "Democrat", "Democrat", 
+    "Republican", "Republican", "Republican", "Democrat", "Republican", 
+    "Democrat", "Republican", "Republican", "Republican", 
+    "Republican", "Republican", "Democrat", "Democrat", "Democrat", 
+    "Republican", "Republican", "Republican"))
+
+# Add in party info
+voting_results <- voting_results %>% mutate(state = tolower(state))
+
+us_map <- us_map %>% left_join(voting_results, by = c("region" = "state"))
+
+# Fix DC 
+us_map <- us_map %>%
+  mutate(party = ifelse(region == "district of columbia", "Democrat", party))
+
+voting_results <- voting_results %>% left_join(d_ec %>% select(state, electors), by = "state")
+
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Display the electoral college map and chart
+
+us_map_1 <- us_map %>% select(-electors, -party) %>% left_join(voting_results, by = c("region" = "state"))
+
+ggplot(data = us_map_1, aes(x = long, y = lat, group = group, fill = factor(party))) +
+  geom_polygon(color = "black") +
+  theme_minimal() +
+  coord_fixed(1.3) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Republican" = "firebrick1", "Toss Up" = "beige")) +
+  labs(title = "2024 Electoral College Map", x = "", y = "", caption = "Hawaii is blue \nAlaska is red \nNebraska 2nd district is blue \nMaine's 2nd district is red", fill = "Party") +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+df_2024_1 <- voting_results %>%
+  group_by(party) %>%
+  summarise(electoral_votes = sum(electors, na.rm = TRUE)) %>%
+  mutate(party = factor(party, levels = c("Democrat", "Toss Up", "Republican")))
+
+ggplot(df_2024_1, aes(x = "", y = electoral_votes, fill = party)) +
+  geom_bar(stat = "identity", width = .8) +
+  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "black", size = 5) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Toss Up" = "beige", "Republican" = "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5)) + 
+  labs(fill = "Party", title = "2024 Presidential Electoral College Prediction") +
+  scale_y_continuous(limits = c(0, 538)) +
+  geom_hline(yintercept = 270, color = "black", linetype = "dashed")
+```
+
+# Citations:
+
+Kanade, Vijay. “Linear vs. Logistic Regression.” *Spiceworks Inc*, 10 June 2022, www.spiceworks.com/tech/artificial-intelligence/articles/linear-regression-vs-logistic-regression/. 
+
+# Data Sources: 
+
+Data are from the US presidential election popular vote results from 1948-2020, [polling data from fivethirtyeight](https://projects.fivethirtyeight.com/polls/) and voter turnout (VEP) data.
+

@@ -6,8 +6,22 @@
     <description>Recent content in Home on Grant&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 02 Oct 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 19 Oct 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://grantbw4.github.io/election-blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Week 7: Logistic Regression</title>
+      <link>https://grantbw4.github.io/election-blog/post/2024/10/19/week-7-logic-regression/</link>
+      <pubDate>Sat, 19 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>https://grantbw4.github.io/election-blog/post/2024/10/19/week-7-logic-regression/</guid>
+      <description>Introduction In this seventh blog post, I am going to explore the use of logistic regression as opposed to linear regression while creating my models and simulations and evaluate how my electoral college projections change.&#xA;My projections from last week (which used elastic net linear regression) are available here.&#xA;The code used to produce these visualizations is publicly available in my github repository and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, Matthew Dardet.</description>
+    </item>
+    <item>
+      <title>Week 6: Bayesian Approach</title>
+      <link>https://grantbw4.github.io/election-blog/post/2024/10/12/week-6-bayesian-approach/</link>
+      <pubDate>Sat, 12 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>https://grantbw4.github.io/election-blog/post/2024/10/12/week-6-bayesian-approach/</guid>
+      <description>Introduction In this sixth blog post, I am going to discuss the role that ads play in elections, and, then, I will discuss how a Frequentist approach to polling compares to a Bayesian approach.&#xA;I will also be updating my model from last week.&#xA;The code used to produce these visualizations is publicly available in my github repository and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, Matthew Dardet.</description>
+    </item>
     <item>
       <title>Week Five: Turnout</title>
       <link>https://grantbw4.github.io/election-blog/post/2024/10/02/week-5-turnout/</link>
