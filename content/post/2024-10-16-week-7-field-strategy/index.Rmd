@@ -603,5 +603,5 @@ Kanade, Vijay. “Linear vs. Logistic Regression.” *Spiceworks Inc*, 10 June 2
 
 # Data Sources: 
 
-Data are from the US presidential election popular vote results from 1948-2020, [polling data from fivethirtyeight](https://projects.fivethirtyeight.com/polls/) and voter turnout (VEP) data.
+Data are from the US presidential election popular vote results from 1948-2020, [polling data from fivethirtyeight](https://projects.fivethirtyeight.com/polls/) and voter turnout (VEP) data from the [University of Florida's Election Lab](https://election.lab.ufl.edu/voter-turnout/).
 
