@@ -398,7 +398,7 @@ importance_long <- reshape2::melt(importance_df, id.vars = "Feature",
 ggplot(importance_long, aes(x = reorder(Feature, Importance), y = Importance, fill = Model)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_flip() +
-  labs(title = "Feature Importance for Republican and Democrat Models (Elastic Net)",
+  labs(title = "Feature Importance (Elastic Net)",
        x = "Features", y = "Absolute Coefficient (Feature Importance)") +
     scale_fill_manual(values = c("Importance_D" = "dodgerblue4", "Importance_R" = "firebrick1")) +
   theme_minimal() 

@@ -101,44 +101,44 @@ We will train separate two-party vote share models for both the Republicans and 
 <tbody>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Arizona </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.99612 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.00419 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.99581 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.00372 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Georgia </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.77481 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.22585 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.77415 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.22481 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Michigan </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.74270 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.25860 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.74140 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.25658 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Nevada </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.84958 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.15310 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.84690 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.14888 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> North Carolina </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.84434 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.15592 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.84408 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.15551 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Pennsylvania </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.90446 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.09749 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.90251 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.09443 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Wisconsin </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.98358 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.01695 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.98305 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.01615 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
 </tbody>
