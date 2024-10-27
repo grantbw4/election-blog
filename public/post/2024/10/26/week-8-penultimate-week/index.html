@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Week 8: Penultimate Week | Grant&#39;s Election Blog</title>
+    <link rel="stylesheet" href="/election-blog/css/style.css" />
+    <link rel="stylesheet" href="/election-blog/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/election-blog/">Home</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Week 8: Penultimate Week</span></h1>
+<h2 class="author">Grant Williams</h2>
+<h2 class="date">2024/10/26</h2>
+</div>
+
+<main>
+<script src="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/kePrint/kePrint.js"></script>
+<link href="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/lightable/lightable.css" rel="stylesheet" />
+<script src="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/kePrint/kePrint.js"></script>
+<link href="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/lightable/lightable.css" rel="stylesheet" />
+<script src="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/kePrint/kePrint.js"></script>
+<link href="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/lightable/lightable.css" rel="stylesheet" />
+<h1 id="introduction">Introduction</h1>
+<p>In this eighth blog post, in the second-to-last week before the 2024 election, I want to improve my election forecasts for the seven battleground states.</p>
+<p>Over the past several weeks, we have explored OLS models, incumbency bias, the relationship between turnout and demographics, Bayesian approaches to predictions, and logistic regression, among other topics.</p>
+<p>One thing that has consistently bothered me about the models I have constructed up to this point has been my fairly arbitrary standard deviation estimate when creating simulations. After using machine learning techniques to prepare a model to predict the two-party national vote share for each candidate within a state, I have run simulations assuming a normal deviation with a two-percentage point standard deviation to evaluate Harris and Trump&rsquo;s chances of winning each state.</p>
+<p>This approach has struck me as unsatisfactory, however, because surely we have more confidence in some states&rsquo; polling averages than others. For this reason, I am going to explore the reliability of polling data from each of our seven battleground states this week.</p>
+<p><em>The code used to produce these visualizations is publicly available in my <a href="https://github.com/grantbw4/election-blog">github repository</a> and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, <a href="https://www.matthewdardet.com/harvard-election-analytics-2024/">Matthew Dardet</a>.</em></p>
+<h1 id="analysis">Analysis</h1>
+<p>The other day, I read an <a href="https://abcnews.go.com/538/states-accurate-polls/story?id=115108709">article by Nathaniel Rakich</a> on ABC&rsquo;s election site, FiveThirtyEight.com</p>
+<p>In this article, Rakich calculates the &ldquo;weighted-average error of general-election polls for president, U.S. Senate and governor conducted within 21 days of elections since 1998 in each state.&rdquo; Seeing Rakich systematically assess the reliability of polls at the state level gave me the idea to adopt a similar method to estimate the variability of our two-party vote share predictions for each state.</p>
+<p>Since standard deviation is roughly calculated by taking every value in a data set, calculating the mean of that data set, and then determining the average distance of each point away from that mean, I am curious if by calculating the average distance of the polls away from the true vote share we can get a better sense of standard deviation than the arbitrary 2 percentage points I had previously been using.</p>
+<h1 id="my-model">My Model</h1>
+<p>Both <a href="https://centerforpolitics.org/crystalball/2024-president/">Sabato&rsquo;s Crystal Ball</a> of the Center for Politics and the <a href="https://www.cookpolitical.com/ratings/presidential-race-ratings">Cook Political Report</a> list the same seven states as &ldquo;toss-ups.&rdquo; Almost universally across news platforms and forecasting models, the following seven states are identified as the key swing states which will, most likely, determine the election</p>
+<ul>
+<li>Arizona</li>
+<li>Georgia</li>
+<li>Michigan</li>
+<li>Nevada</li>
+<li>North Carolina</li>
+<li>Pennsylvania</li>
+<li>Wisconsin</li>
+</ul>
+<p>For the purposes of both this week&rsquo;s model and the next week&rsquo;s final prediction, I will forecast the two-party vote share in each of these battleground states and assume other states and districts vote as they did in 2020.</p>
+<p><img src="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/figure-html/unnamed-chunk-3-1.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<h1 id="preparing-my-electoral-college-model">Preparing My Electoral College Model</h1>
+<p>Of the models I have created thus far, the elastic net, to me, seems to most fairly weigh the various covariates. For this reason, I will adapt much of my code from week five.</p>
+<p>Using state-level polling average data since 1980 from <a href="https://projects.fivethirtyeight.com/polls/">FiveThirtyEight</a> and national economic data from the <a href="https://fred.stlouisfed.org/">Federal Reserve Bank of St. Louis</a>, I will construct an elastic net model that uses the following polling features:</p>
+<ul>
+<li>Polling average for the Republican candidate within a state in the most recent week</li>
+<li>Polling average for the Democratic candidate within a state in the most recent week</li>
+<li>Polling average for the Republican candidate within a state in the last two months</li>
+<li>Polling average for the Democratic candidate within a state in the last two months</li>
+<li>A lag of the previous election&rsquo;s two-party vote share for the Democrats within a state</li>
+<li>A lag of the previous election&rsquo;s two-party vote share for the Republicans within a state</li>
+<li>A lag of the election previous to last election&rsquo;s two-party vote share for the Democrats within a state</li>
+<li>A lag of the election previous to last election&rsquo;s two-party vote share for the Republicans within a state</li>
+</ul>
+<p>I am opting to only consider the polling averages within the last two months of the campaign rather than the entirety of the campaign as I believe these to be most predictive of the ultimate election outcome. I am concerned that introducing averages from earlier periods would lead to overfitting, and, considering the unique candidate swap of 2024, I do not believe Biden nor Harris&rsquo;s polling averages from the stage in the election before Harris could establish a proper campaign strategy are informative. I will also be rescaling these mean polling averages so that they sum to 100 and can more readily be interpreted as two-party vote shares.</p>
+<p>While there are a number of fundamental and economic covariates I considered exploring (Whether a candidate is only a party incumbent, GDP growth in the second quarter of the election year, RDPI growth in the second quarter of the election year, Unemployment rate in the second quarter of the election year, June Approval Rating, etc.), I found that my forecasts were highly variable depending on which fundamental variables I decided to include. It is my belief that many of the trends explained by fundamental variables (incumbency bias, high growth is good, high inflation is bad, etc.) is already baked into the polls, so I will focus on constructing a polls-only model for this week. Next week, however, I will include both a polls-only and a polls + fundamentals model.</p>
+<!-- I will use economic data from Q4 of 2019 instead of Q2 of 2020 because the Q2 data is a massive outlier that skews the regressions. It is also not representative of Trump's presidency. Moreover, because of the candidate swap in 2024, I will use both Trump and Harris's approval ratings from September 2024. -->
+<p>We will train separate two-party vote share models for both the Republicans and Democrats in each of the swing states using data since 1980, and then apply this model to our 2024 data to generate predictions. To make this model, I am standardizing my features and regularizing them with elastic net linear regression.</p>
+<h1 id="visualize-feature-importance">Visualize Feature Importance</h1>
+<pre><code class="language-r"># Used ChatGPT to make this graph
+
+# Use the scaled training matrix for feature names
+features &lt;- colnames(X_train_scaled)
+
+# Extract coefficients using the best lambda from the cross-validated models
+coef_R &lt;- as.vector(coef(cv_model_R, s = best_lambda_R))[-1]  # Exclude intercept
+coef_D &lt;- as.vector(coef(cv_model_D, s = best_lambda_D))[-1]  # Exclude intercept
+
+# Ensure the number of features matches the length of coefficients
+importance_df &lt;- data.frame(
+  Feature = features,
+  Importance_R = abs(coef_R),  # Absolute values for feature importance
+  Importance_D = abs(coef_D)
+)
+
+# Reshape data for ggplot
+importance_long &lt;- reshape2::melt(importance_df, id.vars = &quot;Feature&quot;, 
+                                  variable.name = &quot;Model&quot;, 
+                                  value.name = &quot;Importance&quot;)
+
+# Plot feature importance
+ggplot(importance_long, aes(x = reorder(Feature, Importance), y = Importance, fill = Model)) +
+  geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
+  coord_flip() +
+  labs(title = &quot;Feature Importance for Republican and Democrat Models (Elastic Net)&quot;,
+       x = &quot;Features&quot;, y = &quot;Absolute Coefficient (Feature Importance)&quot;) +
+  theme_minimal()
+</code></pre>
+<img src="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> state </th>
+   <th style="text-align:right;"> predicted_R_pv2p </th>
+   <th style="text-align:right;"> predicted_D_pv2p </th>
+   <th style="text-align:left;"> pred_winner </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Arizona </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.99628 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.00207 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Georgia </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.77519 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.22089 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Michigan </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.74342 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.24919 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Nevada </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.85112 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.13298 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> North Carolina </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.84449 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.15405 </td>
+   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Pennsylvania </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.90557 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.08289 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Wisconsin </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.98385 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.01338 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
+  </tr>
+</tbody>
+</table>
+<p>Here, we can see that Arizona, Georgia, and North Carolina are favored to vote red while the other states are favored to vote blue.</p>
+<p>I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 7 states 10,000 times, assuming a normal distribution around the current polling values with a standard deviation determined by the average distance of each state&rsquo;s poll away from the actual outcome.</p>
+<p>To create this standard deviation, I will take the weighted average of the polling error of each state and party in 2016 and 2020 to capture the &ldquo;Trump-era&rdquo; polling error. This will be calculated as follows:</p>
+<p><code>$$\text{Standard Error} = 0.5({|\text{Latest Poll}}_{2016} - {\text{Actual Vote Share}}_{2016}|) + 0.5(|{\text{Latest Poll}}_{2020} - {\text{Actual Vote Share}}_{2020}|)$$</code>
+My errors</p>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> State </th>
+   <th style="text-align:right;"> Weighted Error </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Arizona </td>
+   <td style="text-align:right;"> 0.7928877 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Georgia </td>
+   <td style="text-align:right;"> 0.5363407 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Michigan </td>
+   <td style="text-align:right;"> 2.3607260 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Nevada </td>
+   <td style="text-align:right;"> 1.2531877 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> North Carolina </td>
+   <td style="text-align:right;"> 2.0568637 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Pennsylvania </td>
+   <td style="text-align:right;"> 1.9538101 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Wisconsin </td>
+   <td style="text-align:right;"> 3.6458086 </td>
+  </tr>
+</tbody>
+</table>
+<p>Using the above weighted errors as standard deviations yields the following simulation breakdown.</p>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;font-weight: bold;"> State </th>
+   <th style="text-align:right;font-weight: bold;"> D Win Percentage </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Arizona </td>
+   <td style="text-align:right;"> 6.58 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Georgia </td>
+   <td style="text-align:right;"> 7.53 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Michigan </td>
+   <td style="text-align:right;"> 60.49 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Nevada </td>
+   <td style="text-align:right;"> 61.16 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> North Carolina </td>
+   <td style="text-align:right;"> 35.92 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Pennsylvania </td>
+   <td style="text-align:right;"> 59.55 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Wisconsin </td>
+   <td style="text-align:right;"> 55.02 </td>
+  </tr>
+</tbody>
+</table>
+<h1 id="projections">Projections</h1>
+<p>Using this model, our ultimate electoral college would look as follows, with Vice President Kamala Harris narrowly squeaking out a win.</p>
+<p><img src="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/figure-html/unnamed-chunk-13-1.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/figure-html/unnamed-chunk-13-2.png" width="672" /></p>
+<h1 id="citations">Citations:</h1>
+<p>Rakich, Nathaniel. “Which States Have the Most — and Least — Accurate Polls?” ABC News, ABC News Network, 25 Oct. 2024, abcnews.go.com/538/states-accurate-polls/story?id=115108709.</p>
+<h1 id="data-sources">Data Sources:</h1>
+<p>Data are from the US presidential election popular vote results from 1948-2020, <a href="https://projects.fivethirtyeight.com/polls/">state-level polling data for 1980 onwards</a>, and economic data from the <a href="https://fred.stlouisfed.org/">St. Louis Fed</a>.</p>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+
+<script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
+
+  
+  <hr/>
+  © <a href="https://yihui.org">Yihui Xie</a>
+  
+  </footer>
+  </body>
+</html>
+

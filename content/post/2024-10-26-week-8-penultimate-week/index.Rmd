@@ -1,0 +1,553 @@
+---
+title: 'Week 8: Penultimate Week'
+author: Grant Williams
+date: '2024-10-26'
+slug: week-8-penultimate-week
+categories: []
+tags: []
+---
+
+# Introduction
+
+In this eighth blog post, in the second-to-last week before the 2024 election, I want to improve my election forecasts for the seven battleground states.
+
+Over the past several weeks, we have explored OLS models, incumbency bias, the relationship between turnout and demographics, Bayesian approaches to predictions, and logistic regression, among other topics. 
+
+One thing that has consistently bothered me about the models I have constructed up to this point has been my fairly arbitrary standard deviation estimate when creating simulations. After using machine learning techniques to prepare a model to predict the two-party national vote share for each candidate within a state, I have run simulations assuming a normal deviation with a two-percentage point standard deviation to evaluate Harris and Trump's chances of winning each state.
+
+This approach has struck me as unsatisfactory, however, because surely we have more confidence in some states' polling averages than others. For this reason, I am going to explore the reliability of polling data from each of our seven battleground states this week.
+
+*The code used to produce these visualizations is publicly available in my [github repository](https://github.com/grantbw4/election-blog) and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, [Matthew Dardet](https://www.matthewdardet.com/harvard-election-analytics-2024/).*
+
+# Analysis
+
+The other day, I read an [article by Nathaniel Rakich](https://abcnews.go.com/538/states-accurate-polls/story?id=115108709) on ABC's election site, FiveThirtyEight.com
+
+In this article, Rakich calculates the "weighted-average error of general-election polls for president, U.S. Senate and governor conducted within 21 days of elections since 1998 in each state." Seeing Rakich systematically assess the reliability of polls at the state level gave me the idea to adopt a similar method to estimate the variability of our two-party vote share predictions for each state. 
+
+Since standard deviation is roughly calculated by taking every value in a data set, calculating the mean of that data set, and then determining the average distance of each point away from that mean, I am curious if by calculating the average distance of the polls away from the true vote share we can get a better sense of standard deviation than the arbitrary 2 percentage points I had previously been using.
+
+# My Model 
+
+Both [Sabato's Crystal Ball](https://centerforpolitics.org/crystalball/2024-president/) of the Center for Politics and the [Cook Political Report](https://www.cookpolitical.com/ratings/presidential-race-ratings) list the same seven states as "toss-ups." Almost universally across news platforms and forecasting models, the following seven states are identified as the key swing states which will, most likely, determine the election
+
+- Arizona
+- Georgia
+- Michigan
+- Nevada
+- North Carolina
+- Pennsylvania
+- Wisconsin
+
+For the purposes of both this week's model and the next week's final prediction, I will forecast the two-party vote share in each of these battleground states and assume other states and districts vote as they did in 2020.
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+rm(list = ls())
+cat("\014")
+# Load libraries.
+## install via `install.packages("name")`
+library(car)
+library(caret)
+library(CVXR)
+library(foreign)
+library(glmnet)
+library(haven)
+library(janitor)
+library(kableExtra)
+library(maps)
+library(mlr3)
+library(randomForest)
+library(ranger)
+library(RColorBrewer)
+library(sf)
+library(tidyverse)
+library(viridis)
+library(glmnet)
+library(maps)
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Electoral Map 
+
+# Load Map
+us_map <- map_data("state")
+
+# Only want 2024 info and we're making things lowercase
+d_ec <- read_csv("corrected_ec_1948_2024.csv") %>% filter(year == 2024) %>% mutate(state = tolower(state))
+
+# Add in electoral info
+us_map <- us_map %>% left_join(d_ec, by = c("region" = "state"))
+
+# used ChatGPT to get this list of states
+
+voting_results <- data.frame(
+  state = c(
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California", 
+    "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", 
+    "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", 
+    "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", 
+    "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", 
+    "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+    "New Jersey", "New Mexico", "New York", "North Carolina", 
+    "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", 
+    "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
+    "Texas", "Utah", "Vermont", "Virginia", "Washington", 
+    "West Virginia", "Wisconsin", "Wyoming"
+  ),
+  party = c(
+    "Republican", "Republican", "Toss Up", "Republican", "Democrat", 
+    "Democrat", "Democrat", "Democrat", "Democrat", "Republican", 
+    "Toss Up", "Democrat", "Republican", "Democrat", "Republican", 
+    "Republican", "Republican", "Republican", "Republican", "Democrat", 
+    "Democrat", "Democrat", "Toss Up", "Democrat", "Republican", 
+    "Republican", "Republican", "Republican", "Toss Up", "Democrat", 
+    "Democrat", "Democrat", "Democrat", "Toss Up", 
+    "Republican", "Republican", "Republican", "Democrat", "Toss Up", 
+    "Democrat", "Republican", "Republican", "Republican", 
+    "Republican", "Republican", "Democrat", "Democrat", "Democrat", 
+    "Republican", "Toss Up", "Republican"))
+
+# Add in party info
+voting_results <- voting_results %>% mutate(state = tolower(state))
+
+voting_results %>% left_join(d_ec %>% select(state, electors), by = "state")
+
+us_map <- us_map %>% left_join(voting_results, by = c("region" = "state"))
+
+# Fix DC 
+us_map <- us_map %>%
+  mutate(party = ifelse(region == "district of columbia", "Democrat", party))
+
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Plot Electoral College Map
+
+# I used Chat GPT to help produce these graphs
+
+ggplot(data = us_map, aes(x = long, y = lat, group = group, fill = factor(party))) +
+  geom_polygon(color = "black") +
+  theme_minimal() +
+  coord_fixed(1.3) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Republican" = "firebrick1", "Toss Up" = "beige")) +
+  labs(title = "2024 Base Electoral College Map", x = "", y = "", caption = "Hawaii is blue \nAlaska is red \nNebraska 2nd district is blue \nMaine's 2nd district is red", fill = "Party") +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+voting_results <- voting_results %>%
+  left_join(d_ec %>% select(state, electors), by = "state")
+
+df_2024 <- voting_results %>%
+  group_by(party) %>%
+  summarise(electoral_votes = sum(electors, na.rm = TRUE)) %>%
+  mutate(party = factor(party, levels = c("Democrat", "Toss Up", "Republican")))
+
+# Plot Electoral College Chart
+
+ggplot(df_2024, aes(x = "", y = electoral_votes, fill = party)) +
+  geom_bar(stat = "identity", width = .8) +
+  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "black", size = 5) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Toss Up" = "beige", "Republican" = "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5)) + 
+  labs(fill = "Party", title = "2024 Presidential Electoral College Base Prediction") +
+  scale_y_continuous(limits = c(0, 538)) +
+  geom_hline(yintercept = 270, color = "black", linetype = "dashed")
+
+```
+
+# Preparing My Electoral College Model
+
+Of the models I have created thus far, the elastic net, to me, seems to most fairly weigh the various covariates. For this reason, I will adapt much of my code from week five.
+
+Using state-level polling average data since 1980 from [FiveThirtyEight](https://projects.fivethirtyeight.com/polls/) and national economic data from the [Federal Reserve Bank of St. Louis](https://fred.stlouisfed.org/), I will construct an elastic net model that uses the following polling features:
+
+- Polling average for the Republican candidate within a state in the most recent week
+- Polling average for the Democratic candidate within a state in the most recent week
+- Polling average for the Republican candidate within a state in the last two months
+- Polling average for the Democratic candidate within a state in the last two months
+- A lag of the previous election's two-party vote share for the Democrats within a state
+- A lag of the previous election's two-party vote share for the Republicans within a state
+- A lag of the election previous to last election's two-party vote share for the Democrats within a state
+- A lag of the election previous to last election's two-party vote share for the Republicans within a state
+
+I am opting to only consider the polling averages within the last two months of the campaign rather than the entirety of the campaign as I believe these to be most predictive of the ultimate election outcome. I am concerned that introducing averages from earlier periods would lead to overfitting, and, considering the unique candidate swap of 2024, I do not believe Biden nor Harris's polling averages from the stage in the election before Harris could establish a proper campaign strategy are informative. I will also be rescaling these mean polling averages so that they sum to 100 and can more readily be interpreted as two-party vote shares.
+
+While there are a number of fundamental and economic covariates I considered exploring (Whether a candidate is only a party incumbent, GDP growth in the second quarter of the election year, RDPI growth in the second quarter of the election year, Unemployment rate in the second quarter of the election year, June Approval Rating, etc.), I found that my forecasts were highly variable depending on which fundamental variables I decided to include. It is my belief that many of the trends explained by fundamental variables (incumbency bias, high growth is good, high inflation is bad, etc.) is already baked into the polls, so I will focus on constructing a polls-only model for this week. Next week, however, I will include both a polls-only and a polls + fundamentals model.
+
+<!-- I will use economic data from Q4 of 2019 instead of Q2 of 2020 because the Q2 data is a massive outlier that skews the regressions. It is also not representative of Trump's presidency. Moreover, because of the candidate swap in 2024, I will use both Trump and Harris's approval ratings from September 2024. -->
+We will train separate two-party vote share models for both the Republicans and Democrats in each of the swing states using data since 1980, and then apply this model to our 2024 data to generate predictions. To make this model, I am standardizing my features and regularizing them with elastic net linear regression.
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+####----------------------------------------------------------#
+#### Read, merge, and process data.
+####----------------------------------------------------------#
+
+# Read in FRED data
+d_fred <- read_csv("fred_econ.csv")
+
+# Read popular vote datasets. 
+d_popvote <- read_csv("popvote_1948_2020.csv")
+d_state_popvote <- read_csv("state_popvote_1948_2020.csv")
+
+# Read elector distribution dataset. 
+d_ec <- read_csv("corrected_ec_1948_2024.csv")
+
+# Read polling data. 
+d_polls <- read_csv("national_polls_1968-2024.csv")
+d_state_polls <- read_csv("state_polls_1968-2024.csv")
+
+# Process state-level polling data. 
+d_pollav_state <- d_state_polls |> 
+  group_by(year, state, party) |> 
+  filter(weeks_left <= 8,
+         state %in% c("Arizona", "Georgia", "Michigan", "Nevada", 
+                      "North Carolina", "Pennsylvania", "Wisconsin"),
+         year >= 1980) %>%
+  mutate(mean_pollav = mean(poll_support, na.rm = TRUE)) |>
+  top_n(1, poll_date) |> 
+  rename(latest_pollav = poll_support) |>
+  select(-c(weeks_left, days_left, poll_date, candidate, before_convention)) |>
+  pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+####----------------------------------------------------------#
+#### Simulation examples. 
+####----------------------------------------------------------#
+
+# Merge data.
+d <- d_pollav_state |> 
+  left_join(d_state_popvote, by = c("year", "state")) |>  
+  left_join(d_popvote |> filter(party == "democrat"), by = "year") |> 
+  filter(year >= 1980) |> 
+  ungroup()
+
+d <- d %>% mutate(incumbent = as.numeric(incumbent),
+             incumbent_party = as.numeric(incumbent_party)*(1-incumbent))
+             
+d <- d %>% merge(d_fred %>% filter(quarter == 2), by = "year")
+
+# Sequester states for which we have polling data for 2024. 
+states.2024 <- unique(d$state[d$year == 2024])
+
+# Subset and split data.
+d <- d |> 
+  filter(state %in% states.2024)
+
+d_train <- d |> 
+  filter(year < 2024)
+d_test <- d |> 
+  filter(year == 2024)
+
+# I do not consider Harris to be incumbent, so I am changing her incumbent status to 0.
+d_test$incumbent <- 0
+
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Create lagged variables in the main dataset 'd'
+t <- d %>% 
+  filter(year >= 2016) %>% 
+  arrange(year) %>% 
+  group_by(state) %>% 
+  mutate(
+    D_pv2p_lag1 = lag(D_pv2p, 1),
+    R_pv2p_lag1 = lag(R_pv2p, 1), 
+    D_pv2p_lag2 = lag(D_pv2p, 2),
+    R_pv2p_lag2 = lag(R_pv2p, 2)
+  )
+
+d_test <- d_test %>% select_if(~ !any(is.na(.)))
+
+# Add lagged variables to the test set for the year 2024
+d_test <- d_test %>% left_join(t %>% filter(year == 2024) %>% 
+                                 select(state, year, D_pv2p, R_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2), 
+                               by = c("state", "year"))
+
+# I used ChatGPT to get the intersection
+
+# Identify common columns between train and test datasets
+common_columns <- intersect(names(d_train), names(d_test))
+
+# Keep only the common columns in d_train
+d_train <- d_train %>% select(all_of(common_columns))
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# rescale polling averages
+
+d_train <- d_train %>% mutate(
+  latest_pollav_REP = latest_pollav_REP*(100/(latest_pollav_REP + latest_pollav_DEM)),
+  latest_pollav_DEM = 100 - latest_pollav_REP,
+  mean_pollav_REP = mean_pollav_REP*(100/(mean_pollav_REP + mean_pollav_DEM)),
+  mean_pollav_DEM = 100 - mean_pollav_REP)
+
+d_test <- d_test %>% mutate(
+  latest_pollav_REP = latest_pollav_REP*(100/(latest_pollav_REP + latest_pollav_DEM)),
+  latest_pollav_DEM = 100 - latest_pollav_REP,
+  mean_pollav_REP = mean_pollav_REP*(100/(mean_pollav_REP + mean_pollav_DEM)),
+  mean_pollav_DEM = 100 - mean_pollav_REP)
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# I used ChatGPT to help do the Elastic Net regression
+
+# Prepare your features and target variables
+features <- c("latest_pollav_REP", "latest_pollav_DEM", 
+              "mean_pollav_REP", "mean_pollav_DEM","D_pv2p_lag1", "D_pv2p_lag2","R_pv2p_lag2", "R_pv2p_lag1") 
+
+# Manually change 2020 and 2024 values
+
+# Economic Variables
+
+d_train$unemployment[d_train$year == 2020] <- d_fred$unemployment[d_fred$year == 2019 & d_fred$quarter == 4]
+
+d_train$GDP_growth_quarterly[d_train$year == 2020] <- d_fred$GDP_growth_quarterly[d_fred$year == 2019 & d_fred$quarter == 4]
+
+d_train$RDPI_growth_quarterly[d_train$year == 2020] <- d_fred$unemployment[d_fred$year == 2019 & d_fred$quarter == 4]
+
+# June Approval (first day of September from FiveThirtyEight)
+
+d_test$juneapp[d_test$party == "democrat"] <- 46.1 - 47
+
+d_test$juneapp[d_test$party == "republican"] <- 43 - 52.5
+
+# Standardize the features in the training set
+d_train_scaled <- d_train %>% 
+  mutate(across(all_of(features), scale))  # Standardize all features
+
+# Create model matrices with the standardized training data
+X_train_scaled <- model.matrix(~ ., data = d_train_scaled[, features])
+y_R_train <- d_train$R_pv2p
+y_D_train <- d_train$D_pv2p
+
+# Standardize the features in the test set using the same scaling parameters as training
+scaling_params <- d_train %>% select(all_of(features)) %>% 
+  summarise(across(everything(), list(mean = mean, sd = sd), na.rm = TRUE))
+
+d_test_scaled <- d_test %>%
+  mutate(across(all_of(features), ~ (. - scaling_params[[paste0(cur_column(), "_mean")]]) / 
+                scaling_params[[paste0(cur_column(), "_sd")]]))
+
+X_test_scaled <- model.matrix(~ ., data = d_test_scaled[, features])
+
+# Fit the Elastic Net model with standardized data
+alpha_value <- 0.5  # You can adjust this for mixing LASSO (alpha = 1) and Ridge (alpha = 0)
+model_R <- glmnet(X_train_scaled, y_R_train, alpha = alpha_value)
+model_D <- glmnet(X_train_scaled, y_D_train, alpha = alpha_value)
+
+# Cross-validation to find the best lambda
+cv_model_R <- cv.glmnet(X_train_scaled, y_R_train, alpha = alpha_value)
+cv_model_D <- cv.glmnet(X_train_scaled, y_D_train, alpha = alpha_value)
+
+# Get the best lambda values
+best_lambda_R <- cv_model_R$lambda.min
+best_lambda_D <- cv_model_D$lambda.min
+
+# Predict on the test set using the best lambda
+d_test$predicted_R_pv2p <- as.numeric(predict(cv_model_R, newx = X_test_scaled, s = best_lambda_R))
+d_test$predicted_D_pv2p <- as.numeric(predict(cv_model_D, newx = X_test_scaled, s = best_lambda_D))
+
+# Determine predicted winner
+d_test <- d_test %>% mutate(pred_winner = ifelse(predicted_R_pv2p >= predicted_D_pv2p, "R", "D"))
+
+# Select relevant columns for final output
+d_test %>% select(state, predicted_R_pv2p, predicted_D_pv2p, pred_winner)
+
+```
+
+# Visualize Feature Importance
+
+```{r}
+
+# Used ChatGPT to make this graph
+
+# Use the scaled training matrix for feature names
+features <- colnames(X_train_scaled)
+
+# Extract coefficients using the best lambda from the cross-validated models
+coef_R <- as.vector(coef(cv_model_R, s = best_lambda_R))[-1]  # Exclude intercept
+coef_D <- as.vector(coef(cv_model_D, s = best_lambda_D))[-1]  # Exclude intercept
+
+# Ensure the number of features matches the length of coefficients
+importance_df <- data.frame(
+  Feature = features,
+  Importance_R = abs(coef_R),  # Absolute values for feature importance
+  Importance_D = abs(coef_D)
+)
+
+# Reshape data for ggplot
+importance_long <- reshape2::melt(importance_df, id.vars = "Feature", 
+                                  variable.name = "Model", 
+                                  value.name = "Importance")
+
+# Plot feature importance
+ggplot(importance_long, aes(x = reorder(Feature, Importance), y = Importance, fill = Model)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(title = "Feature Importance for Republican and Democrat Models (Elastic Net)",
+       x = "Features", y = "Absolute Coefficient (Feature Importance)") +
+  theme_minimal()
+
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# I used ChatGPT for guidance on stylizing the kable table
+
+d_test %>%
+  select(state, predicted_R_pv2p, predicted_D_pv2p, pred_winner) %>%
+  kable() %>%
+  kable_styling("striped") %>%
+  row_spec(which(d_test$pred_winner == "R"), background = "firebrick1") %>%
+  row_spec(which(d_test$pred_winner == "D"), background = "dodgerblue4")
+```
+
+Here, we can see that Arizona, Georgia, and North Carolina are favored to vote red while the other states are favored to vote blue. In the feature importance graph, 
+
+I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 7 states 10,000 times, assuming a normal distribution around the current polling values with a standard deviation determined by the average distance of each state's poll away from the actual outcome.
+
+To create this standard deviation, I will take the weighted average of the polling error of each state and party in 2016 and 2020 to capture the "Trump-era" polling error. This will be calculated as follows:
+
+$$\text{Standard Error} = 0.5({|\text{Latest Poll}}_{2016} - {\text{Actual Vote Share}}_{2016}|) + 0.5(|{\text{Latest Poll}}_{2020} - {\text{Actual Vote Share}}_{2020}|)$$
+My errors
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+state_errors <- d_train %>% 
+  filter(year %in% c(2016, 2020)) %>% 
+  select(state, year, latest_pollav_DEM, latest_pollav_REP, D_pv2p, R_pv2p) %>% 
+  mutate(
+    D_error = latest_pollav_DEM - D_pv2p,  # Difference between DEM poll avg and actual
+    R_error = latest_pollav_REP - R_pv2p   # Difference between REP poll avg and actual
+  ) %>% 
+  select(state, year, D_error, R_error) %>% 
+  pivot_wider(
+    names_from = year, 
+    values_from = c(D_error, R_error), 
+    names_sep = "_"
+  ) %>% mutate(
+    weighted_error = 0.5*abs(D_error_2016) + 0.5*abs(D_error_2020)) %>%
+  select(state, weighted_error) %>% 
+  rename(State = state, 'Weighted Error' = weighted_error) 
+
+state_errors %>% kable() %>% kable_styling("striped")
+
+```
+
+Using the above weighted errors as standard deviations yields the following simulation breakdown.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# I used ChatGPT to help with encoding this simulation of the polling error
+
+# Set seed and define number of simulations
+set.seed(111)
+n_simulations <- 10000
+
+# Merge weighted errors with the test data
+d_test <- d_test %>% 
+  left_join(state_errors, by = c("state" = "State"))
+
+# Initialize a data frame to store simulation results
+simulation_results <- data.frame(
+  state = rep(d_test$state, each = n_simulations),
+  predicted_R_pv2p = numeric(n_simulations * nrow(d_test)),
+  predicted_D_pv2p = numeric(n_simulations * nrow(d_test)),
+  pred_winner = character(n_simulations * nrow(d_test)),
+  stringsAsFactors = FALSE
+)
+
+# Perform simulations with state-specific standard deviations
+for (i in 1:nrow(d_test)) {
+  # Get the latest polling averages and standard deviation for the current state
+  latest_R <- d_test$latest_pollav_REP[i]
+  latest_D <- d_test$latest_pollav_DEM[i]
+  polling_error_sd <- d_test$`Weighted Error`[i]
+  
+  # Simulate polling averages for both parties using the state-specific sd
+  simulated_R <- rnorm(n_simulations, mean = latest_R, sd = polling_error_sd)
+  simulated_D <- rnorm(n_simulations, mean = latest_D, sd = polling_error_sd)
+  
+  # Update the results data frame
+  simulation_results$predicted_R_pv2p[((i - 1) * n_simulations + 1):(i * n_simulations)] <- simulated_R
+  simulation_results$predicted_D_pv2p[((i - 1) * n_simulations + 1):(i * n_simulations)] <- simulated_D
+  
+  # Determine the winner based on simulated values
+  simulation_results$pred_winner[((i - 1) * n_simulations + 1):(i * n_simulations)] <- ifelse(simulated_R >= simulated_D, "R", "D")
+}
+
+# Summarize results for Democrats
+democrat_summary <- simulation_results %>%
+  group_by(state) %>%
+  summarise(D_win_percentage = mean(pred_winner == "D") * 100, .groups = 'drop')
+
+# Display the summary table
+democrat_summary %>%
+  kable(col.names = c("State", "D Win Percentage")) %>%
+  kable_styling("striped") %>%
+  row_spec(0, bold = TRUE)
+```
+
+# Projections 
+
+Using this model, our ultimate electoral college would look as follows, with Vice President Kamala Harris narrowly squeaking out a win.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Display the electoral college map and chart
+
+voting_results <- voting_results %>% mutate(party = if_else(state %in% c("michigan", "wisconsin", "nevada", "pennsylvania"), "Democrat", party)) %>% mutate(party = if_else(state %in% c("arizona", "georgia", "north carolina"), "Republican", party))
+
+us_map <- us_map %>% select(-electors, -party) %>% left_join(voting_results, by = c("region" = "state"))
+
+ggplot(data = us_map, aes(x = long, y = lat, group = group, fill = factor(party))) +
+  geom_polygon(color = "black") +
+  theme_minimal() +
+  coord_fixed(1.3) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Republican" = "firebrick1", "Toss Up" = "beige")) +
+  labs(title = "2024 Base Electoral College Map", x = "", y = "", caption = "Hawaii is blue \nAlaska is red \nNebraska 2nd district is blue \nMaine's 2nd district is red", fill = "Party") +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+df_2024 <- voting_results %>%
+  group_by(party) %>%
+  summarise(electoral_votes = sum(electors, na.rm = TRUE)) %>%
+  mutate(party = factor(party, levels = c("Democrat", "Toss Up", "Republican")))
+
+ggplot(df_2024, aes(x = "", y = electoral_votes, fill = party)) +
+  geom_bar(stat = "identity", width = .8) +
+  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "black", size = 5) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Toss Up" = "beige", "Republican" = "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5)) + 
+  labs(fill = "Party", title = "2024 Presidential Electoral College Base Prediction") +
+  scale_y_continuous(limits = c(0, 538)) +
+  geom_hline(yintercept = 270, color = "black", linetype = "dashed")
+```
+
+# Citations:
+
+Rakich, Nathaniel. “Which States Have the Most — and Least — Accurate Polls?” ABC News, ABC News Network, 25 Oct. 2024, abcnews.go.com/538/states-accurate-polls/story?id=115108709. 
+
+# Data Sources: 
+
+Data are from the US presidential election popular vote results from 1948-2020, [state-level polling data for 1980 onwards](https://projects.fivethirtyeight.com/polls/), and economic data from the [St. Louis Fed](https://fred.stlouisfed.org/).

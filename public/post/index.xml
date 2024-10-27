@@ -6,8 +6,15 @@
     <description>Recent content in Posts on Grant&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 19 Oct 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 26 Oct 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://grantbw4.github.io/election-blog/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Week 8: Penultimate Week</title>
+      <link>https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/</link>
+      <pubDate>Sat, 26 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/</guid>
+      <description>Introduction In this eighth blog post, in the second-to-last week before the 2024 election, I want to improve my election forecasts for the seven battleground states.&#xA;Over the past several weeks, we have explored OLS models, incumbency bias, the relationship between turnout and demographics, Bayesian approaches to predictions, and logistic regression, among other topics.&#xA;One thing that has consistently bothered me about the models I have constructed up to this point has been my fairly arbitrary standard deviation estimate when creating simulations.</description>
+    </item>
     <item>
       <title>Week 7: Logistic Regression</title>
       <link>https://grantbw4.github.io/election-blog/post/2024/10/19/week-7-logic-regression/</link>

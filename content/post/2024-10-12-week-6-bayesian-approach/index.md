@@ -105,98 +105,98 @@ Here are the results from our elastic-net model:
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> arizona </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.69322 </td>
-   <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> arizona </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.00444 </td>
+   <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> california </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 61.26438 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 61.64329 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> florida </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 47.65006 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 48.06518 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> georgia </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.24348 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.51208 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> maryland </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 64.69311 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 64.89219 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> michigan </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.77449 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 51.09340 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> minnesota </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.01435 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.26988 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> missouri </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 44.10989 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 44.42509 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> montana </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 42.49994 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 42.80620 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> nevada </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.12010 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.48187 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> new hampshire </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.91317 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 54.14021 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> new mexico </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.09562 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.44096 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> new york </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 56.48127 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 56.91970 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> north carolina </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.59360 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.92229 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> ohio </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 45.56724 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 45.94915 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> pennsylvania </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.34073 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.67185 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> texas </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 47.24543 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 47.56741 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> virginia </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.52429 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.78943 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> wisconsin </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.46606 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.81238 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
 </tbody>
@@ -217,97 +217,97 @@ And here are the predictions from our Bayesian linear regression model:
 <tbody>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> arizona </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.54856 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.55504 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> california </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 61.09271 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 61.08156 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> florida </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 47.46009 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 47.47310 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> georgia </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.11944 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.12669 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> maryland </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 64.60407 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 64.58783 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> michigan </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.62731 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.63304 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> minnesota </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 52.89718 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 52.90011 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> missouri </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 43.96349 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 43.98163 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> montana </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 42.35711 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 42.37679 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> nevada </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.95583 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.96570 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> new hampshire </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.80814 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.80879 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> new mexico </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 52.93666 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 52.93750 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> new york </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 56.28078 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 56.27522 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> north carolina </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.44186 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.45018 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> ohio </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 45.39153 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 45.40722 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> pennsylvania </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.18882 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.19668 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> texas </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 47.09585 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 47.10708 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Republican </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> virginia </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.40430 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.40769 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> wisconsin </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.30605 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.31248 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Democrat </td>
   </tr>
 </tbody>
