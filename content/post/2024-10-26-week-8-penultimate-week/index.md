@@ -101,44 +101,44 @@ We will train separate two-party vote share models for both the Republicans and 
 <tbody>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Arizona </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.99649 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.00351 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.99612 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.00419 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Georgia </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.77561 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.22439 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.77481 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.22585 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Michigan </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.74426 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.25574 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.74270 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.25860 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Nevada </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.85282 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.14718 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.84958 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.15310 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> North Carolina </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.84466 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.15534 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.84434 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.15592 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Pennsylvania </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.90680 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.09320 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.90446 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.09749 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Wisconsin </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.98421 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.01579 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.98358 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.01695 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
 </tbody>
@@ -148,12 +148,7 @@ Here, we can see that Arizona, Georgia, and North Carolina are favored to vote r
 
 I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 7 states 10,000 times, assuming a normal distribution around the current polling values with a standard deviation determined by the average distance of each state's poll away from the actual outcome.
 
-To create this standard deviation, I will take the weighted average of the polling error of each state and party in 2016 and 2020 to capture the "Trump-era" polling error. This will be calculated as follows:
-
-$\text{Standard Error} = $
-
-`\(0.5({|\text{Latest Poll}}_{2016} - {\text{Actual Vote Share}}_{2016}|) +\)`
-`\(0.5(|{\text{Latest Poll}}_{2020} - {\text{Actual Vote Share}}_{2020}|)\)`
+To create this standard deviation, I will take the average of the mean polling error of each state in 2016 and 2020 (weighted equally for both years) to capture the "Trump-era" polling error. 
 
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
  <thead>
