@@ -420,12 +420,7 @@ Here, we can see that Arizona, Georgia, and North Carolina are favored to vote r
 
 I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 7 states 10,000 times, assuming a normal distribution around the current polling values with a standard deviation determined by the average distance of each state's poll away from the actual outcome.
 
-To create this standard deviation, I will take the weighted average of the polling error of each state and party in 2016 and 2020 to capture the "Trump-era" polling error. This will be calculated as follows:
-
-$\text{Standard Error} = $
-
-$0.5({|\text{Latest Poll}}_{2016} - {\text{Actual Vote Share}}_{2016}|) +$
-$0.5(|{\text{Latest Poll}}_{2020} - {\text{Actual Vote Share}}_{2020}|)$
+To create this standard deviation, I will take the average of the mean polling error of each state in 2016 and 2020 to capture the "Trump-era" polling error. 
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
