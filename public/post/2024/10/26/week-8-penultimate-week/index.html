@@ -73,35 +73,6 @@
 <!-- I will use economic data from Q4 of 2019 instead of Q2 of 2020 because the Q2 data is a massive outlier that skews the regressions. It is also not representative of Trump's presidency. Moreover, because of the candidate swap in 2024, I will use both Trump and Harris's approval ratings from September 2024. -->
 <p>We will train separate two-party vote share models for both the Republicans and Democrats in each of the swing states using data since 1980, and then apply this model to our 2024 data to generate predictions. To make this model, I am standardizing my features and regularizing them with elastic net linear regression.</p>
 <h1 id="visualize-feature-importance">Visualize Feature Importance</h1>
-<pre><code class="language-r"># Used ChatGPT to make this graph
-
-# Use the scaled training matrix for feature names
-features &lt;- colnames(X_train_scaled)
-
-# Extract coefficients using the best lambda from the cross-validated models
-coef_R &lt;- as.vector(coef(cv_model_R, s = best_lambda_R))[-1]  # Exclude intercept
-coef_D &lt;- as.vector(coef(cv_model_D, s = best_lambda_D))[-1]  # Exclude intercept
-
-# Ensure the number of features matches the length of coefficients
-importance_df &lt;- data.frame(
-  Feature = features,
-  Importance_R = abs(coef_R),  # Absolute values for feature importance
-  Importance_D = abs(coef_D)
-)
-
-# Reshape data for ggplot
-importance_long &lt;- reshape2::melt(importance_df, id.vars = &quot;Feature&quot;, 
-                                  variable.name = &quot;Model&quot;, 
-                                  value.name = &quot;Importance&quot;)
-
-# Plot feature importance
-ggplot(importance_long, aes(x = reorder(Feature, Importance), y = Importance, fill = Model)) +
-  geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
-  coord_flip() +
-  labs(title = &quot;Feature Importance for Republican and Democrat Models (Elastic Net)&quot;,
-       x = &quot;Features&quot;, y = &quot;Absolute Coefficient (Feature Importance)&quot;) +
-  theme_minimal()
-</code></pre>
 <img src="https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
  <thead>
@@ -115,53 +86,54 @@ ggplot(importance_long, aes(x = reorder(Feature, Importance), y = Importance, fi
 <tbody>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Arizona </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.99628 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.00207 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.99649 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.00351 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Georgia </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.77519 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.22089 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.77561 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.22439 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Michigan </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.74342 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.24919 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.74426 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.25574 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Nevada </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.85112 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.13298 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.85282 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.14718 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> North Carolina </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.84449 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.15405 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.84466 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.15534 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Pennsylvania </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.90557 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.08289 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.90680 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.09320 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Wisconsin </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.98385 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.01338 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.98421 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.01579 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
 </tbody>
 </table>
-<p>Here, we can see that Arizona, Georgia, and North Carolina are favored to vote red while the other states are favored to vote blue.</p>
+<p>Here, we can see that Arizona, Georgia, and North Carolina are favored to vote red while the other states are favored to vote blue. In the feature importance graph, it is also clear that the latest week polling average is much more predictive than the two-month average.</p>
 <p>I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 7 states 10,000 times, assuming a normal distribution around the current polling values with a standard deviation determined by the average distance of each state&rsquo;s poll away from the actual outcome.</p>
 <p>To create this standard deviation, I will take the weighted average of the polling error of each state and party in 2016 and 2020 to capture the &ldquo;Trump-era&rdquo; polling error. This will be calculated as follows:</p>
-<p><code>$$\text{Standard Error} = 0.5({|\text{Latest Poll}}_{2016} - {\text{Actual Vote Share}}_{2016}|) + 0.5(|{\text{Latest Poll}}_{2020} - {\text{Actual Vote Share}}_{2020}|)$$</code>
-My errors</p>
+<p>$\text{Standard Error} = $</p>
+<p><code>\(0.5({|\text{Latest Poll}}_{2016} - {\text{Actual Vote Share}}_{2016}|) +\)</code>
+<code>\(0.5(|{\text{Latest Poll}}_{2020} - {\text{Actual Vote Share}}_{2020}|)\)</code></p>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
  <thead>
   <tr>

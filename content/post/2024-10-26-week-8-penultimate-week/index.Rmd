@@ -371,7 +371,7 @@ d_test %>% select(state, predicted_R_pv2p, predicted_D_pv2p, pred_winner)
 
 # Visualize Feature Importance
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 # Used ChatGPT to make this graph
 
@@ -416,14 +416,16 @@ d_test %>%
   row_spec(which(d_test$pred_winner == "D"), background = "dodgerblue4")
 ```
 
-Here, we can see that Arizona, Georgia, and North Carolina are favored to vote red while the other states are favored to vote blue. In the feature importance graph, 
+Here, we can see that Arizona, Georgia, and North Carolina are favored to vote red while the other states are favored to vote blue. In the feature importance graph, it is also clear that the latest week polling average is much more predictive than the two-month average.
 
 I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 7 states 10,000 times, assuming a normal distribution around the current polling values with a standard deviation determined by the average distance of each state's poll away from the actual outcome.
 
 To create this standard deviation, I will take the weighted average of the polling error of each state and party in 2016 and 2020 to capture the "Trump-era" polling error. This will be calculated as follows:
 
-$$\text{Standard Error} = 0.5({|\text{Latest Poll}}_{2016} - {\text{Actual Vote Share}}_{2016}|) + 0.5(|{\text{Latest Poll}}_{2020} - {\text{Actual Vote Share}}_{2020}|)$$
-My errors
+$\text{Standard Error} = $
+
+$0.5({|\text{Latest Poll}}_{2016} - {\text{Actual Vote Share}}_{2016}|) +$
+$0.5(|{\text{Latest Poll}}_{2020} - {\text{Actual Vote Share}}_{2020}|)$
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 

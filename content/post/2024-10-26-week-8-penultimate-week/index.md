@@ -87,38 +87,6 @@ We will train separate two-party vote share models for both the Republicans and 
 
 # Visualize Feature Importance
 
-
-``` r
-# Used ChatGPT to make this graph
-
-# Use the scaled training matrix for feature names
-features <- colnames(X_train_scaled)
-
-# Extract coefficients using the best lambda from the cross-validated models
-coef_R <- as.vector(coef(cv_model_R, s = best_lambda_R))[-1]  # Exclude intercept
-coef_D <- as.vector(coef(cv_model_D, s = best_lambda_D))[-1]  # Exclude intercept
-
-# Ensure the number of features matches the length of coefficients
-importance_df <- data.frame(
-  Feature = features,
-  Importance_R = abs(coef_R),  # Absolute values for feature importance
-  Importance_D = abs(coef_D)
-)
-
-# Reshape data for ggplot
-importance_long <- reshape2::melt(importance_df, id.vars = "Feature", 
-                                  variable.name = "Model", 
-                                  value.name = "Importance")
-
-# Plot feature importance
-ggplot(importance_long, aes(x = reorder(Feature, Importance), y = Importance, fill = Model)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  coord_flip() +
-  labs(title = "Feature Importance for Republican and Democrat Models (Elastic Net)",
-       x = "Features", y = "Absolute Coefficient (Feature Importance)") +
-  theme_minimal()
-```
-
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
@@ -133,57 +101,59 @@ ggplot(importance_long, aes(x = reorder(Feature, Importance), y = Importance, fi
 <tbody>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Arizona </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.99628 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.00207 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.99649 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.00351 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> Georgia </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.77519 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.22089 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.77561 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.22439 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Michigan </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.74342 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.24919 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.74426 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.25574 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Nevada </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.85112 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.13298 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.85282 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.14718 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> North Carolina </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.84449 </td>
-   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.15405 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 50.84466 </td>
+   <td style="text-align:right;background-color: rgba(255, 48, 48, 255) !important;"> 49.15534 </td>
    <td style="text-align:left;background-color: rgba(255, 48, 48, 255) !important;"> R </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Pennsylvania </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.90557 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.08289 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.90680 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.09320 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Wisconsin </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.98385 </td>
-   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.01338 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.98421 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.01579 </td>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> D </td>
   </tr>
 </tbody>
 </table>
 
-Here, we can see that Arizona, Georgia, and North Carolina are favored to vote red while the other states are favored to vote blue. 
+Here, we can see that Arizona, Georgia, and North Carolina are favored to vote red while the other states are favored to vote blue. In the feature importance graph, it is also clear that the latest week polling average is much more predictive than the two-month average.
 
 I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 7 states 10,000 times, assuming a normal distribution around the current polling values with a standard deviation determined by the average distance of each state's poll away from the actual outcome.
 
 To create this standard deviation, I will take the weighted average of the polling error of each state and party in 2016 and 2020 to capture the "Trump-era" polling error. This will be calculated as follows:
 
-`$$\text{Standard Error} = 0.5({|\text{Latest Poll}}_{2016} - {\text{Actual Vote Share}}_{2016}|) + 0.5(|{\text{Latest Poll}}_{2020} - {\text{Actual Vote Share}}_{2020}|)$$`
-My errors
+$\text{Standard Error} = $
+
+`\(0.5({|\text{Latest Poll}}_{2016} - {\text{Actual Vote Share}}_{2016}|) +\)`
+`\(0.5(|{\text{Latest Poll}}_{2020} - {\text{Actual Vote Share}}_{2020}|)\)`
 
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
  <thead>
