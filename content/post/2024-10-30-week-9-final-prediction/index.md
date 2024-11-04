@@ -110,45 +110,9 @@ This process yields the following RMSE graph. As we can see, 0.78 is the optimal
 
 
 
-
-``` r
-# Create the plot
-ggplot(results, aes(x = alpha, y = rmse)) +
-  geom_line(color = "black", size = 1) +
-  geom_point(color = "red", size = 2) +
-  labs(
-    title = "RMSE by Decay Factor (Alpha)",
-    x = "Alpha",
-    y = "RMSE"
-  ) +
-  geom_vline(xintercept = optimal_alpha, linetype = "dashed", color = "blue") +
-  theme_minimal()
-```
-
-```
-## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-## ℹ Please use `linewidth` instead.
-## This warning is displayed once every 8 hours.
-## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-## generated.
-```
-
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 
 This yields the following weights for each week before the election:
-
-
-``` r
-weeks <- 1:10
-optimal_alpha <- 0.78
-
-# Create a data frame with each column representing optimal_alpha^(0:9)
-data.frame(
-  weeks,
-  Weight = optimal_alpha^(0:9)) %>%
-  kable(col.names = c("Weeks Left Until Election", "Weight")) %>%
-  kable_styling("striped", full_width = FALSE)
-```
 
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
  <thead>
@@ -200,56 +164,6 @@ data.frame(
   </tr>
 </tbody>
 </table>
-
-
-``` r
-# Define a data frame to store in-sample and out-of-sample errors for each fold
-errors <- data.frame(Fold = integer(), In_Sample_RMSE = numeric(), Out_of_Sample_SE = numeric())
-
-# Define response variable (y)
-y <- d_train$D_pv2p  # Democratic two-party vote share
-
-# Loop through each fold
-for (i in 1:nrow(d_train)) {
-  
-  # Split data: leave one observation out
-  train_data <- d_train[-i, ]
-  test_data <- d_train[i, , drop = FALSE]
-  
-  # Calculate decay weights for the optimal alpha
-  decay_weights <- optimal_alpha^(0:9)
-  
-  # Apply decay weights to training and testing data
-  X_train <- as.matrix(train_data[, grep("pollav_DEM_week", names(train_data))]) %*% decay_weights
-  X_test <- as.matrix(test_data[, grep("pollav_DEM_week", names(test_data))]) %*% decay_weights
-  
-  # Convert X_train and X_test to data frames
-  train_data$weighted_polling <- X_train  # Single weighted average for training
-  test_data$weighted_polling <- X_test  # Single weighted average for testing
-  
-  # Fit a linear model on the training data with the weighted predictor
-  model <- lm(D_pv2p ~ weighted_polling, data = train_data)
-  
-  # Predict for the left-out observation (out-of-sample)
-  prediction_out <- predict(model, newdata = test_data)
-  out_of_sample_se <- (prediction_out - test_data$D_pv2p)^2  # Squared error for the left-out fold
-  
-  # Predict for the in-sample data (remaining folds)
-  predictions_in <- predict(model, newdata = train_data)
-  in_sample_rmse <- sqrt(mean((predictions_in - train_data$D_pv2p)^2))  # RMSE for in-sample data
-  
-  # Store the results for this fold
-  errors <- rbind(errors, data.frame(Fold = i, In_Sample_RMSE = in_sample_rmse, Out_of_Sample_SE = out_of_sample_se))
-}
-
-# Display the table using knitr
-library(knitr)
-library(kableExtra)
-
-errors %>%
-  kable(col.names = c("Fold Left Out", "In-Sample RMSE", "Out-of-Sample SE"), row.names = FALSE) %>%
-  kable_styling("striped", full_width = FALSE)
-```
 
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
  <thead>
@@ -328,30 +242,10 @@ errors %>%
 </tbody>
 </table>
 
-``` r
-# mean(errors$In_Sample_RMSE)
-
-# mean(errors$Out_of_Sample_SE)
-```
-
 The mean In-Sample RMSE is 1.410265.
 The mean Out-of-Sample squared error is 2.626053.
 
 This model yields the following Harris-Trump national popular vote prediction.
-
-
-``` r
-weights <- optimal_alpha^(0:9)
-weekly_polls <- d_test %>% select(-year, -D_pv2p) %>% unlist() %>% as.vector()
-
-weighted_average <- sum(weights * weekly_polls)/sum(weights)
-
-data.frame(Year = 2024,
-  Vote = weighted_average,
-  Vote2 = 100 - weighted_average) %>%
-  kable(col.names = c("Year", "Predicted Democratic Two-Party Vote Share", "Predicted Republican Two-Party Vote Share")) %>%
-  kable_styling("striped")
-```
 
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
  <thead>
@@ -466,8 +360,7 @@ For comparison, let's see how our model would have fared for these same states i
 
 All of our states would have voted blue, which was the case with the exception of North Carolina, which voted Republican.
 
-[1] 0.9117647
-[1] 3.021754
+
 
 Across the 442 state elections in which we have polling averages for each of the ten weeks leading up to the election, our model correctly predicts the winner of the state 91.12% of the time with an RMSE of roughly 3.02 percentage points.
 
@@ -562,52 +455,6 @@ Using the above weighted errors as standard deviations yields the following simu
   </tr>
 </tbody>
 </table>
-
-
-``` r
-simulation_results <- simulation_results %>%
-  left_join(d_ec %>% filter(year == 2024) %>% select(state, electors), by = "state")
-
-# Aggregate electoral votes for each simulation based on the predicted winner
-electoral_simulation <- simulation_results %>%
-  group_by(rep(1:n_simulations, each = nrow(d_test))) %>%
-  summarise(
-    dem_electoral_votes = sum(ifelse(pred_winner == "D", electors, 0)),
-    rep_electoral_votes = sum(ifelse(pred_winner == "R", electors, 0))
-  ) %>%
-  ungroup()
-
-colnames(electoral_simulation)[1] <- "n"
-
-electoral_simulation <- electoral_simulation %>% mutate(dem_electoral_votes = dem_electoral_votes + 226,
-                                                        rep_electoral_votes = rep_electoral_votes + 219)
-
-electoral_simulation <- electoral_simulation %>%
-  mutate(
-    bar_color = case_when(
-      dem_electoral_votes == 269 ~ "yellow",
-      dem_electoral_votes < 269 ~ "red",
-      dem_electoral_votes > 269 ~ "blue"
-    )
-  )
-
-# Plot bar graph with conditional coloring
-ggplot(electoral_simulation, aes(x = dem_electoral_votes, fill = bar_color)) +
-  geom_bar(color = "black") +
-  scale_fill_identity() +
-  geom_vline(xintercept = 270, color = "black", linetype = "dashed", size = 1) +
-  labs(
-    title = "Distribution of Electoral College Votes (Democratic)",
-    x = "Electoral Votes",
-    y = "Frequency",
-    caption = "Trump wins in 5825 simulation \nHarris wins in 4175 simulations"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-    axis.title = element_text(size = 12)
-  )
-```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 

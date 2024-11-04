@@ -330,7 +330,7 @@ optimal_alpha <- results %>% filter(rmse == min(rmse)) %>% pull(alpha)
 
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 # Create the plot
 ggplot(results, aes(x = alpha, y = rmse)) +
@@ -348,7 +348,8 @@ ggplot(results, aes(x = alpha, y = rmse)) +
 
 This yields the following weights for each week before the election:
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
 weeks <- 1:10
 optimal_alpha <- 0.78
 
@@ -361,7 +362,7 @@ data.frame(
 
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 # Define a data frame to store in-sample and out-of-sample errors for each fold
 errors <- data.frame(Fold = integer(), In_Sample_RMSE = numeric(), Out_of_Sample_SE = numeric())
@@ -421,7 +422,7 @@ The mean Out-of-Sample squared error is 2.626053.
 
 This model yields the following Harris-Trump national popular vote prediction.
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 weights <- optimal_alpha^(0:9)
 weekly_polls <- d_test %>% select(-year, -D_pv2p) %>% unlist() %>% as.vector()
@@ -567,9 +568,9 @@ All of our states would have voted blue, which was the case with the exception o
 
 d_trial <- d %>% select(year, state, pred_D_pv2p, D_pv2p) %>% na.omit() %>% mutate(match = (pred_D_pv2p < 50 & D_pv2p < 50) | (pred_D_pv2p > 50 & D_pv2p > 50))
 
-sum(d_trial$match)/nrow(d_trial)
+# sum(d_trial$match)/nrow(d_trial)
 
-sqrt(mean((d_trial$pred_D_pv2p - d_trial$D_pv2p)^2))
+# sqrt(mean((d_trial$pred_D_pv2p - d_trial$D_pv2p)^2))
 
 ```
 
@@ -673,7 +674,7 @@ democrat_summary %>%
   row_spec(0, bold = TRUE)
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 simulation_results <- simulation_results %>%
   left_join(d_ec %>% filter(year == 2024) %>% select(state, electors), by = "state")

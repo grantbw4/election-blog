@@ -90,36 +90,8 @@
 <p>I will test all decay value within the set of {1, 0.99, 0.98,&hellip;, 0.51, 0.5}.</p>
 <p>For each decay value, I will use leave-one-out cross validation to calculate the overall RMSE of a linear regression that estimates the two-party Democratic vote share using the weighted average vote share from each election cycle except the cycle that is currently being left out.</p>
 <p>This process yields the following RMSE graph. As we can see, 0.78 is the optimal decay value. On average, this decay value led to an OLS linear regression model with an error of out-of-sample error of roughly 1.6 percentage points.</p>
-<pre><code class="language-r"># Create the plot
-ggplot(results, aes(x = alpha, y = rmse)) +
-  geom_line(color = &quot;black&quot;, size = 1) +
-  geom_point(color = &quot;red&quot;, size = 2) +
-  labs(
-    title = &quot;RMSE by Decay Factor (Alpha)&quot;,
-    x = &quot;Alpha&quot;,
-    y = &quot;RMSE&quot;
-  ) +
-  geom_vline(xintercept = optimal_alpha, linetype = &quot;dashed&quot;, color = &quot;blue&quot;) +
-  theme_minimal()
-</code></pre>
-<pre><code>## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-## ℹ Please use `linewidth` instead.
-## This warning is displayed once every 8 hours.
-## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-## generated.
-</code></pre>
 <img src="https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 <p>This yields the following weights for each week before the election:</p>
-<pre><code class="language-r">weeks &lt;- 1:10
-optimal_alpha &lt;- 0.78
-
-# Create a data frame with each column representing optimal_alpha^(0:9)
-data.frame(
-  weeks,
-  Weight = optimal_alpha^(0:9)) %&gt;%
-  kable(col.names = c(&quot;Weeks Left Until Election&quot;, &quot;Weight&quot;)) %&gt;%
-  kable_styling(&quot;striped&quot;, full_width = FALSE)
-</code></pre>
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
  <thead>
   <tr>
@@ -170,53 +142,6 @@ data.frame(
   </tr>
 </tbody>
 </table>
-<pre><code class="language-r"># Define a data frame to store in-sample and out-of-sample errors for each fold
-errors &lt;- data.frame(Fold = integer(), In_Sample_RMSE = numeric(), Out_of_Sample_SE = numeric())
-
-# Define response variable (y)
-y &lt;- d_train$D_pv2p  # Democratic two-party vote share
-
-# Loop through each fold
-for (i in 1:nrow(d_train)) {
-  
-  # Split data: leave one observation out
-  train_data &lt;- d_train[-i, ]
-  test_data &lt;- d_train[i, , drop = FALSE]
-  
-  # Calculate decay weights for the optimal alpha
-  decay_weights &lt;- optimal_alpha^(0:9)
-  
-  # Apply decay weights to training and testing data
-  X_train &lt;- as.matrix(train_data[, grep(&quot;pollav_DEM_week&quot;, names(train_data))]) %*% decay_weights
-  X_test &lt;- as.matrix(test_data[, grep(&quot;pollav_DEM_week&quot;, names(test_data))]) %*% decay_weights
-  
-  # Convert X_train and X_test to data frames
-  train_data$weighted_polling &lt;- X_train  # Single weighted average for training
-  test_data$weighted_polling &lt;- X_test  # Single weighted average for testing
-  
-  # Fit a linear model on the training data with the weighted predictor
-  model &lt;- lm(D_pv2p ~ weighted_polling, data = train_data)
-  
-  # Predict for the left-out observation (out-of-sample)
-  prediction_out &lt;- predict(model, newdata = test_data)
-  out_of_sample_se &lt;- (prediction_out - test_data$D_pv2p)^2  # Squared error for the left-out fold
-  
-  # Predict for the in-sample data (remaining folds)
-  predictions_in &lt;- predict(model, newdata = train_data)
-  in_sample_rmse &lt;- sqrt(mean((predictions_in - train_data$D_pv2p)^2))  # RMSE for in-sample data
-  
-  # Store the results for this fold
-  errors &lt;- rbind(errors, data.frame(Fold = i, In_Sample_RMSE = in_sample_rmse, Out_of_Sample_SE = out_of_sample_se))
-}
-
-# Display the table using knitr
-library(knitr)
-library(kableExtra)
-
-errors %&gt;%
-  kable(col.names = c(&quot;Fold Left Out&quot;, &quot;In-Sample RMSE&quot;, &quot;Out-of-Sample SE&quot;), row.names = FALSE) %&gt;%
-  kable_styling(&quot;striped&quot;, full_width = FALSE)
-</code></pre>
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
  <thead>
   <tr>
@@ -293,24 +218,9 @@ errors %&gt;%
   </tr>
 </tbody>
 </table>
-<pre><code class="language-r"># mean(errors$In_Sample_RMSE)
-
-# mean(errors$Out_of_Sample_SE)
-</code></pre>
 <p>The mean In-Sample RMSE is 1.410265.
 The mean Out-of-Sample squared error is 2.626053.</p>
 <p>This model yields the following Harris-Trump national popular vote prediction.</p>
-<pre><code class="language-r">weights &lt;- optimal_alpha^(0:9)
-weekly_polls &lt;- d_test %&gt;% select(-year, -D_pv2p) %&gt;% unlist() %&gt;% as.vector()
-
-weighted_average &lt;- sum(weights * weekly_polls)/sum(weights)
-
-data.frame(Year = 2024,
-  Vote = weighted_average,
-  Vote2 = 100 - weighted_average) %&gt;%
-  kable(col.names = c(&quot;Year&quot;, &quot;Predicted Democratic Two-Party Vote Share&quot;, &quot;Predicted Republican Two-Party Vote Share&quot;)) %&gt;%
-  kable_styling(&quot;striped&quot;)
-</code></pre>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
  <thead>
   <tr>
@@ -410,8 +320,6 @@ data.frame(Year = 2024,
 </tbody>
 </table>
 <p>All of our states would have voted blue, which was the case with the exception of North Carolina, which voted Republican.</p>
-<p>[1] 0.9117647
-[1] 3.021754</p>
 <p>Across the 442 state elections in which we have polling averages for each of the ten weeks leading up to the election, our model correctly predicts the winner of the state 91.12% of the time with an RMSE of roughly 3.02 percentage points.</p>
 <p>I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 7 states 10,000 times, assuming a normal distribution around the current polling values with a standard deviation determined by the average distance of each state&rsquo;s poll away from the actual outcome in the past two elections.</p>
 <p>To create this standard deviation, I will take the average of the mean polling error of each state in 2016 and 2020 (weighted equally for both years) to capture the &ldquo;Trump-era&rdquo; polling error. This assumes that there is no systematic polling error in favor of either candidate, which is plausible given how the 2022 midterm favored Democrats. I will also use a stein adjusted error since I find it more realistic than simply averaging the polling error of a stat in the last two cycles.</p>
@@ -500,49 +408,6 @@ data.frame(Year = 2024,
   </tr>
 </tbody>
 </table>
-<pre><code class="language-r">simulation_results &lt;- simulation_results %&gt;%
-  left_join(d_ec %&gt;% filter(year == 2024) %&gt;% select(state, electors), by = &quot;state&quot;)
-
-# Aggregate electoral votes for each simulation based on the predicted winner
-electoral_simulation &lt;- simulation_results %&gt;%
-  group_by(rep(1:n_simulations, each = nrow(d_test))) %&gt;%
-  summarise(
-    dem_electoral_votes = sum(ifelse(pred_winner == &quot;D&quot;, electors, 0)),
-    rep_electoral_votes = sum(ifelse(pred_winner == &quot;R&quot;, electors, 0))
-  ) %&gt;%
-  ungroup()
-
-colnames(electoral_simulation)[1] &lt;- &quot;n&quot;
-
-electoral_simulation &lt;- electoral_simulation %&gt;% mutate(dem_electoral_votes = dem_electoral_votes + 226,
-                                                        rep_electoral_votes = rep_electoral_votes + 219)
-
-electoral_simulation &lt;- electoral_simulation %&gt;%
-  mutate(
-    bar_color = case_when(
-      dem_electoral_votes == 269 ~ &quot;yellow&quot;,
-      dem_electoral_votes &lt; 269 ~ &quot;red&quot;,
-      dem_electoral_votes &gt; 269 ~ &quot;blue&quot;
-    )
-  )
-
-# Plot bar graph with conditional coloring
-ggplot(electoral_simulation, aes(x = dem_electoral_votes, fill = bar_color)) +
-  geom_bar(color = &quot;black&quot;) +
-  scale_fill_identity() +
-  geom_vline(xintercept = 270, color = &quot;black&quot;, linetype = &quot;dashed&quot;, size = 1) +
-  labs(
-    title = &quot;Distribution of Electoral College Votes (Democratic)&quot;,
-    x = &quot;Electoral Votes&quot;,
-    y = &quot;Frequency&quot;,
-    caption = &quot;Trump wins in 5825 simulation \nHarris wins in 4175 simulations&quot;
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 16, face = &quot;bold&quot;),
-    axis.title = element_text(size = 12)
-  )
-</code></pre>
 <img src="https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/index_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 <p>This distribution is somewhat misleading, however, because it assumes that the outcomes of each of the seven battleground states are independent from one another (and that the polling errors across the states are not correlated with one another). For this reason, I will project the winner of the election based on which candidate is most likely to win each state. This distribution does show, however, that part of Harris&rsquo;s weakness is that she is performing well in states with higher average polling errors.</p>
 <h1 id="projections">Projections</h1>
@@ -561,6 +426,9 @@ ggplot(electoral_simulation, aes(x = dem_electoral_votes, fill = bar_color)) +
 
 <script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
 
+<script type="text/javascript" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
   
   <hr/>
   © <a href="https://yihui.org">Yihui Xie</a>
