@@ -334,13 +334,13 @@ optimal_alpha <- results %>% filter(rmse == min(rmse)) %>% pull(alpha)
 # Create the plot
 ggplot(results, aes(x = alpha, y = rmse)) +
   geom_line(color = "black", size = 1) +
-  geom_point(color = "red", size = 2) +
+  geom_point(color = "firebrick1", size = 2) +
   labs(
     title = "RMSE by Decay Factor (Alpha)",
     x = "Alpha",
     y = "RMSE"
   ) +
-  geom_vline(xintercept = optimal_alpha, linetype = "dashed", color = "blue") +
+  geom_vline(xintercept = optimal_alpha, linetype = "dashed", color = "dodgerblue4") +
   theme_minimal()
 
 ```
@@ -710,8 +710,8 @@ electoral_simulation <- electoral_simulation %>%
   mutate(
     bar_color = case_when(
       dem_electoral_votes == 269 ~ "yellow",
-      dem_electoral_votes < 269 ~ "red",
-      dem_electoral_votes > 269 ~ "blue"
+      dem_electoral_votes < 269 ~ "firebrick1",
+      dem_electoral_votes > 269 ~ "dodgerblue4"
     )
   )
 
@@ -731,6 +731,8 @@ ggplot(electoral_simulation, aes(x = dem_electoral_votes, fill = bar_color)) +
     plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
     axis.title = element_text(size = 12)
   )
+
+
 
 ```
 
