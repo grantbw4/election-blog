@@ -77,13 +77,13 @@ This gives us the following initial electoral college map:
 Using national-level polling average data since 1968 from [FiveThirtyEight](https://projects.fivethirtyeight.com/polls/), I will construct a model that uses the following polling features to predict the national two-party vote share.
 
 - Polling average for the Republican candidate within a state in each of the ten most recent weeks
-- Polling average for the Republican candidate within a state in each of the ten most recent weeks
+- Polling average for the Democratic candidate within a state in each of the ten most recent weeks
 
-I am opting to only consider the polling averages within the last ten weeks of the campaign rather than the entirety of the campaign as I believe these to be most predictive of the ultimate election outcome. I am concerned that introducing averages from earlier periods would lead to overfitting, and, considering the unique candidate swap of 2024, I do not believe Biden nor Harris's polling averages from the stage in the election before Harris could establish a proper campaign strategy are informative. These averages also occur after both parties have held their respective conventions and show the leanings of a more settled electorate. I will also be rescaling all polling averages so that the two-party vote share sums to 100.
+I am opting to only consider the polling averages within the last ten weeks of the campaign rather than the entirety of the campaign as I believe these to be most predictive of the ultimate election outcome. I am concerned that introducing averages from earlier periods would lead to overfitting, and, considering the unique candidate swap of 2024, I do not believe Biden nor Harris's polling averages from the stage in the election before Harris could establish a proper campaign strategy are informative. These averages also occur after both parties have held their respective conventions and show the leanings of a more settled electorate. I will also be rescaling all polling averages so that the two-party vote share sums to 100. After doing this, I will only use Democratic polls to create a model (which is possible because Republican two-party vote share is just 100 - Democratic two-party vote share).
 
 While there are a number of fundamental and economic covariates I considered exploring (whether a candidate is only a party incumbent, GDP growth in the second quarter of the election year, RDPI growth in the second quarter of the election year, unemployment rate in the second quarter of the election year, June approval rating, etc.), I found that my forecasts were highly variable depending on which fundamental variables I decided to include. It is my belief that many of the trends explained by fundamental variables (incumbency bias, high growth is good for candidates, high inflation is bad for candidates, etc.) is already baked into the polls, so I will focus on constructing a polls-only model.
 
-We will train separate two-party vote share models for both the Republicans and Democrats, and then apply this model to our 2024 data to generate predictions. 
+We will train a two-party vote share model for to predice Democratic vote share, and then apply this model to our 2024 data to generate predictions. 
 
 First, I want to assess whether modern national polls are systematically more accurate than older polls.
 
@@ -97,10 +97,9 @@ Because the year with the highest polling error was the first year in which poll
 
 
 
-Now, I want to find the optimal way to average my week by week polling averages into an overall estimate for the national two-party Democratic vote share. Intuitively, I can assume that more recent polls are more accurate than less recent polls. I can model the weight of each column (week 1 through 12) with a decay factor, alpha, that compounds exponentially each week further away from week 1 that I get. 
+Now, I want to find the optimal way to average my week by week polling averages into an overall estimate for the national two-party Democratic vote share. Intuitively, I can assume that more recent polls are more accurate than less recent polls. I can model the weight of each column (week 1 through 10) with a decay factor, alpha, that compounds exponentially each week further away from week 1 that I get. 
 
-`$$weight_i =\alpha^{(i−1)}$$`
-
+![Image 1](image_2.png)
 
 I will test all decay value within the set of {1, 0.99, 0.98,..., 0.51, 0.5}.
 
@@ -164,6 +163,9 @@ This yields the following weights for each week before the election:
   </tr>
 </tbody>
 </table>
+
+The mean In-Sample RMSE is 1.410265.
+The mean Out-of-Sample squared error is 2.626053.
 
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
  <thead>
@@ -242,9 +244,6 @@ This yields the following weights for each week before the election:
 </tbody>
 </table>
 
-The mean In-Sample RMSE is 1.410265.
-The mean Out-of-Sample squared error is 2.626053.
-
 This model yields the following Harris-Trump national popular vote prediction.
 
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
@@ -266,11 +265,13 @@ This model yields the following Harris-Trump national popular vote prediction.
 
 # State-level estimates
 
-I will now use this same decay factor to predict the two-party vote share for each of our battleground states. I chose to find this decay factor from national popular vote data because I have higher confidence in the consistent quality of national polls over time than the consistent quality of state polls over time, especially acorss states. It also seems like a reasonable assumption to me that this decay factor would remain largely constant over time. 
+I will now use this same decay factor to predict the two-party vote share for each of our battleground states. I chose to find this decay factor from national popular vote data because I have higher confidence in the consistent quality of national polls over time than the consistent quality of state polls over time, especially across states. It also seems like a reasonable assumption to me that this decay factor would remain largely constant over time. 
 
 For the same reasons as those I have already mentioned, I want to make this model as simple as possible and will only be considering the polling averages in each of the 10 weeks leading up to the election for each of our battleground states. I will use these 10 polling averages to construct a weighted average for each state. The formula for our weighted average (and our model) is as follows:
 
-`$$\text{Predicted Poll Value of a State} = \sum_{i=1}^{n} \left( \alpha^{(i-1)} \times \text{Poll Value}_i \right)$$`
+![Image 2](image_1.png)
+
+The weighted average for the Democratic two-party vote share for each state in 2024 is displayed below:
 
 
 
@@ -324,45 +325,53 @@ For comparison, let's see how our model would have fared for these same states i
   <tr>
    <th style="text-align:left;"> State </th>
    <th style="text-align:right;"> Predicted Democratic Two-Party Vote Share </th>
+   <th style="text-align:right;"> Actual pv2p </th>
   </tr>
  </thead>
 <tbody>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Arizona </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 51.96036 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.15683 </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Georgia </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.16966 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.11933 </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Michigan </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 54.11059 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 51.41356 </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Nevada </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.14477 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 51.22312 </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> North Carolina </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 51.12033 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 49.31582 </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Pennsylvania </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.03826 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.58921 </td>
   </tr>
   <tr>
    <td style="text-align:left;background-color: rgba(16, 78, 139, 255) !important;"> Wisconsin </td>
    <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 53.73649 </td>
+   <td style="text-align:right;background-color: rgba(16, 78, 139, 255) !important;"> 50.31906 </td>
   </tr>
 </tbody>
 </table>
 
-All of our states would have voted blue, which was the case with the exception of North Carolina, which voted Republican.
+All of our states would have been projected to vote blue, which was the case with the exception of North Carolina, which voted Republican. This is an RMSE of 2.24 percentage points.
 
 
 
-Across the 442 state elections in which we have polling averages for each of the ten weeks leading up to the election, our model correctly predicts the winner of the state 91.12% of the time with an RMSE of roughly 3.02 percentage points.
+Across the 442 state elections since 1968 in which we have polling averages for each of the ten weeks leading up to the election, our model correctly predicts the winner of the state 91.12% of the time with an RMSE of roughly 3.02 percentage points.
 
 I will now use a simulation to get an estimate of how confident we are in these results. I will do this by sampling new state-level polling measurements for each of our 7 states 10,000 times, assuming a normal distribution around the current polling values with a standard deviation determined by the average distance of each state's poll away from the actual outcome in the past two elections.
 
@@ -422,39 +431,57 @@ Using the above weighted errors as standard deviations yields the following simu
   <tr>
    <th style="text-align:left;font-weight: bold;"> State </th>
    <th style="text-align:right;font-weight: bold;"> D Win Percentage </th>
+   <th style="text-align:right;font-weight: bold;"> 2.5th Percentile </th>
+   <th style="text-align:right;font-weight: bold;"> 97.5th Percentile </th>
   </tr>
  </thead>
 <tbody>
   <tr>
    <td style="text-align:left;"> Arizona </td>
-   <td style="text-align:right;"> 94.77 </td>
+   <td style="text-align:right;"> 26.84 </td>
+   <td style="text-align:right;"> 45.90000 </td>
+   <td style="text-align:right;"> 52.65498 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Georgia </td>
-   <td style="text-align:right;"> 59.93 </td>
+   <td style="text-align:right;"> 16.66 </td>
+   <td style="text-align:right;"> 47.47985 </td>
+   <td style="text-align:right;"> 51.19328 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Michigan </td>
-   <td style="text-align:right;"> 96.36 </td>
+   <td style="text-align:right;"> 60.81 </td>
+   <td style="text-align:right;"> 44.21533 </td>
+   <td style="text-align:right;"> 57.12646 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Nevada </td>
-   <td style="text-align:right;"> 99.91 </td>
+   <td style="text-align:right;"> 57.06 </td>
+   <td style="text-align:right;"> 47.33077 </td>
+   <td style="text-align:right;"> 53.03849 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> North Carolina </td>
-   <td style="text-align:right;"> 74.99 </td>
+   <td style="text-align:right;"> 40.15 </td>
+   <td style="text-align:right;"> 44.86851 </td>
+   <td style="text-align:right;"> 54.21899 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Pennsylvania </td>
-   <td style="text-align:right;"> 92.64 </td>
+   <td style="text-align:right;"> 53.48 </td>
+   <td style="text-align:right;"> 44.32085 </td>
+   <td style="text-align:right;"> 55.93782 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Wisconsin </td>
-   <td style="text-align:right;"> 93.66 </td>
+   <td style="text-align:right;"> 59.62 </td>
+   <td style="text-align:right;"> 43.84012 </td>
+   <td style="text-align:right;"> 57.29537 </td>
   </tr>
 </tbody>
 </table>
+
+We also get the following distribution of simulations.
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 
@@ -472,4 +499,4 @@ Using this model, our ultimate electoral college would look as follows, with Vic
 
 # Data Sources: 
 
-Data are from the US presidential election popular vote results from 1948-2020, [state-level polling data for 1980 onwards](https://projects.fivethirtyeight.com/polls/), and economic data from the [St. Louis Fed](https://fred.stlouisfed.org/).
+Data are from the US presidential election popular vote results from 1948-2020 and [state-level polling data for 1968 onwards](https://projects.fivethirtyeight.com/polls/).
