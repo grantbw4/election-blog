@@ -6,8 +6,15 @@
     <description>Recent content in Home on Grant&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 26 Oct 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 03 Nov 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://grantbw4.github.io/election-blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Week 9: Final Prediction</title>
+      <link>https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/</link>
+      <pubDate>Sun, 03 Nov 2024 00:00:00 +0000</pubDate>
+      <guid>https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/</guid>
+      <description>Introduction In this final blog post, published two days before the election (Sunday Nov 3), I am going to explain how I prepared my final model and the results derived from it.&#xA;Before I do so, however, I want to share what is perhaps my main takeaway from this class thus far:&#xA;Predicting elections is hard.&#xA;In many ways, it is a somewhat impossible task. Forecasting elections is not difficult because procuring data is challenging or because training models is computationally expensive; rather, predicting the outcomes of US elections is fundamentally hard because there are relatively few elections from which we can construct our models.</description>
+    </item>
     <item>
       <title>Week 8: Penultimate Week</title>
       <link>https://grantbw4.github.io/election-blog/post/2024/10/26/week-8-penultimate-week/</link>
