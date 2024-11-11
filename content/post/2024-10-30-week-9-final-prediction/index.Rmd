@@ -272,7 +272,7 @@ I will test all decay value within the set of {1, 0.99, 0.98,..., 0.51, 0.5}.
 
 For each decay value, I will use leave-one-out cross validation to calculate the overall RMSE of a linear regression that estimates the two-party Democratic vote share using the weighted average vote share from each election cycle except the cycle that is currently being left out.
 
-This process yields the following RMSE graph. As we can see, 0.78 is the optimal decay value. On average, this decay value led to an OLS linear regression model with an error of out-of-sample error of roughly 1.6 percentage points.
+This process yields the following RMSE graph. As we can see, 0.78 is the optimal decay value.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
