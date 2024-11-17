@@ -6,8 +6,15 @@
     <description>Recent content in Home on Grant&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 03 Nov 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 17 Nov 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://grantbw4.github.io/election-blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Week 10: Election Reflection</title>
+      <link>https://grantbw4.github.io/election-blog/post/2024/11/17/week-10-election-reflection/</link>
+      <pubDate>Sun, 17 Nov 2024 00:00:00 +0000</pubDate>
+      <guid>https://grantbw4.github.io/election-blog/post/2024/11/17/week-10-election-reflection/</guid>
+      <description>Introduction In this post-election blog post, I am going to do the following:&#xA;Provide a recap of my model and the predictions it generated&#xA;Assess the accuracy of my model and look for patterns in the accuracy Hypothesize why the model diverged from the actual results Propose some quantitative tests that could assess my hypotheses. Offer a description of how I would approach the model differently now if I were to do it again.</description>
+    </item>
     <item>
       <title>Week 9: Final Prediction</title>
       <link>https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/</link>

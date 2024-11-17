@@ -91,8 +91,8 @@
 <p><img src="image_2.png" alt="Image 1"></p>
 <p>I will test all decay value within the set of {1, 0.99, 0.98,&hellip;, 0.51, 0.5}.</p>
 <p>For each decay value, I will use leave-one-out cross validation to calculate the overall RMSE of a linear regression that estimates the two-party Democratic vote share using the weighted average vote share from each election cycle except the cycle that is currently being left out.</p>
-<p>This process yields the following RMSE graph. As we can see, 0.78 is the optimal decay value.</p>
-<img src="https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<p>This process yields the following RMSE graph. As we can see, 0.78 is the optimal decay value with a root mean squared error of 1.62</p>
+<img src="https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
 <p>This yields the following weights for each week before the election:</p>
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
  <thead>
@@ -144,8 +144,7 @@
   </tr>
 </tbody>
 </table>
-<p>The mean In-Sample RMSE is 1.410265.
-The mean Out-of-Sample squared error is 2.626053.</p>
+<p>For each fold, the out-of-sample squared error is shown below.</p>
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
  <thead>
   <tr>
@@ -436,11 +435,11 @@ The mean Out-of-Sample squared error is 2.626053.</p>
 </tbody>
 </table>
 <p>We also get the following distribution of simulations.</p>
-<img src="https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/index_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+<img src="https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/index_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 <p>This distribution is somewhat misleading, however, because it assumes that the outcomes of each of the seven battleground states are independent from one another (and that the polling errors across the states are not correlated with one another). For this reason, I will project the winner of the election based on which candidate is most likely to win each state. This distribution does show, however, that part of Harris&rsquo;s weakness is that she is performing well in states with higher average polling errors.</p>
 <h1 id="projections">Projections</h1>
 <p>Using this model, our ultimate electoral college would look as follows, with Vice President Kamala Harris narrowly squeaking out a win.</p>
-<p><img src="https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/index_files/figure-html/unnamed-chunk-21-1.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/index_files/figure-html/unnamed-chunk-21-2.png" width="672" /></p>
+<p><img src="https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/index_files/figure-html/unnamed-chunk-20-1.png" width="672" /><img src="https://grantbw4.github.io/election-blog/post/2024/11/03/week-9-final-prediction/index_files/figure-html/unnamed-chunk-20-2.png" width="672" /></p>
 <h1 id="citations">Citations:</h1>
 <p>“Historical U.S. Presidential Elections 1789-2020 - 270towin.” <em>270toWin</em>, <a href="https://www.270towin.com/historical-presidential-elections/">www.270towin.com/historical-presidential-elections/</a>. Accessed 3 Nov. 2024.</p>
 <h1 id="data-sources">Data Sources:</h1>

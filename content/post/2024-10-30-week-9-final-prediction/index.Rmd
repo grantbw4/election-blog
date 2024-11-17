@@ -272,20 +272,20 @@ I will test all decay value within the set of {1, 0.99, 0.98,..., 0.51, 0.5}.
 
 For each decay value, I will use leave-one-out cross validation to calculate the overall RMSE of a linear regression that estimates the two-party Democratic vote share using the weighted average vote share from each election cycle except the cycle that is currently being left out.
 
-This process yields the following RMSE graph. As we can see, 0.78 is the optimal decay value.
+This process yields the following RMSE graph. As we can see, 0.78 is the optimal decay value with a root mean squared error of 1.62
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 # I used ChatGPT to help create this LOOCV process
 
 # Define a range of alpha values to test (decay factors)
-alpha_values <- seq(0.5, 1, by = 0.01)  # Adjust this range as needed
+alpha_values <- seq(0.5, 1, by = 0.01)
 
 # Set up a data frame to store RMSE for each alpha
 results <- data.frame(alpha = numeric(), rmse = numeric())
 
 # Define response variable (y)
-y <- d_train$D_pv2p  # Democratic two-party vote share
+y <- d_train$D_pv2p
 
 # Loop through each alpha value
 for (alpha_value in alpha_values) {
@@ -308,8 +308,8 @@ for (alpha_value in alpha_values) {
     X_test <- as.matrix(test_data[, grep("pollav_DEM_week", names(test_data))]) %*% decay_weights  # Ensure X_test is a single value
     
     # Convert X_train and X_test to data frames
-    train_data$weighted_polling <- X_train  # Single weighted average for training
-    test_data$weighted_polling <- X_test  # Single weighted average for testing
+    train_data$weighted_polling <- X_train
+    test_data$weighted_polling <- X_test
     
     # Fit a linear model on the training data with the weighted predictor
     model <- lm(D_pv2p ~ weighted_polling, data = train_data)
@@ -325,11 +325,8 @@ for (alpha_value in alpha_values) {
   results <- rbind(results, data.frame(alpha = alpha_value, rmse = rmse))
 }
 
+# Find the optimal alpha value
 optimal_alpha <- results %>% filter(rmse == min(rmse)) %>% pull(alpha)
-
-```
-
-```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 # Create the plot
 ggplot(results, aes(x = alpha, y = rmse)) +
@@ -361,63 +358,64 @@ data.frame(
 
 ```
 
-The mean In-Sample RMSE is 1.410265.
-The mean Out-of-Sample squared error is 2.626053.
+For each fold, the out-of-sample squared error is shown below.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
 # I used ChatGPT to get this table
 
-# Define a data frame to store in-sample and out-of-sample errors for each fold
-errors <- data.frame(Fold = integer(), In_Sample_RMSE = numeric(), Out_of_Sample_SE = numeric())
+# Set alpha to 0.78 for decay
+alpha_value <- 0.78
+decay_weights <- alpha_value^(0:9)
 
 # Define response variable (y)
-y <- d_train$D_pv2p  # Democratic two-party vote share
+y <- d_train$D_pv2p
 
-# Loop through each fold
+# Initialize a data frame to store results for each fold
+fold_results <- data.frame(fold = numeric(), in_sample_rmse = numeric(), out_of_sample_se = numeric())
+
+# Loop for LOOCV: Leave one observation out each time
 for (i in 1:nrow(d_train)) {
   
   # Split data: leave one observation out
   train_data <- d_train[-i, ]
   test_data <- d_train[i, , drop = FALSE]
   
-  # Calculate decay weights for the optimal alpha
-  decay_weights <- optimal_alpha^(0:9)
-  
-  # Apply decay weights to training and testing data
+  # Apply decay weights to training data and calculate a single weighted predictor
   X_train <- as.matrix(train_data[, grep("pollav_DEM_week", names(train_data))]) %*% decay_weights
-  X_test <- as.matrix(test_data[, grep("pollav_DEM_week", names(test_data))]) %*% decay_weights
+  X_test <- as.matrix(test_data[, grep("pollav_DEM_week", names(test_data))]) %*% decay_weights  # Ensure X_test is a single value
   
   # Convert X_train and X_test to data frames
-  train_data$weighted_polling <- X_train  # Single weighted average for training
-  test_data$weighted_polling <- X_test  # Single weighted average for testing
+  train_data$weighted_polling <- X_train
+  test_data$weighted_polling <- X_test
   
   # Fit a linear model on the training data with the weighted predictor
   model <- lm(D_pv2p ~ weighted_polling, data = train_data)
   
-  # Predict for the left-out observation (out-of-sample)
-  prediction_out <- predict(model, newdata = test_data)
-  out_of_sample_se <- (prediction_out - test_data$D_pv2p)^2  # Squared error for the left-out fold
+  # Predict for the left-out observation
+  prediction <- predict(model, newdata = test_data)
+  out_of_sample_se <- (prediction - test_data$D_pv2p)^2
   
-  # Predict for the in-sample data (remaining folds)
-  predictions_in <- predict(model, newdata = train_data)
-  in_sample_rmse <- sqrt(mean((predictions_in - train_data$D_pv2p)^2))  # RMSE for in-sample data
+  # Calculate in-sample RMSE for the current fold (excluding the test observation)
+  in_sample_predictions <- predict(model, newdata = train_data)
+  in_sample_rmse <- sqrt(mean((in_sample_predictions - train_data$D_pv2p)^2))
   
-  # Store the results for this fold
-  errors <- rbind(errors, data.frame(Fold = i, In_Sample_RMSE = in_sample_rmse, Out_of_Sample_SE = out_of_sample_se))
+  # Store the results for the current fold
+  fold_results <- rbind(fold_results, data.frame(
+    fold = i,
+    in_sample_rmse = in_sample_rmse,
+    out_of_sample_se = out_of_sample_se
+  ))
 }
 
-# Display the table using knitr
-library(knitr)
-library(kableExtra)
-
-errors %>%
+# Display the results as a table
+fold_results %>%
   kable(col.names = c("Fold Left Out", "In-Sample RMSE", "Out-of-Sample SE"), row.names = FALSE) %>%
   kable_styling("striped", full_width = FALSE)
 
-# mean(errors$In_Sample_RMSE)
+#sqrt(mean(fold_results$out_of_sample_se))
 
-# mean(errors$Out_of_Sample_SE)
+
 
 ```
 

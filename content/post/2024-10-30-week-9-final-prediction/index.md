@@ -105,11 +105,9 @@ I will test all decay value within the set of {1, 0.99, 0.98,..., 0.51, 0.5}.
 
 For each decay value, I will use leave-one-out cross validation to calculate the overall RMSE of a linear regression that estimates the two-party Democratic vote share using the weighted average vote share from each election cycle except the cycle that is currently being left out.
 
-This process yields the following RMSE graph. As we can see, 0.78 is the optimal decay value.
+This process yields the following RMSE graph. As we can see, 0.78 is the optimal decay value with a root mean squared error of 1.62
 
-
-
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
 
 This yields the following weights for each week before the election:
 
@@ -164,8 +162,7 @@ This yields the following weights for each week before the election:
 </tbody>
 </table>
 
-The mean In-Sample RMSE is 1.410265.
-The mean Out-of-Sample squared error is 2.626053.
+For each fold, the out-of-sample squared error is shown below.
 
 <table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
  <thead>
@@ -483,7 +480,7 @@ Using the above weighted errors as standard deviations yields the following simu
 
 We also get the following distribution of simulations.
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
 This distribution is somewhat misleading, however, because it assumes that the outcomes of each of the seven battleground states are independent from one another (and that the polling errors across the states are not correlated with one another). For this reason, I will project the winner of the election based on which candidate is most likely to win each state. This distribution does show, however, that part of Harris's weakness is that she is performing well in states with higher average polling errors.
 
@@ -491,7 +488,7 @@ This distribution is somewhat misleading, however, because it assumes that the o
 
 Using this model, our ultimate electoral college would look as follows, with Vice President Kamala Harris narrowly squeaking out a win.
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-21-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-21-2.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-20-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-20-2.png" width="672" />
 
 # Citations:
 
