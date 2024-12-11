@@ -702,15 +702,23 @@ interactive_map
 
 # The Campaign in Arizona
 
-https://projects.votehub.com/pages/campaign-tracker
+To explore why it is that my forecast underestimated Trump's victory margins in Arizona, I want to first reflect on Harris and Trump's campaign strategies in Arizona. 
 
-https://cronkitenews.azpbs.org/2024/11/05/arizona-2024-presidential-election-harris-trump-battle-crucial-swing-state/
+According to campaign event tracker, [VoteHub](https://projects.votehub.com/pages/campaign-tracker), since Biden's departure from the race, Harris has held rallies in Arizona three times and Trump six times. Both, however, pored immense resources into the state, considering Arizona important for electoral victory.
 
-# Hypothesis (From the Literature)
+Grace Monos and Gabrielle Wallace of [Cronkite News](https://cronkitenews.azpbs.org/2024/11/05/arizona-2024-presidential-election-harris-trump-battle-crucial-swing-state/) highlighted key differences in the campaigns of each candidate in an article of theirs published the day after the election. The Harris campaign regularly had celebrities at its Arizona events, among them being Bill Clinton, Barack Obama, Jessica Alba, and Eva Longoria. Alba and Longoria, specifically, spoke at a November 3rd "Latinos con Harris-Walz" [event](https://www.statepress.com/article/2024/11/actors-tempe-harriswalz). At this event, they urged voters to support Harris, stressing topics like abortion, democracy, and women's rights. In many ways, this event was emblematic of Harris's broader strategy in Arizona: appealing to women in the state to stymie Trump's inroads with Latino voters. While Democrats were hopeful that Arizona's popular abortion proposition, which easily passed, would lead the Harris-Walz ticket to vicket, such was not the case.
 
-Vavreck (2009)
+Another central pillar of Harris's campaign was her repeated suggestion of Trump being a threat to democracy. In Arizona, specifically, Harris welcomed endorsements from a variety of Republican poltiicans who agreed with her assessment, among them political bona fides like John McCain's son, Jimmy McCain, and former Arizona Senator (and Latter-day Saint), Jeff Flake. Harris even appeared at an event with the Republican mayor of Mesa (another Latter-day Saint) to jointly declare Trump an existential threat to democracy.
 
-Clarifying and Insurgent Campaigns
+While it is possible that Harris's courting of Latter-day Saint voters may have helped her case (Nate Silver's model underperformed for Trump the most in [Utah](https://www.natesilver.net/p/the-model-exactly-predicted-the-most)), her efforts were ultimately insufficent given Trump's clear win. 
+
+Many pundits nationally have ascribed Harris's loss to an inability to connect with the working class. Her appeals to democracy and abortion, while perhaps resonant with women and college-educated voters, may have been insufficiently tangible for working-class voters concerned about inflation and illegal border crossings. Though Harris made a September stop in the border town of Douglas, Arizona to project her accomplishments in reducing illegal border crossings and drug trafficking, she could not change the narrative. Trump, on the other hand, made the economy and immigration the centerpieces of his campaign, calling Harris a failed "border czar," and, at an October 24th rally in Tempe, promising the "largest deportation program in American history." 
+
+The theory that working class voters were more persuaded by Trump's campaign promises is certainly validated by the results in Arizona. Trump saw the largest shifts in the Santa Cruz, Yuma, Apache, and Navajo counties — the first two being working-class border towns and the latter two being largely impoverished counties with sizeable indigenous populations. 
+
+Lynn Vavreck, in her 2009 book, *The Message Matters*, names two different campaign strategies: clarifying and insurgent campaigns. Clarifying campaigns center discussion around the economy and are generally employed by the incumbent party in a good economy and the non-incumbent party in a poor economy. Insurgent campaigns, on the other hand, are employed by parties not experiencing the windfalls of a strong economy. These insurgent campaigns center issues that the public overwhelmingly supports and the competing candidate opposes or does not adequately represent. 
+
+In my view, Harris adopted an insurgent campaign and Trump a clarifiyng one. Harris's efforts to paint Trump as the progenitor of widespread inaccess to abortion and the violence of January 6th, two topics the public tends to not support Trump on, she ultimately could not overcome Trump's economic appeals given her ties to Biden and the record inflation his administration saw, especially Arizona, which saw [above-average inflation](https://www.usatoday.com/story/money/2024/04/09/states-highest-lowest-inflation/73184932007/).
 
 # Citations:
 
