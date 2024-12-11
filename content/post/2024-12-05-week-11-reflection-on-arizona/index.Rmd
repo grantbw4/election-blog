@@ -1,0 +1,733 @@
+---
+title: 'Week 11: Reflection on Arizona'
+author: Grant Williams
+date: '2024-12-10'
+slug: week-11-reflection-on-arizona
+categories: []
+tags: []
+---
+
+# Introduction
+
+In this final post-election blog post, I am interested in exploring the outcome of my home state, Arizona, and analyzing how well both myself and others forecasted its results. Over the past semester, I have been following Harris and Trump's respective campaigns within the state, and I am eager to finally share my findings. For the purposes of structuring this post, I will do the following:
+
+1. Offer a brief summary of the state of Arizona — its demographics, its voting history in recent decades, its state- and local-level races, and other important bits of context. 
+
+2. Compare how well both myself and others forecasted Arizona's presidential election results.
+
+3. Discuss the ground-level campaigning in Arizona and how the candidates' strategies differed.
+
+4. Hypothesize how much of the campaign strategy and candidate quality of each party can explain the difference between the presidential forecasts for Arizona and the eventual outcome.
+
+*The code used to produce these visualizations is publicly available in my [github repository](https://github.com/grantbw4/election-blog) and draws heavily from the section notes and sample code provided by the Gov 1347 Head Teaching Fellow, [Matthew Dardet](https://www.matthewdardet.com/harvard-election-analytics-2024/).*
+
+# Arizona Summary
+
+As the [16th most populous state](https://ballotpedia.org/United_States_congressional_delegations_from_Arizona) in the United States, Arizona casts a non-trivial number of electoral votes each election cycle. For the 2024 presidential election, it will cast 11 electoral votes, 1 for each of its 2 senators and 9 representatives ([Ballotpedia](https://ballotpedia.org/United_States_congressional_delegations_from_Arizona)). While Arizona has historically voted Republican, it has grown increasingly purple in recent election cycles, and, in 2020, voted for a Democratic president for the first time since 1996. 
+
+Previous to the 2024 election, it was represented by the following:
+- 1 Democratic governor
+- 1 Democratic senator and 1 Independent senator (who caucused with Democrats)
+- 6 Republican and 3 Democratic representatives 
+- A narrowly Republican State Senate and State House of Representatives
+
+Given Arizona's recent trend toward swing state status (its presidential popular vote margins went from +9.74 R to +3.54 R to +0.3 D between 2012 and 2020) and its divided state government, I suspected Arizona would be an interesting state to follow this election cycle.
+
+Geographically, Arizona is dominated by the Phoenix metropolitan area, which, as of 2024, is home to roughly 4.777 million people, over 60% of Arizona's total population of approximately 7.497 million people. For this reason, Maricopa County, the county in which Phoenix is located, has voted for Arizona's presidential winner in every election cycle since 1956. The next largest county in Arizona is Pima County with slightly over 1 million residents. This county tends to vote more Democratically relative to Maricopa County and is home to the city of Tucson. 
+
+Below is a map of Arizona's 2020 election results by county. 
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+rm(list = ls())
+cat("\014")
+# Load libraries.
+## install via `install.packages("name")`
+library(car)
+library(caret)
+library(CVXR)
+library(foreign)
+library(glmnet)
+library(haven)
+library(janitor)
+library(kableExtra)
+library(maps)
+library(mlr3)
+library(randomForest)
+library(ranger)
+library(RColorBrewer)
+library(sf)
+library(tidyverse)
+library(viridis)
+library(glmnet)
+library(leaflet)
+library(plotly)
+
+county_2020 <- read_csv("county_votes_pres_2020.csv")
+
+election_data <- county_2020 %>% filter(FIPS %in% c(04001,
+04003,
+04005,
+04007,
+04009,
+04011,
+04012,
+04013,
+04015,
+04017,
+04019,
+04021,
+04023,
+04025,
+04027)) %>% select(FIPS, `Geographic Name`, `Joseph R. Biden Jr.`, 
+                   `Donald J. Trump`) %>% 
+  rename(subregion = `Geographic Name`, 
+         D = `Joseph R. Biden Jr.`,
+         R = `Donald J. Trump`) %>% 
+  mutate(subregion = tolower(subregion),
+         R = as.numeric(R),
+         D = as.numeric(D),
+         Biden_Percentage = 100 * D/(R + D))
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+
+# I used ChatGPT for this next part
+
+arizona_map <- map_data("county") %>% filter(region == "arizona")
+
+# Merge Arizona map data with election data
+arizona_map <- arizona_map %>% left_join(election_data, by = "subregion")
+
+# Plot Arizona map with ggplot
+ggplot_map <- ggplot(data = arizona_map, aes(
+  x = long, y = lat, group = group, fill = Biden_Percentage,
+  text = paste0("County: ", subregion, "<br>Biden %: ", round(Biden_Percentage, 1), "%")
+)) +
+  geom_polygon(color = "black") +
+  theme_minimal() +
+  coord_fixed(1.3) +
+  scale_fill_gradient(
+    low = "firebrick1", high = "dodgerblue4", name = "Biden %"
+  ) +
+  labs(
+    title = "Arizona 2020 Presidential Election - Biden Percentage by County",
+    x = "",
+    y = ""
+  ) +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+# Convert to an interactive plot with customized tooltip
+interactive_map <- ggplotly(ggplot_map, tooltip = "text")
+
+# Display the interactive map
+interactive_map
+
+```
+
+Demographically, according to Ballotpedia, the source of all the statistics from this section, about 32% of Arizona identifies as ethnically Hispanic. Roughly 54% of the state identifies as non-Hispanic White, about 5% identify as Black, about 4% identify as Native American and AAPI respectively, and roughly 3% identify as two or more races. This makes Arizona home to particularly large Latino and Native American populations. Additionally, roughly 17.5% of Arizona is 65 years of age or older and about 5% of its residents identify as members of the Church of Jesus Christ of Latter-day Saints, meaning that it has both a large retired and Mormon population
+
+Apart from the 2024 presidential election, pundits across the United States were closely watching Arizona's Senate contest between Republican Kari Lake and Democrat Ruben Gallego. Separately, of national interest was Proposition 139, an effort to expand abortion access in Arizona.
+
+# Forecast Comparisons
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Electoral Map 
+
+# Load Map
+us_map <- map_data("state")
+
+# Only want 2024 info and we're making things lowercase
+d_ec <- read_csv("corrected_ec_1948_2024.csv") %>% filter(year == 2024) %>% mutate(state = tolower(state))
+
+# Add in electoral info
+us_map <- us_map %>% left_join(d_ec, by = c("region" = "state"))
+
+# used ChatGPT to get this list of states
+
+voting_results <- data.frame(
+  state = c(
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California", 
+    "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", 
+    "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", 
+    "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", 
+    "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", 
+    "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+    "New Jersey", "New Mexico", "New York", "North Carolina", 
+    "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", 
+    "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
+    "Texas", "Utah", "Vermont", "Virginia", "Washington", 
+    "West Virginia", "Wisconsin", "Wyoming"
+  ),
+  party = c(
+    "Republican", "Republican", "Toss Up", "Republican", "Democrat", 
+    "Democrat", "Democrat", "Democrat", "Democrat", "Republican", 
+    "Toss Up", "Democrat", "Republican", "Democrat", "Republican", 
+    "Republican", "Republican", "Republican", "Republican", "Democrat", 
+    "Democrat", "Democrat", "Toss Up", "Democrat", "Republican", 
+    "Republican", "Republican", "Republican", "Toss Up", "Democrat", 
+    "Democrat", "Democrat", "Democrat", "Toss Up", 
+    "Republican", "Republican", "Republican", "Democrat", "Toss Up", 
+    "Democrat", "Republican", "Republican", "Republican", 
+    "Republican", "Republican", "Democrat", "Democrat", "Democrat", 
+    "Republican", "Toss Up", "Republican"))
+
+# Add in party info
+voting_results <- voting_results %>% mutate(state = tolower(state))
+
+voting_results %>% left_join(d_ec %>% select(state, electors), by = "state")
+
+us_map <- us_map %>% left_join(voting_results, by = c("region" = "state"))
+
+# Fix DC 
+us_map <- us_map %>%
+  mutate(party = ifelse(region == "district of columbia", "Democrat", party))
+
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# Plot Electoral College Map
+
+# I used Chat GPT to help produce these graphs
+
+ggplot(data = us_map, aes(x = long, y = lat, group = group, fill = factor(party))) +
+  geom_polygon(color = "black") +
+  theme_minimal() +
+  coord_fixed(1.3) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Republican" = "firebrick1", "Toss Up" = "beige")) +
+  labs(title = "2024 Base Electoral College Map", x = "", y = "", caption = "Hawaii is blue \nAlaska is red \nNebraska 2nd district is blue \nMaine's 2nd district is red", fill = "Party") +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+voting_results <- voting_results %>%
+  left_join(d_ec %>% select(state, electors), by = "state")
+
+df_2024 <- voting_results %>%
+  group_by(party) %>%
+  summarise(electoral_votes = sum(electors, na.rm = TRUE)) %>%
+  mutate(party = factor(party, levels = c("Democrat", "Toss Up", "Republican")))
+
+# Plot Electoral College Chart
+
+ggplot(df_2024, aes(x = "", y = electoral_votes, fill = party)) +
+  geom_bar(stat = "identity", width = .8) +
+  geom_text(aes(label = electoral_votes), position = position_stack(vjust = 0.5), color = "black", size = 5) +
+  scale_fill_manual(values = c("Democrat" = "dodgerblue4", "Toss Up" = "beige", "Republican" = "firebrick1")) +
+  coord_flip() +
+  theme_void() +
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5)) + 
+  labs(fill = "Party", title = "2024 Presidential Electoral College Base Prediction") +
+  scale_y_continuous(limits = c(0, 538)) +
+  geom_hline(yintercept = 270, color = "black", linetype = "dashed")
+
+```
+
+[Sabato's Crystal Ball](https://centerforpolitics.org/crystalball/2024-president/) of the Center for Politics rated Arizona as a lean Republican, whereas the [Cook Political Report](https://www.cookpolitical.com/ratings/presidential-race-ratings) listed Arizona as a "toss-up." 
+
+Almost universally across news platforms and forecasting models, Arizona was listed among the seven states identified as most likely to determine the election:
+
+- Arizona
+- Georgia
+- Michigan
+- Nevada
+- North Carolina
+- Pennsylvania
+- Wisconsin
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# The code from my final prediction
+
+####----------------------------------------------------------#
+#### Read, merge, and process data.
+####----------------------------------------------------------#
+
+# Read popular vote datasets. 
+d_popvote <- read_csv("popvote_1948_2020.csv")
+
+# Read polling data. 
+d_polls <- read_csv("national_polls_1968-2024.csv")
+
+# Process state-level polling data. 
+d_pollav <- d_polls |>
+  filter(weeks_left <= 10 & weeks_left >= 1) |>  # Consider only the last 12 weeks
+  group_by(year, party, weeks_left) |>  # Group by year, party, and weeks_left
+  summarize(
+    weekly_pollav = mean(poll_support, na.rm = TRUE)  # Calculate weekly average
+  ) |> 
+  pivot_wider(names_from = party, values_from = weekly_pollav, names_prefix = "pollav_week")
+
+# Rescale so that averages add up to 100
+d_pollav <- d_pollav %>% mutate(
+  pollav_weekDEM = pollav_weekDEM * (100 / (pollav_weekDEM + pollav_weekREP)),
+  pollav_weekREP = 100 - pollav_weekDEM) %>% select(-pollav_weekREP)
+
+# Make 10 different columns 
+
+d_pollav <- d_pollav %>%
+  pivot_wider(
+    names_from = weeks_left, 
+    values_from = pollav_weekDEM, 
+    names_prefix = "pollav_DEM_week"
+  )
+
+# Merge data.
+d <- d_pollav %>%
+  left_join(d_popvote %>% filter(party == "democrat") %>% rename(D_pv2p = pv2p) %>% select(year, D_pv2p), by = "year") %>%
+  ungroup()
+
+d_train <- d |> 
+  filter(year < 2024)
+d_test <- d |> 
+  filter(year == 2024)
+
+# Calculate the error
+d_train$error <- d_train$pollav_DEM_week1 - d_train$D_pv2p
+
+# Plot the error
+ggplot(d_train, aes(x = year, y = error)) +
+  geom_col(color = "black") +
+  labs(
+    title = "Democratic Polling Error (Latest Poll Average - Actual Two-Party Vote Share)",
+    x = "Year",
+    y = "Error"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+d_train <- d_train %>% filter(year != 1968)
+
+# I used ChatGPT to help create this LOOCV process
+
+# Define a range of alpha values to test (decay factors)
+alpha_values <- seq(0.5, 1, by = 0.01)
+
+# Set up a data frame to store RMSE for each alpha
+results <- data.frame(alpha = numeric(), rmse = numeric())
+
+# Define response variable (y)
+y <- d_train$D_pv2p
+
+# Loop through each alpha value
+for (alpha_value in alpha_values) {
+  
+  # Set up to store predictions for LOOCV
+  predictions <- numeric(length = nrow(d_train))
+  
+  # Calculate decay weights for the current alpha
+  decay_weights <- alpha_value^(0:9)  # Decay weights from week 1 to week 10
+  
+  # Loop for LOOCV: Leave one observation out each time
+  for (i in 1:nrow(d_train)) {
+    
+    # Split data: leave one observation out
+    train_data <- d_train[-i, ]
+    test_data <- d_train[i, , drop = FALSE]
+    
+    # Apply decay weights to training data and calculate a single weighted predictor
+    X_train <- as.matrix(train_data[, grep("pollav_DEM_week", names(train_data))]) %*% decay_weights
+    X_test <- as.matrix(test_data[, grep("pollav_DEM_week", names(test_data))]) %*% decay_weights  # Ensure X_test is a single value
+    
+    # Convert X_train and X_test to data frames
+    train_data$weighted_polling <- X_train
+    test_data$weighted_polling <- X_test
+    
+    # Fit a linear model on the training data with the weighted predictor
+    model <- lm(D_pv2p ~ weighted_polling, data = train_data)
+    
+    # Predict for the left-out observation
+    predictions[i] <- predict(model, newdata = test_data)
+  }
+  
+  # Calculate RMSE for this alpha value
+  rmse <- sqrt(mean((predictions - y)^2))
+  
+  # Store the RMSE for this alpha
+  results <- rbind(results, data.frame(alpha = alpha_value, rmse = rmse))
+}
+
+# Find the optimal alpha value
+optimal_alpha <- results %>% filter(rmse == min(rmse)) %>% pull(alpha)
+
+# Create the plot
+ggplot(results, aes(x = alpha, y = rmse)) +
+  geom_line(color = "black", size = 1) +
+  geom_point(color = "firebrick1", size = 2) +
+  labs(
+    title = "RMSE by Decay Factor (Alpha)",
+    x = "Alpha",
+    y = "RMSE"
+  ) +
+  geom_vline(xintercept = optimal_alpha, linetype = "dashed", color = "dodgerblue4") +
+  theme_minimal()
+
+weeks <- 1:10
+optimal_alpha <- 0.78
+
+# Create a data frame with each column representing optimal_alpha^(0:9)
+data.frame(
+  weeks,
+  Weight = optimal_alpha^(0:9)) %>%
+  kable(col.names = c("Weeks Left Until Election", "Weight")) %>%
+  kable_styling("striped", full_width = FALSE)
+
+# I used ChatGPT to get this table
+
+# Set alpha to 0.78 for decay
+alpha_value <- 0.78
+decay_weights <- alpha_value^(0:9)
+
+# Define response variable (y)
+y <- d_train$D_pv2p
+
+# Initialize a data frame to store results for each fold
+fold_results <- data.frame(fold = numeric(), in_sample_rmse = numeric(), out_of_sample_se = numeric())
+
+# Loop for LOOCV: Leave one observation out each time
+for (i in 1:nrow(d_train)) {
+  
+  # Split data: leave one observation out
+  train_data <- d_train[-i, ]
+  test_data <- d_train[i, , drop = FALSE]
+  
+  # Apply decay weights to training data and calculate a single weighted predictor
+  X_train <- as.matrix(train_data[, grep("pollav_DEM_week", names(train_data))]) %*% decay_weights
+  X_test <- as.matrix(test_data[, grep("pollav_DEM_week", names(test_data))]) %*% decay_weights  # Ensure X_test is a single value
+  
+  # Convert X_train and X_test to data frames
+  train_data$weighted_polling <- X_train
+  test_data$weighted_polling <- X_test
+  
+  # Fit a linear model on the training data with the weighted predictor
+  model <- lm(D_pv2p ~ weighted_polling, data = train_data)
+  
+  # Predict for the left-out observation
+  prediction <- predict(model, newdata = test_data)
+  out_of_sample_se <- (prediction - test_data$D_pv2p)^2
+  
+  # Calculate in-sample RMSE for the current fold (excluding the test observation)
+  in_sample_predictions <- predict(model, newdata = train_data)
+  in_sample_rmse <- sqrt(mean((in_sample_predictions - train_data$D_pv2p)^2))
+  
+  # Store the results for the current fold
+  fold_results <- rbind(fold_results, data.frame(
+    fold = i,
+    in_sample_rmse = in_sample_rmse,
+    out_of_sample_se = out_of_sample_se
+  ))
+}
+
+# Display the results as a table
+fold_results %>%
+  kable(col.names = c("Fold Left Out", "In-Sample RMSE", "Out-of-Sample SE"), row.names = FALSE) %>%
+  kable_styling("striped", full_width = FALSE)
+
+#sqrt(mean(fold_results$out_of_sample_se))
+
+weights <- optimal_alpha^(0:9)
+weekly_polls <- d_test %>% select(-year, -D_pv2p) %>% unlist() %>% as.vector()
+
+weighted_average <- sum(weights * weekly_polls)/sum(weights)
+
+data.frame(Year = 2024,
+  Vote = weighted_average,
+  Vote2 = 100 - weighted_average) %>%
+  kable(col.names = c("Year", "Predicted Democratic Two-Party Vote Share", "Predicted Republican Two-Party Vote Share")) %>%
+  kable_styling("striped")
+
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+####----------------------------------------------------------#
+#### Read, merge, and process data.
+####----------------------------------------------------------#
+
+# Read in FRED data
+d_fred <- read_csv("fred_econ.csv")
+
+# Read popular vote datasets. 
+d_popvote <- read_csv("popvote_1948_2020.csv")
+d_state_popvote <- read_csv("state_popvote_1948_2020.csv")
+
+# Read elector distribution dataset. 
+d_ec <- read_csv("corrected_ec_1948_2024.csv")
+
+# Read polling data. 
+d_polls <- read_csv("national_polls_1968-2024.csv")
+d_state_polls <- read_csv("state_polls_1968-2024.csv")
+
+# Process state-level polling data. 
+d_state_polls <- d_state_polls |>
+  filter(weeks_left <= 10 & weeks_left >= 1) |>  # Consider only the last 12 weeks
+  group_by(year, state, party, weeks_left) |>  # Group by year, party, and weeks_left
+  summarize(
+    weekly_pollav = mean(poll_support, na.rm = TRUE)  # Calculate weekly average
+  ) |> 
+  pivot_wider(names_from = party, values_from = weekly_pollav, names_prefix = "pollav_week")
+
+# Rescale so that averages add up to 100
+d_state_polls <- d_state_polls %>% mutate(
+  pollav_weekDEM = pollav_weekDEM * (100 / (pollav_weekDEM + pollav_weekREP)),
+  pollav_weekREP = 100 - pollav_weekDEM) %>% select(-pollav_weekREP)
+
+# Make 10 different columns 
+
+d_state_polls <- d_state_polls %>%
+  pivot_wider(
+    names_from = weeks_left, 
+    values_from = pollav_weekDEM, 
+    names_prefix = "pollav_DEM_week"
+  ) 
+
+# Remove states with incomplete weeks
+d_state_polls <- d_state_polls %>% na.omit()
+
+# Get weighted average for each state
+
+decay_value <- optimal_alpha
+
+# Create the decay weights for each week
+weeks <- 1:10  # Adjust if there are more or fewer weeks in your dataset
+decay_weights <- decay_value^(weeks - 1)  # Exponential decay weights
+
+# Calculate the weighted average for each row
+d_state_polls <- d_state_polls %>%
+  rowwise() %>%
+  mutate(pred_D_pv2p = sum(c_across(starts_with("pollav_DEM_week")) * decay_weights) / sum(decay_weights)) %>%
+  ungroup() %>% select(year, state, pred_D_pv2p) %>% mutate(pred_R_pv2p = 100 - pred_D_pv2p)
+
+# Merge data.
+d <- d_state_polls |> 
+  left_join(d_state_popvote %>% select(D_pv2p, year, state), by = c("year", "state")) |>  
+  left_join(d_popvote |> filter(party == "democrat") , by = "year") |> 
+  ungroup() %>% mutate(R_pv2p = 100 - D_pv2p) %>% select(year, state, pred_D_pv2p, pred_R_pv2p, D_pv2p, R_pv2p)
+
+# Sequester states for which we have polling data for 2024. 
+states.2024 <- c("Arizona",
+                 "Georgia",
+                 "Michigan",
+                 "Nevada",
+                 "North Carolina",
+                 "Pennsylvania",
+                 "Wisconsin")
+
+d_test <- d |> 
+  filter(year == 2024 & state %in% states.2024)
+
+d_train <- d |> 
+  filter(year <= 2024)
+
+```
+
+Ultimately, my final model from week 10 predicted an Arizona victory for Trump, him having a two-party vote share of 50.75% compared to Harris's 49.25%.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# I used ChatGPT for guidance on stylizing the kable table
+
+d_test %>%
+  select(state, pred_D_pv2p) %>% mutate(pred_R_pv2p = 100 - pred_D_pv2p) %>%
+  filter(state == "Arizona") %>% 
+  kable(col.names = c("State", "Predicted Democratic Two-Party Vote Share", "Predicted Republican Two-Party Vote Share")) %>%
+  kable_styling("striped") %>%
+  row_spec(1, background = "firebrick1")
+```
+
+```{r, include = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+state_errors <- d_train %>% 
+  filter(year %in% c(2016, 2020) & state %in% states.2024) %>% 
+  select(state, year, pred_D_pv2p, pred_R_pv2p, D_pv2p, R_pv2p) %>% 
+  mutate(
+    D_error = pred_D_pv2p - D_pv2p,
+    R_error = pred_R_pv2p - R_pv2p
+  ) %>% 
+  select(state, year, D_error, R_error) %>% 
+  pivot_wider(
+    names_from = year, 
+    values_from = c(D_error, R_error), 
+    names_sep = "_"
+  ) %>% 
+  mutate(
+    avg_error = 0.5 * abs(D_error_2016) + 0.5 * abs(D_error_2020)
+  ) %>% 
+  select(state, avg_error)
+
+# Apply Stein shrinkage to average errors
+grand_mean <- mean(state_errors$avg_error)
+total_variance <- var(state_errors$avg_error)
+n_states <- nrow(state_errors)
+
+shrinkage_factor <- 1 - ((n_states - 3) / total_variance) / sum((state_errors$avg_error - grand_mean)^2)
+
+state_errors <- state_errors %>%
+  mutate(
+    stein_error = grand_mean + shrinkage_factor * (avg_error - grand_mean)
+  )
+
+# Display Stein-adjusted errors
+state_errors %>%
+  select(State = state, `Average Error` = avg_error, `Stein Adjusted Error` = stein_error) %>%
+  kable() %>%
+  kable_styling("striped")
+
+```
+
+I also had Trump winning Arizona in 73.2% of my simulations.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# I used ChatGPT to help with encoding this simulation of the polling error
+
+# Set seed and define number of simulations
+set.seed(111)
+n_simulations <- 10000
+
+# Merge weighted errors with the test data
+d_test <- d_test %>% 
+  left_join(state_errors, by = "state")
+
+# Initialize a data frame to store simulation results
+simulation_results <- data.frame(
+  state = rep(d_test$state, each = n_simulations),
+  predicted_R_pv2p = numeric(n_simulations * nrow(d_test)),
+  predicted_D_pv2p = numeric(n_simulations * nrow(d_test)),
+  pred_winner = character(n_simulations * nrow(d_test)),
+  stringsAsFactors = FALSE
+)
+
+# Perform simulations with state-specific standard deviations
+for (i in 1:nrow(d_test)) {
+  # Get the latest polling averages and standard deviation for the current state
+  latest_R <- d_test$pred_R_pv2p[i]
+  latest_D <- d_test$pred_D_pv2p[i]
+  polling_error_sd <- d_test$stein_error[i]
+  
+  # Simulate polling averages for both parties using the state-specific sd
+  simulated_R <- rnorm(n_simulations, mean = latest_R, sd = polling_error_sd)
+  simulated_D <- rnorm(n_simulations, mean = latest_D, sd = polling_error_sd)
+  
+  # Update the results data frame
+  simulation_results$predicted_R_pv2p[((i - 1) * n_simulations + 1):(i * n_simulations)] <- simulated_R
+  simulation_results$predicted_D_pv2p[((i - 1) * n_simulations + 1):(i * n_simulations)] <- simulated_D
+  
+  # Determine the winner based on simulated values
+  simulation_results$pred_winner[((i - 1) * n_simulations + 1):(i * n_simulations)] <- ifelse(simulated_R >= simulated_D, "R", "D")
+}
+
+# Summarize results for Democrats, including 2.5th and 97.5th percentiles
+democrat_summary <- simulation_results %>%
+  group_by(state) %>%
+  summarise(
+    D_win_percentage = mean(pred_winner == "D") * 100,
+    D_2_5_percentile = quantile(predicted_D_pv2p, 0.025),
+    D_97_5_percentile = quantile(predicted_D_pv2p, 0.975),
+    .groups = 'drop'
+  )
+
+# Display the summary table with added percentiles
+democrat_summary %>% filter(state == "Arizona") %>%
+  kable(col.names = c("State", "D Win Percentage", "2.5th Percentile", "97.5th Percentile")) %>%
+  kable_styling("striped") %>%
+  row_spec(0, bold = TRUE)
+
+```
+
+
+This was in line with [FiveThirtyEight's ultimate projection](https://projects.fivethirtyeight.com/2024-election-forecast/arizona/) of Trump taking Arizona 51% to 49%. [Nate Silver's Silver Bulletin](https://www.natesilver.net/p/nate-silver-2024-president-election-polls-model) was more aggressive about Trump's win, however, projecting a 5.3 percentage point margin for Trump, 52.65% to 47.35%.
+
+Ultimately, Trump took the two-party presidential vote in Arizona [52.79% to 47.21%](https://www.nytimes.com/interactive/2024/11/05/us/elections/results-arizona-president.html). Using [data](https://www.nytimes.com/interactive/2024/11/05/us/elections/results-arizona-president.html) from *The New York Times*, we can see that Arizona saw rightward swings in each of its 15 counties, paricularly in the Santa Cruz, Yuma, Apache, and Navajo counties.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
+
+# I used ChatGPT to make this graph from NYT data
+
+# Load Arizona map data
+arizona_map <- map_data("county") %>% filter(region == "arizona")
+
+# Rightward shift data
+shift_data <- tibble(
+  subregion = c("maricopa", "pima", "pinal", "yavapai", "mohave", 
+                "coconino", "yuma", "cochise", "navajo", "apache", 
+                "gila", "santa cruz", "graham", "la paz", "greenlee"),
+  Shift = c(5.7, 3.5, 4.8, 4.6, 4.5, 4.2, 14.0, 3.6, 9.0, 15.0, 3.5, 17.0, 3.4, 5.4, 7.0)
+)
+
+# Merge Arizona map data with shift data
+arizona_map <- arizona_map %>% left_join(shift_data, by = "subregion")
+
+# Plot Arizona map with ggplot
+ggplot_map <- ggplot(data = arizona_map, aes(
+  x = long, y = lat, group = group, fill = Shift,
+  text = paste0("County: ", subregion, "<br>Shift: ", round(Shift, 1), " points")
+)) +
+  geom_polygon(color = "black") +
+  theme_minimal() +
+  coord_fixed(1.3) +
+  scale_fill_gradient(
+    low = "white", high = "firebrick1", name = "Rightward Shift"
+  ) +
+  labs(
+    title = "Arizona Rightward Shift from 2020 Presidential Election",
+    x = "",
+    y = ""
+  ) +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    axis.text = element_blank(),
+    axis.ticks = element_blank()
+  )
+
+# Convert to an interactive plot with customized tooltip
+interactive_map <- ggplotly(ggplot_map, tooltip = "text")
+
+# Display the interactive map
+interactive_map
+
+
+```
+
+# The Campaign in Arizona
+
+https://projects.votehub.com/pages/campaign-tracker
+
+https://cronkitenews.azpbs.org/2024/11/05/arizona-2024-presidential-election-harris-trump-battle-crucial-swing-state/
+
+# Hypothesis (From the Literature)
+
+Vavreck (2009)
+
+Clarifying and Insurgent Campaigns
+
+# Citations:
+
+“Arizona.” *Ballotpedia*, ballotpedia.org/Arizona. Accessed 10 Dec. 2024. 
+
+“Arizona Presidential Election Results.” *The New York Times*, The New York Times, 5 Nov. 2024, www.nytimes.com/interactive/2024/11/05/us/elections/results-arizona-president.html. 
+
+Monos, Grace, and Gabrielle Wallace. “2024 Presidential Election in Arizona: Kamala Harris, Donald Trump Battled for Crucial Swing State.” *Cronkite News*, 6 Nov. 2024, cronkitenews.azpbs.org/2024/11/05/arizona-2024-presidential-election-harris-trump-battle-crucial-swing-state/. 
+
+Morris, G. Elliott. “Who Is Favored to Win Arizona’s 11 Electoral Votes?” *FiveThirtyEight*, ABC News, 5 Nov. 2024, projects.fivethirtyeight.com/2024-election-forecast/arizona/. 
+
+“Presidential Campaign Events Tracker.” *VoteHub Projects*, 30 Oct. 2024, projects.votehub.com/pages/campaign-tracker. 
+
+Silver, Nate, and Eli McKown-Dawson. “Final Silver Bulletin 2024 Presidential Election Forecast.” *Silver Bulletin*, Silver Bulletin, 5 Nov. 2024, www.natesilver.net/p/nate-silver-2024-president-election-polls-model. 
+
+Vavreck, Lynn. *The Message Matters: The Economy and Presidential Campaigns*. Course Book, Princeton University Press, 2009.
+
+# Data Sources: 
+
+Data are from the [US presidential election popular vote results from 1948-2024](https://projects.fivethirtyeight.com/polls/) and [state-level polling data for 1968 onwards](https://projects.fivethirtyeight.com/polls/), courtesy of FiveThirtyEight.
