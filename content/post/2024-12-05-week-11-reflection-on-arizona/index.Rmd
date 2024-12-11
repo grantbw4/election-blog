@@ -531,7 +531,7 @@ d_train <- d |>
 
 ```
 
-Ultimately, my final model from week 10 predicted an Arizona victory for Trump, him having a two-party vote share of 50.75% compared to Harris's 49.25%.
+Ultimately, my final model from week 9 predicted an Arizona victory for Trump, him having a two-party vote share of 50.75% compared to Harris's 49.25%.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, results = 'asis'}
 
@@ -714,11 +714,15 @@ While it is possible that Harris's courting of Latter-day Saint voters may have 
 
 Many pundits nationally have ascribed Harris's loss to an inability to connect with the working class. Her appeals to democracy and abortion, while perhaps resonant with women and college-educated voters, may have been insufficiently tangible for working-class voters concerned about inflation and illegal border crossings. Though Harris made a September stop in the border town of Douglas, Arizona to project her accomplishments in reducing illegal border crossings and drug trafficking, she could not change the narrative. Trump, on the other hand, made the economy and immigration the centerpieces of his campaign, calling Harris a failed "border czar," and, at an October 24th rally in Tempe, promising the "largest deportation program in American history." 
 
-The theory that working class voters were more persuaded by Trump's campaign promises is certainly validated by the results in Arizona. Trump saw the largest shifts in the Santa Cruz, Yuma, Apache, and Navajo counties — the first two being working-class border towns and the latter two being largely impoverished counties with sizeable indigenous populations. 
+The theory that working class voters were more persuaded by Trump's campaign promises is certainly validated by the results in Arizona. Trump saw the largest shifts in the Santa Cruz, Yuma, Apache, and Navajo counties — the first two being working-class border towns and the latter two being largely impoverished counties with sizeable indigenous populations.
 
 Lynn Vavreck, in her 2009 book, *The Message Matters*, names two different campaign strategies: clarifying and insurgent campaigns. Clarifying campaigns center discussion around the economy and are generally employed by the incumbent party in a good economy and the non-incumbent party in a poor economy. Insurgent campaigns, on the other hand, are employed by parties not experiencing the windfalls of a strong economy. These insurgent campaigns center issues that the public overwhelmingly supports and the competing candidate opposes or does not adequately represent. 
 
-In my view, Harris adopted an insurgent campaign and Trump a clarifiyng one. Harris's efforts to paint Trump as the progenitor of widespread inaccess to abortion and the violence of January 6th, two topics the public tends to not support Trump on, she ultimately could not overcome Trump's economic appeals given her ties to Biden and the record inflation his administration saw, especially Arizona, which saw [above-average inflation](https://www.usatoday.com/story/money/2024/04/09/states-highest-lowest-inflation/73184932007/).
+In my view, Harris adopted an insurgent campaign and Trump a clarifiyng one. Despite Harris's efforts to paint Trump as the progenitor of widespread inaccess to abortion and the violence of January 6th, two topics the public tends to not support Trump on, she ultimately could not overcome Trump's economic appeals given her ties to Biden and the record inflation his administration saw, especially in Arizona, which saw [above-average inflation](https://www.usatoday.com/story/money/2024/04/09/states-highest-lowest-inflation/73184932007/).
+
+Ruben Gallego's 51.2% to 48.8% win over Kari Lake (as a two-party vote share), however, demonstrates that insurgent campaigns can be successful. By not campaigning with Harris, he successfully managed to insulate himself from the liabilities that the Biden administration incurred on the subject of inflation in a way Harris could not given her role as Vice President. Gallego, then, was able to forcefully criticize Kari Lake's election denialism and general lack of governing experience, two matters of candidate quality in which she was widely considered deficient. Gallego's win could also suggest weaknesses in Harris's candidate quality or the existence of gender and racial bias.
+
+To close, it is my belief that my forecast for Arizona underestimated Trump's polling support because I failed to consider the significance of economic fundamentals, a subject Trump's clarifying campaign prominently showcased and one that very well may have unravelled the Harris insurgent campaign.
 
 # Citations:
 
